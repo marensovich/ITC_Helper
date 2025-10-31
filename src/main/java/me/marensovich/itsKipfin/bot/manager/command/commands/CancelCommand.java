@@ -37,6 +37,21 @@ public class CancelCommand implements Command {
                 throw new RuntimeException(e);
             }
             return;
+        } else if (Bot.getInstance().getButtonManager().hasActiveCommand(update.getMessage().getFrom().getId())) {
+            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
+            Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getMessage().getChatId().toString());
+            msg.setReplyMarkup(Bot.getInstance().removeKeyboard());
+            msg.setText("Активная команда была удалена.");
+            try {
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getMessage().getChatId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getChatId());
+                throw new RuntimeException(e);
+            }
+            return;
         }
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
         SendMessage msg = new SendMessage();

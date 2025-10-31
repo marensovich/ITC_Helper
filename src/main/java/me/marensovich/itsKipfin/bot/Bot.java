@@ -2,6 +2,7 @@ package me.marensovich.itsKipfin.bot;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
 import me.marensovich.itsKipfin.bot.manager.callback.CallbackManager;
 import me.marensovich.itsKipfin.bot.manager.command.CommandManager;
 import me.marensovich.itsKipfin.bot.manager.update.UpdateManager;
@@ -20,6 +21,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Autowired @Getter private CommandManager commandManager;
     @Autowired @Getter private CallbackManager callbackManager;
+    @Autowired @Getter private ButtonManager buttonManager;
     @Getter private static Bot instance;
 
     private final String botToken;
@@ -79,6 +81,7 @@ public class Bot extends TelegramLongPollingBot {
             SendMessage message = new SendMessage();
             message.setChatId(chatId.toString());
             message.setText(text);
+            message.setReplyMarkup(null);
             execute(message);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);

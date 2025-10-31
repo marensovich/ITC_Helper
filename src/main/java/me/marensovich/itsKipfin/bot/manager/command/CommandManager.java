@@ -85,7 +85,7 @@ public class CommandManager {
 
     private void sendActiveCommandMessage(Long chatId, String commandName) {
         String reply = """
-        Бот обрабатывает отправленную вами команду %command%
+        Бот обрабатывает отправленную вами команду **%command%**
         
         В случае если это вы хотите прекратить выполнение команды - отправьте /cancel
         """;
@@ -96,6 +96,7 @@ public class CommandManager {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId.toString());
         msg.setText(text);
+        msg.setParseMode("Markdown");
         try {
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {

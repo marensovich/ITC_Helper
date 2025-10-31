@@ -1,6 +1,7 @@
 package me.marensovich.itsKipfin.bot.manager.update;
 
 import me.marensovich.itsKipfin.bot.Bot;
+import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
 import me.marensovich.itsKipfin.services.UserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,9 +12,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class UpdateManager {
 
     private final UserService userService;
+    private final ButtonManager buttonManager;
 
-    public UpdateManager(UserService userService) {
+    public UpdateManager(UserService userService, ButtonManager buttonManager) {
         this.userService = userService;
+        this.buttonManager = buttonManager;
     }
 
     public void updateHandler(Update update) throws TelegramApiException {
@@ -38,6 +41,7 @@ public class UpdateManager {
                                     return;
                                 }
                             }
+                            buttonManager.handle(update);
                         }
                     } else {
                         Bot.getInstance().getCommandManager().executeCommand(update);
