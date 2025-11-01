@@ -178,6 +178,11 @@ public class RegisterITCButton implements Button {
         }
 
         public void handle() {
+            if (applicationService.isActiveApplicationExists(update.getCallbackQuery().getFrom().getId())) {
+                sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
+                Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
+                return;
+            }
             if (update.hasMessage() && update.getMessage().hasText()) {
                 String text = update.getMessage().getText().trim();
 

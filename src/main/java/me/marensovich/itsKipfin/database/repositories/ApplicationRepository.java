@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
+    boolean existsByIdAndStatus(Long id, Application.Status status);
 }

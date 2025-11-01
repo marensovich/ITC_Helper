@@ -21,4 +21,8 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
+    public boolean isActiveApplicationExists(Long userId) {
+        return applicationRepository.existsByIdAndStatus(userId, Application.Status.PENDING);
+    }
+
 }
