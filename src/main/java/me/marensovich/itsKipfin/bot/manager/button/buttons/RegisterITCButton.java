@@ -6,7 +6,6 @@ import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
 import me.marensovich.itsKipfin.database.models.Application;
-import me.marensovich.itsKipfin.database.repositories.ApplicationRepository;
 import me.marensovich.itsKipfin.services.ApplicationService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +30,8 @@ public class RegisterITCButton implements Button {
     public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
     public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
 
-    public static final String ITC_ADMIN_REG_DEFARAMENT_PROJECT_TEAM_PREFIX_YES = "itc_admin_reg_YES:";
-    public static final String ITC_ADMIN_REG_DEFARAMENT_PROJECT_TEAM_PREFIX_NO = "itc_admin_reg_NO:";
 
+    public static final String ITC_ADMIN_REG_DEFARAMENT_PREFIX = "itc_admin_reg:";
 
     private final KeyboardFactory keyboardFactory;
 
@@ -178,7 +176,15 @@ public class RegisterITCButton implements Button {
         }
 
         public void handle() {
-            if (applicationService.isActiveApplicationExists(update.getCallbackQuery().getFrom().getId())) {
+            Long id;
+            if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
+                id = update.getCallbackQuery().getFrom().getId();
+            } else if (update.hasMessage()) {
+                id = update.getMessage().getFrom().getId();
+            } else {
+                throw new IllegalArgumentException("Cannot determine userId from update");
+            }
+            if (applicationService.isActiveApplicationExists(id)) {
                 sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
                 Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
                 return;
@@ -349,13 +355,20 @@ public class RegisterITCButton implements Button {
                         "<b>Стек:</b> " + escape(data.getStack())
                 );
 
+                notify.setReplyMarkup(keyboardFactory.create()
+                        .addInlineButton("Принять заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + "YES:" + data.tgId)
+                        .nextInlineRow()
+                        .addInlineButton("Отклонить заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + "NO:" + data.tgId)
+                        .buildInlineKeyboard()
+                );
+
                 try {
                     Bot.getInstance().execute(notify);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
 
-                applicationService.createApplication(Application.Departament.Development, data);
+                applicationService.createApplication(Application.Departament.Development, data, Long.valueOf(data.getTgId()));
 
                 // Очистка
                 userApplicationDataMap.remove(chatId);
@@ -367,6 +380,33 @@ public class RegisterITCButton implements Button {
                 askFullName();
             } else {
                 sendMessage("Пожалуйста, ответьте 'Да' или 'Нет'.");
+            }
+        }
+
+        public static void handleResultYes(String id) {
+            SendMessage notify = new SendMessage();
+            notify.setParseMode(ParseMode.HTML);
+            notify.setText("✅ Ваша заявка на вступление в ИТС одобрена! Добро пожаловать в команду.");
+            notify.setChatId(id);
+
+            try {
+                Bot.getInstance().execute(notify);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+        public static void handleResultNo(String id) {
+            SendMessage notify = new SendMessage();
+            notify.setParseMode(ParseMode.HTML);
+            notify.setText("❌ Ваша заявка на вступление в ИТС отклонена! Спасибо за интерес к нашей команде.");
+            notify.setChatId(id);
+
+            try {
+                Bot.getInstance().execute(notify);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
             }
         }
 

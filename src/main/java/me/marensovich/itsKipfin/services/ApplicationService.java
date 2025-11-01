@@ -13,11 +13,12 @@ public class ApplicationService {
         this.applicationRepository = applicationRepository;
     }
 
-    public Application createApplication(Application.Departament departament, Object dto) {
+    public Application createApplication(Application.Departament departament, Object dto, Long userId) {
         Application application = new Application();
         application.setDepartament(departament);
         application.setStatus(Application.Status.PENDING);
         application.setDataObject(dto);
+        application.setId(userId);
         return applicationRepository.save(application);
     }
 
