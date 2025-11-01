@@ -5,6 +5,7 @@ import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -29,7 +30,7 @@ public class RegisterITCButton implements Button {
 
     @Override
     public String getButtonText() {
-        return "Регистрация в ИТС";
+        return "Вступление в ИТС";
     }
 
     @Override
@@ -43,18 +44,17 @@ public class RegisterITCButton implements Button {
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
-        message.setText("""
-                Регистрация в ИТС.\s
-                1. Перейдите на сайт ИТС: https://its.1c.ru/.\s
-                2. Нажмите на кнопку 'Регистрация' в правом верхнем углу страницы.\s
-                3. Заполните все необходимые поля в регистрационной форме, включая ваше имя, фамилию, адрес электронной почты и другие требуемые данные.\s
-                4. Придумайте надежный пароль для вашей учетной записи и подтвердите его.\s
-                5. Ознакомьтесь с условиями использования и политикой конфиденциальности, затем поставьте галочку, если согласны с ними.\s
-                6. Нажмите на кнопку 'Зарегистрироваться' для завершения процесса регистрации.\s
-                7. Проверьте вашу электронную почту для подтверждения регистрации и следуйте инструкциям в письме.""");
-
+        message.setText(
+                """
+                <b>Вступление в ИТС.</b>
+                
+                Для вступления в ИТС вам необходимо подать заявку на вступление.
+                Подать заявку можно используя кнопку ниже.
+                """
+        );
+        message.setParseMode(ParseMode.HTML);
         message.setReplyMarkup(keyboardFactory.create()
-                .addInlineButton("Зарегистрироваться в ИТС", ITC_REGISTRATION_CALLBACK)
+                .addInlineButton("Вступить в ИТС", ITC_REGISTRATION_CALLBACK)
                 .buildInlineKeyboard()
         );
 
@@ -67,21 +67,64 @@ public class RegisterITCButton implements Button {
 
     public void handleRegButton(Update update) {
         Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+
+
+        SendMessage infoMessage = new SendMessage();
+        infoMessage.setChatId(update.getCallbackQuery().getFrom().getId());
+        infoMessage.setText(
+                """
+                <b>Краткая информации о каждом направлении:</b>
+                
+                <b>1. Проектная команда</b>
+                Создание и разработка сайтов, ботов, внутренних систем и других цифровых продуктов для ИТС и наших партнеров.
+                Разработка технических заданий, программирование, тестирование и внедрение цифровых решений.
+                Разработка программ, скриптов автоматизации и интеграций. 
+                Анализ потребностей колледжа и предложение цифровых решений.
+                
+                <b>2. Медиа и контент</b>
+                Съемка и монтаж видео для социальных сетей для VK, Telegram и других платформ.
+                Фотоотчеты мероприятий.
+                
+                <b>3. PR и Коммуникации</b>
+                Продвижение ИТС и их проектов в социальных сетях и на других платформах.
+                Взаимодействие с Администрацией колледжа и внешними организациями. 
+                Подготовка постов, пресс-релизов, участие в форумах и конференциях. 
+                
+                <b>4. Дизайнеры</b> 
+                Разработка визуального стиля проектов (сайты, интерфейсы, посты и т.д.).
+                Подготовка макетов, логотипов и брендбуков.
+                Создание графических материалов для социальных сетей и других платформ.
+                """
+        );
+        infoMessage.setParseMode(ParseMode.HTML);
+
         SendMessage message = new SendMessage();
         message.setChatId(update.getCallbackQuery().getFrom().getId());
-        message.setText("Пожалуйста, выберите желаемое направление");
+        message.setText(
+                """
+                <b>Вы практически в ИТС!</b> Остался всего один шаг — выбрать направление, в котором вы хотите развиваться вместе с нами.
+                
+                Для завершение процесса подачи заявки на вступление в ИТС вам необходимо:
+                1. Выберите желаемое направление в ИТС, используя кнопки ниже.
+                2. Заполните форму для регистрации, которая будет отправлена вам после выбора направления.
+                3. Дождитесь подтверждения вашей заявки от руководителя направления ИТС.
+                
+                """
+        );
+        message.setParseMode(ParseMode.HTML);
         message.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Проектная команда", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM)
                 .nextInlineRow()
-                .addInlineButton("Видеоконтент", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT)
+                .addInlineButton("Медиа и контент", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT)
                 .nextInlineRow()
-                .addInlineButton("Контентмейкер", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PR)
+                .addInlineButton("PR и Коммуникации", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PR)
                 .nextInlineRow()
-                .addInlineButton("Дизайнер", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_DESIGNER)
+                .addInlineButton("Дизайнеры", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_DESIGNER)
                 .buildInlineKeyboard()
         );
 
         try {
+            Bot.getInstance().execute(infoMessage);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
