@@ -53,15 +53,16 @@ public class RegisterITCButton implements Button {
         Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
 
+
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
         message.setText(
                 """
-                <b>Вступление в ИТС.</b>
-                
-                Для вступления в ИТС вам необходимо подать заявку на вступление.
-                Подать заявку можно используя кнопку ниже.
-                """
+                        <b>Вступление в ИТС.</b>
+                        
+                        Для вступления в ИТС вам необходимо подать заявку на вступление.
+                        Подать заявку можно используя кнопку ниже.
+                        """
         );
         message.setParseMode(ParseMode.HTML);
         message.setReplyMarkup(keyboardFactory.create()
@@ -76,6 +77,7 @@ public class RegisterITCButton implements Button {
         }
     }
 
+
     public void handleRegButton(Update update) {
         Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
 
@@ -84,13 +86,13 @@ public class RegisterITCButton implements Button {
         infoMessage.setChatId(update.getCallbackQuery().getFrom().getId());
         infoMessage.setText(
                 """
-                <b>Краткая информация о направлениях:</b>
-                
-                <b>1. Проектная команда</b> — создание цифровых продуктов.
-                <b>2. Медиа и контент</b> — видео, фото, социальные сети.
-                <b>3. PR и коммуникации</b> — продвижение проектов.
-                <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
-                """
+                        <b>Краткая информация о направлениях:</b>
+                        
+                        <b>1. Проектная команда</b> — создание цифровых продуктов.
+                        <b>2. Медиа и контент</b> — видео, фото, социальные сети.
+                        <b>3. PR и коммуникации</b> — продвижение проектов.
+                        <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
+                        """
         );
         infoMessage.setParseMode(ParseMode.HTML);
 
@@ -98,13 +100,13 @@ public class RegisterITCButton implements Button {
         message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.setText(
                 """
-                <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
-                
-                Для завершения регистрации:
-                1. Выберите направление ниже.
-                2. Заполните форму после выбора.
-                3. Дождитесь подтверждения от руководителя.
-                """
+                        <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
+                        
+                        Для завершения регистрации:
+                        1. Выберите направление ниже.
+                        2. Заполните форму после выбора.
+                        3. Дождитесь подтверждения от руководителя.
+                        """
         );
         message.setParseMode(ParseMode.HTML);
         message.setReplyMarkup(keyboardFactory.create()
@@ -130,14 +132,15 @@ public class RegisterITCButton implements Button {
 
     public static class ProjectTeamHandler {
 
+        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
+        private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
+        private static final String PHONE_REGEX = "^\\+?\\d{11}$";
+        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?github\\.com/[A-Za-z0-9_-]+/?$";
+        private static final String GROUP_REGEX = "^[1-4](оибас|исип|иис)-\\d{1,4}$";
         private final Long chatId;
         private final Update update;
-
         private final KeyboardFactory keyboardFactory;
-
-        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
         private final UserApplicationData data;
-
         public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory) {
             this.update = update;
             this.keyboardFactory = keyboardFactory;
@@ -149,10 +152,6 @@ public class RegisterITCButton implements Button {
                 throw new IllegalArgumentException("Cannot determine chatId from update");
             }
             this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserApplicationData());
-        }
-
-        public enum Step {
-            FULL_NAME, PHONE_NUMBER, GROUP_NUMBER, EXPERIENCE, GITHUB, STACK, CONFIRMATION
         }
 
         public void handle() {
@@ -175,10 +174,6 @@ public class RegisterITCButton implements Button {
             }
         }
 
-        private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
-        private static final String PHONE_REGEX = "^\\+?\\d{11}$";
-        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?github\\.com/[A-Za-z0-9_-]+/?$";
-        private static final String GROUP_REGEX = "^[1-4](оибас|исип|иис)-\\d{1,4}$";
         // --- 1. ФИО ---
         private void askFullName() {
             sendMessage("Введите ваше ФИО (например: Иванов Иван Иванович):");
@@ -218,7 +213,7 @@ public class RegisterITCButton implements Button {
         }
 
         private void handleGroupNumber(String input) {
-            if (!input.matches(GROUP_REGEX)){
+            if (!input.matches(GROUP_REGEX)) {
                 sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024");
                 askGroupNumber();
                 return;
@@ -367,6 +362,10 @@ public class RegisterITCButton implements Button {
                     .replace(">", "&gt;");
         }
 
+        public enum Step {
+            FULL_NAME, PHONE_NUMBER, GROUP_NUMBER, EXPERIENCE, GITHUB, STACK, CONFIRMATION
+        }
+
         @Getter
         @Setter
         public static class UserApplicationData {
@@ -396,53 +395,75 @@ public class RegisterITCButton implements Button {
     }
 
 
-
-
     public static class MediaHandler {
         private final Update update;
-        public MediaHandler(Update update) { this.update = update; }
 
-        public void handle() { sendMessage("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте инструкциям."); }
+        public MediaHandler(Update update) {
+            this.update = update;
+        }
+
+        public void handle() {
+            sendMessage("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте инструкциям.");
+        }
 
         private void sendMessage(String text) {
             SendMessage message = new SendMessage();
             message.setChatId(update.getCallbackQuery().getFrom().getId());
             message.setText(text);
             message.setReplyMarkup(Bot.getInstance().removeKeyboard());
-            try { Bot.getInstance().execute(message); }
-            catch (TelegramApiException e) { throw new RuntimeException(e); }
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public static class PRHandler {
         private final Update update;
-        public PRHandler(Update update) { this.update = update; }
 
-        public void handle() { sendMessage("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте инструкциям."); }
+        public PRHandler(Update update) {
+            this.update = update;
+        }
+
+        public void handle() {
+            sendMessage("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте инструкциям.");
+        }
 
         private void sendMessage(String text) {
             SendMessage message = new SendMessage();
             message.setChatId(update.getCallbackQuery().getFrom().getId());
             message.setText(text);
             message.setReplyMarkup(Bot.getInstance().removeKeyboard());
-            try { Bot.getInstance().execute(message); }
-            catch (TelegramApiException e) { throw new RuntimeException(e); }
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public static class DesignerHandler {
         private final Update update;
-        public DesignerHandler(Update update) { this.update = update; }
 
-        public void handle() { sendMessage("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте инструкциям."); }
+        public DesignerHandler(Update update) {
+            this.update = update;
+        }
+
+        public void handle() {
+            sendMessage("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте инструкциям.");
+        }
 
         private void sendMessage(String text) {
             SendMessage message = new SendMessage();
             message.setChatId(update.getCallbackQuery().getFrom().getId());
             message.setText(text);
             message.setReplyMarkup(Bot.getInstance().removeKeyboard());
-            try { Bot.getInstance().execute(message); }
-            catch (TelegramApiException e) { throw new RuntimeException(e); }
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
