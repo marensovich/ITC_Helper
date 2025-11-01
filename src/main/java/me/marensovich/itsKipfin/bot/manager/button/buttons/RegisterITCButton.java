@@ -53,7 +53,6 @@ public class RegisterITCButton implements Button {
                 6. Нажмите на кнопку 'Зарегистрироваться' для завершения процесса регистрации.\s
                 7. Проверьте вашу электронную почту для подтверждения регистрации и следуйте инструкциям в письме.""");
 
-        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         message.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Зарегистрироваться в ИТС", ITC_REGISTRATION_CALLBACK)
                 .buildInlineKeyboard()
@@ -95,6 +94,7 @@ public class RegisterITCButton implements Button {
         SendMessage message = new SendMessage();
         message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.setText("Вы выбрали направление 'Проектная команда'. Пожалуйста, следуйте дальнейшим инструкциям...");
+        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
 
         try {
             Bot.getInstance().execute(message);
@@ -108,6 +108,7 @@ public class RegisterITCButton implements Button {
         SendMessage message = new SendMessage();
         message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.setText("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте дальнейшим инструкциям...");
+        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
 
         try {
             Bot.getInstance().execute(message);
@@ -122,6 +123,7 @@ public class RegisterITCButton implements Button {
         SendMessage message = new SendMessage();
         message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.setText("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте дальнейшим инструкциям...");
+        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
 
         try {
             Bot.getInstance().execute(message);
@@ -135,7 +137,7 @@ public class RegisterITCButton implements Button {
         SendMessage message = new SendMessage();
         message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.setText("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте дальнейшим инструкциям...");
-
+        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         try {
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
