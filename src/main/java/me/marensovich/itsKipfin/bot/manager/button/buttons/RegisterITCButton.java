@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
-import me.marensovich.itsKipfin.database.models.Applications;
-import me.marensovich.itsKipfin.database.repositories.ApplicationsRepository;
+import me.marensovich.itsKipfin.database.models.Application;
+import me.marensovich.itsKipfin.database.repositories.ApplicationRepository;
+import me.marensovich.itsKipfin.services.ApplicationService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -136,11 +137,11 @@ public class RegisterITCButton implements Button {
     public static class ProjectTeamHandler {
 
         // Репозиторий, внедряется один раз через Spring
-        private static ApplicationsRepository applicationsRepository;
+        private static ApplicationService applicationService;
 
         @Autowired
-        public ProjectTeamHandler(ApplicationsRepository repository) {
-            ProjectTeamHandler.applicationsRepository = repository;
+        public ProjectTeamHandler(ApplicationService applicationService) {
+            ProjectTeamHandler.applicationService = applicationService;
         }
 
         // --- Данные пользователей ---
@@ -349,11 +350,7 @@ public class RegisterITCButton implements Button {
                     throw new RuntimeException(e);
                 }
 
-                // Сохранение в БД
-                Applications app = new Applications();
-                app.setDepartament(Applications.Departament.Development);
-                app.setData(data);
-                applicationsRepository.save(app);
+                applicationService.createApplication(Application.Departament.Development, data);
 
                 // Очистка
                 userApplicationDataMap.remove(chatId);
