@@ -10,11 +10,19 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * The type Start command.
+ */
 @Component
 public class StartCommand implements Command {
 
     private final KeyboardFactory keyboardFactory;
 
+    /**
+     * Instantiates a new Start command.
+     *
+     * @param keyboardFactory the keyboard factory
+     */
     public StartCommand(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
     }

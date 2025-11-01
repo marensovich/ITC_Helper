@@ -8,6 +8,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * The type Cancel command.
+ */
 @Component
 public class CancelCommand implements Command {
     @Override
@@ -22,7 +25,7 @@ public class CancelCommand implements Command {
 
     @Override
     public void execute(Update update) {
-        if (Bot.getInstance().getCommandManager().hasActiveCommand(update.getMessage().getFrom().getId())){
+        if (Bot.getInstance().getCommandManager().hasActiveCommand(update.getMessage().getFrom().getId())) {
             Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
             Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
             SendMessage msg = new SendMessage();

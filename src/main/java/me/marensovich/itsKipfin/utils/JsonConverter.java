@@ -5,6 +5,9 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
 
+/**
+ * The type Json converter.
+ */
 @Converter(autoApply = false)
 public class JsonConverter implements AttributeConverter<RegisterITCButton.ProjectTeamHandler.UserApplicationData, String> {
 

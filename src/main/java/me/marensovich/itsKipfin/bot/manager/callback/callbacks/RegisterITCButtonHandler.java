@@ -6,6 +6,9 @@ import me.marensovich.itsKipfin.bot.manager.callback.interfaces.CallbackHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+/**
+ * The type Register itc button handler.
+ */
 @Component
 public class RegisterITCButtonHandler implements CallbackHandler {
     @Override

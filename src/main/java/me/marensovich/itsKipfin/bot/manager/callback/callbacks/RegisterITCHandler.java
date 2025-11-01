@@ -7,11 +7,19 @@ import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+/**
+ * The type Register itc handler.
+ */
 @Component
 public class RegisterITCHandler implements PrefixCallbackHandler {
 
     private final KeyboardFactory keyboardFactory;
 
+    /**
+     * Instantiates a new Register itc handler.
+     *
+     * @param keyboardFactory the keyboard factory
+     */
     public RegisterITCHandler(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
     }

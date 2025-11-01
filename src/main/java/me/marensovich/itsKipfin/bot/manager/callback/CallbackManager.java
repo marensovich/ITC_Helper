@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The type Callback manager.
+ */
 @Service
 public class CallbackManager {
 
@@ -18,6 +21,12 @@ public class CallbackManager {
 
     private final Map<String, PrefixCallbackHandler> prefixHandlers = new HashMap<>();
 
+    /**
+     * Instantiates a new Callback manager.
+     *
+     * @param handlers       the handlers
+     * @param prefixHandlers the prefix handlers
+     */
     @Autowired
     public CallbackManager(List<CallbackHandler> handlers, List<PrefixCallbackHandler> prefixHandlers) {
         handlers.forEach(this::registerHandler);
@@ -32,7 +41,13 @@ public class CallbackManager {
         prefixHandlers.put(handler.getPrefixCallbackData().toLowerCase(), handler);
     }
 
-    public boolean handleCallback(Update update){
+    /**
+     * Handle callback boolean.
+     *
+     * @param update the update
+     * @return the boolean
+     */
+    public boolean handleCallback(Update update) {
         if (!update.hasCallbackQuery()) {
             return false;
         }

@@ -5,6 +5,9 @@ import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHa
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+/**
+ * The type Register result handler.
+ */
 @Component
 public class RegisterResultHandler implements PrefixCallbackHandler {
     @Override

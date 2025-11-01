@@ -11,24 +11,42 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
+/**
+ * The type Bot.
+ */
 @Slf4j
 public class Bot extends TelegramLongPollingBot {
 
-    @Autowired @Getter private CommandManager commandManager;
-    @Autowired @Getter private CallbackManager callbackManager;
-    @Autowired @Getter private ButtonManager buttonManager;
-    @Getter private static Bot instance;
+    @Autowired
+    @Getter
+    private CommandManager commandManager;
+    @Autowired
+    @Getter
+    private CallbackManager callbackManager;
+    @Autowired
+    @Getter
+    private ButtonManager buttonManager;
+    @Getter
+    private static Bot instance;
 
     private final String botToken;
     private final String botUsername;
 
-    @Autowired @Getter private UpdateManager updateManager;
+    @Autowired
+    @Getter
+    private UpdateManager updateManager;
 
+    /**
+     * Instantiates a new Bot.
+     *
+     * @param botToken    the bot token
+     * @param botUsername the bot username
+     */
     public Bot(String botToken, String botUsername) {
         this.botToken = botToken;
         this.botUsername = botUsername;
@@ -54,10 +72,20 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Send no access message.
+     *
+     * @param update the update
+     */
     public void sendNoAccessMessage(Update update) {
         sendTextMessage(update.getMessage().getChatId(), "⛔ У вас нет прав для выполнения этой команды!");
     }
 
+    /**
+     * Send user private chat.
+     *
+     * @param update the update
+     */
     public void sendUserPrivateChat(Update update) {
         sendTextMessage(update.getMessage().getChatId(), "💬 Пожалуйста, используйте личные сообщения, чтобы использовать эту команду.");
     }
@@ -72,13 +100,24 @@ public class Bot extends TelegramLongPollingBot {
         return botToken;
     }
 
-    public ReplyKeyboardRemove removeKeyboard(){
+    /**
+     * Remove keyboard reply keyboard remove.
+     *
+     * @return the reply keyboard remove
+     */
+    public ReplyKeyboardRemove removeKeyboard() {
         ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove();
         keyboardRemove.setRemoveKeyboard(true);
         keyboardRemove.setSelective(false);
         return keyboardRemove;
     }
 
+    /**
+     * Send error message.
+     *
+     * @param chatId the chat id
+     * @param text   the text
+     */
     public void sendErrorMessage(Long chatId, String text) {
         Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
         try {
@@ -92,6 +131,12 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Show bot action.
+     *
+     * @param chatId     the chat id
+     * @param actionType the action type
+     */
     public void showBotAction(Long chatId, ActionType actionType) {
         SendChatAction chatAction = new SendChatAction();
         chatAction.setChatId(String.valueOf(chatId));

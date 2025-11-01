@@ -19,22 +19,51 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The type Register itc button.
+ */
 @Component
 public class RegisterITCButton implements Button {
 
+    /**
+     * The constant ITC_REGISTRATION_CALLBACK.
+     */
     public static final String ITC_REGISTRATION_CALLBACK = "itc_reg_button_callback";
 
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_PREFIX.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PREFIX = "itc_reg:";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM = "project_team";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT = "video_content";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_PR.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_DESIGNER.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
 
 
+    /**
+     * The constant ITC_ADMIN_REG_DEFARAMENT_PREFIX.
+     */
     public static final String ITC_ADMIN_REG_DEFARAMENT_PREFIX = "itc_admin_reg:";
 
     private final KeyboardFactory keyboardFactory;
 
+    /**
+     * Instantiates a new Register itc button.
+     *
+     * @param keyboardFactory the keyboard factory
+     */
     public RegisterITCButton(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
     }
@@ -79,6 +108,11 @@ public class RegisterITCButton implements Button {
     }
 
 
+    /**
+     * Handle reg button.
+     *
+     * @param update the update
+     */
     public void handleRegButton(Update update) {
         Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
 
@@ -131,18 +165,29 @@ public class RegisterITCButton implements Button {
 
     // ======= Вложенные классы для каждого направления =======
 
+    /**
+     * The type Project team handler.
+     */
     @Component
     public static class ProjectTeamHandler {
 
         // Репозиторий, внедряется один раз через Spring
         private static ApplicationService applicationService;
 
+        /**
+         * Instantiates a new Project team handler.
+         *
+         * @param applicationService the application service
+         */
         @Autowired
         public ProjectTeamHandler(ApplicationService applicationService) {
             ProjectTeamHandler.applicationService = applicationService;
         }
 
-        // --- Данные пользователей ---
+        /**
+         * The constant userApplicationDataMap.
+         */
+// --- Данные пользователей ---
         public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
 
         // --- Регулярки ---
@@ -157,7 +202,13 @@ public class RegisterITCButton implements Button {
         private KeyboardFactory keyboardFactory;
         private UserApplicationData data;
 
-        // --- Конструктор для runtime-создания хэндлера ---
+        /**
+         * Instantiates a new Project team handler.
+         *
+         * @param update          the update
+         * @param keyboardFactory the keyboard factory
+         */
+// --- Конструктор для runtime-создания хэндлера ---
         public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory) {
             this.update = update;
             this.keyboardFactory = keyboardFactory;
@@ -175,6 +226,9 @@ public class RegisterITCButton implements Button {
             this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserApplicationData());
         }
 
+        /**
+         * Handle.
+         */
         public void handle() {
             Long id;
             if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
@@ -383,6 +437,11 @@ public class RegisterITCButton implements Button {
             }
         }
 
+        /**
+         * Handle result yes.
+         *
+         * @param id the id
+         */
         public static void handleResultYes(String id) {
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
@@ -397,6 +456,11 @@ public class RegisterITCButton implements Button {
         }
 
 
+        /**
+         * Handle result no.
+         *
+         * @param id the id
+         */
         public static void handleResultNo(String id) {
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
@@ -430,10 +494,43 @@ public class RegisterITCButton implements Button {
                     .replace(">", "&gt;");
         }
 
+        /**
+         * The enum Step.
+         */
         public enum Step {
-            FULL_NAME, PHONE_NUMBER, GROUP_NUMBER, EXPERIENCE, GITHUB, STACK, CONFIRMATION
+            /**
+             * Full name step.
+             */
+            FULL_NAME,
+            /**
+             * Phone number step.
+             */
+            PHONE_NUMBER,
+            /**
+             * Group number step.
+             */
+            GROUP_NUMBER,
+            /**
+             * Experience step.
+             */
+            EXPERIENCE,
+            /**
+             * Github step.
+             */
+            GITHUB,
+            /**
+             * Stack step.
+             */
+            STACK,
+            /**
+             * Confirmation step.
+             */
+            CONFIRMATION
         }
 
+        /**
+         * The type User application data.
+         */
         @Getter
         @Setter
         public static class UserApplicationData {
@@ -449,6 +546,9 @@ public class RegisterITCButton implements Button {
             @JsonIgnore
             private Step currentStep = Step.FULL_NAME;
 
+            /**
+             * Reset.
+             */
             public void reset() {
                 mention = null;
                 tgId = null;
@@ -464,14 +564,24 @@ public class RegisterITCButton implements Button {
     }
 
 
-
+    /**
+     * The type Media handler.
+     */
     public static class MediaHandler {
         private final Update update;
 
+        /**
+         * Instantiates a new Media handler.
+         *
+         * @param update the update
+         */
         public MediaHandler(Update update) {
             this.update = update;
         }
 
+        /**
+         * Handle.
+         */
         public void handle() {
             sendMessage("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте инструкциям.");
         }
@@ -489,13 +599,24 @@ public class RegisterITCButton implements Button {
         }
     }
 
+    /**
+     * The type Pr handler.
+     */
     public static class PRHandler {
         private final Update update;
 
+        /**
+         * Instantiates a new Pr handler.
+         *
+         * @param update the update
+         */
         public PRHandler(Update update) {
             this.update = update;
         }
 
+        /**
+         * Handle.
+         */
         public void handle() {
             sendMessage("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте инструкциям.");
         }
@@ -513,13 +634,24 @@ public class RegisterITCButton implements Button {
         }
     }
 
+    /**
+     * The type Designer handler.
+     */
     public static class DesignerHandler {
         private final Update update;
 
+        /**
+         * Instantiates a new Designer handler.
+         *
+         * @param update the update
+         */
         public DesignerHandler(Update update) {
             this.update = update;
         }
 
+        /**
+         * Handle.
+         */
         public void handle() {
             sendMessage("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте инструкциям.");
         }
