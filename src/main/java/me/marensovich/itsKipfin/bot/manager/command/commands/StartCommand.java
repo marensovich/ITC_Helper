@@ -2,21 +2,21 @@ package me.marensovich.itsKipfin.bot.manager.command.commands;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.HelpButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
-import me.marensovich.itsKipfin.utils.UniversalKeyboardBuilder;
+import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
 public class StartCommand implements Command {
 
-    private final UniversalKeyboardBuilder universalKeyboardBuilder;
+    private final KeyboardFactory keyboardFactory;
 
-    public StartCommand(UniversalKeyboardBuilder universalKeyboardBuilder) {
-        this.universalKeyboardBuilder = universalKeyboardBuilder;
+    public StartCommand(KeyboardFactory keyboardFactory) {
+        this.keyboardFactory = keyboardFactory;
     }
 
     @Override
@@ -38,8 +38,9 @@ public class StartCommand implements Command {
         message.setChatId(update.getMessage().getChatId());
         message.setText("Привет! Я бот помощник подразделения ИТС. Выбери нужное действие кнопкой.");
 
-        message.setReplyMarkup(universalKeyboardBuilder
+        message.setReplyMarkup(keyboardFactory.create()
                 .addButton(HelpButton.class)
+                .addButton(RegisterITCButton.class)
                 .buildReplyKeyboard()
         );
 

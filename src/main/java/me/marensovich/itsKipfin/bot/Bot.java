@@ -58,6 +58,10 @@ public class Bot extends TelegramLongPollingBot {
         sendTextMessage(update.getMessage().getChatId(), "⛔ У вас нет прав для выполнения этой команды!");
     }
 
+    public void sendUserPrivateChat(Update update) {
+        sendTextMessage(update.getMessage().getChatId(), "💬 Пожалуйста, используйте личные сообщения, чтобы использовать эту команду.");
+    }
+
     @Override
     public String getBotUsername() {
         return botUsername;
