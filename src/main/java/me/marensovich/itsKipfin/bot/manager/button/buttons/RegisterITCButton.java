@@ -1,8 +1,11 @@
 package me.marensovich.itsKipfin.bot.manager.button.buttons;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -10,9 +13,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class RegisterITCButton implements Button {
-
 
     public static final String ITC_REGISTRATION_CALLBACK = "itc_reg_button_callback";
 
@@ -21,12 +26,12 @@ public class RegisterITCButton implements Button {
     public static final String ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT = "video_content";
     public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
     public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
+
     private final KeyboardFactory keyboardFactory;
 
     public RegisterITCButton(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
     }
-
 
     @Override
     public String getButtonText() {
@@ -42,6 +47,7 @@ public class RegisterITCButton implements Button {
 
         Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
+
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
         message.setText(
@@ -68,32 +74,17 @@ public class RegisterITCButton implements Button {
     public void handleRegButton(Update update) {
         Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
 
-
+        // Отправка общей информации
         SendMessage infoMessage = new SendMessage();
         infoMessage.setChatId(update.getCallbackQuery().getFrom().getId());
         infoMessage.setText(
                 """
-                <b>Краткая информации о каждом направлении:</b>
+                <b>Краткая информация о направлениях:</b>
                 
-                <b>1. Проектная команда</b>
-                Создание и разработка сайтов, ботов, внутренних систем и других цифровых продуктов для ИТС и наших партнеров.
-                Разработка технических заданий, программирование, тестирование и внедрение цифровых решений.
-                Разработка программ, скриптов автоматизации и интеграций. 
-                Анализ потребностей колледжа и предложение цифровых решений.
-                
-                <b>2. Медиа и контент</b>
-                Съемка и монтаж видео для социальных сетей для VK, Telegram и других платформ.
-                Фотоотчеты мероприятий.
-                
-                <b>3. PR и Коммуникации</b>
-                Продвижение ИТС и их проектов в социальных сетях и на других платформах.
-                Взаимодействие с Администрацией колледжа и внешними организациями. 
-                Подготовка постов, пресс-релизов, участие в форумах и конференциях. 
-                
-                <b>4. Дизайнеры</b> 
-                Разработка визуального стиля проектов (сайты, интерфейсы, посты и т.д.).
-                Подготовка макетов, логотипов и брендбуков.
-                Создание графических материалов для социальных сетей и других платформ.
+                <b>1. Проектная команда</b> — создание цифровых продуктов.
+                <b>2. Медиа и контент</b> — видео, фото, социальные сети.
+                <b>3. PR и коммуникации</b> — продвижение проектов.
+                <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
                 """
         );
         infoMessage.setParseMode(ParseMode.HTML);
@@ -102,13 +93,12 @@ public class RegisterITCButton implements Button {
         message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.setText(
                 """
-                <b>Вы практически в ИТС!</b> Остался всего один шаг — выбрать направление, в котором вы хотите развиваться вместе с нами.
+                <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
                 
-                Для завершение процесса подачи заявки на вступление в ИТС вам необходимо:
-                1. Выберите желаемое направление в ИТС, используя кнопки ниже.
-                2. Заполните форму для регистрации, которая будет отправлена вам после выбора направления.
-                3. Дождитесь подтверждения вашей заявки от руководителя направления ИТС.
-                
+                Для завершения регистрации:
+                1. Выберите направление ниже.
+                2. Заполните форму после выбора.
+                3. Дождитесь подтверждения от руководителя.
                 """
         );
         message.setParseMode(ParseMode.HTML);
@@ -131,60 +121,287 @@ public class RegisterITCButton implements Button {
         }
     }
 
+    // ======= Вложенные классы для каждого направления =======
 
-    public void handleProjectTeamDepartament(Update update) {
-        Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getCallbackQuery().getFrom().getId());
-        message.setText("Вы выбрали направление 'Проектная команда'. Пожалуйста, следуйте дальнейшим инструкциям...");
-        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+    public static class ProjectTeamHandler {
 
-        try {
-            Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+        private final Long chatId;
+        private final Update update;
+
+        private final KeyboardFactory keyboardFactory;
+
+        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
+        private final UserApplicationData data;
+
+        public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory) {
+            this.update = update;
+            this.keyboardFactory = keyboardFactory;
+            if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
+                this.chatId = update.getCallbackQuery().getFrom().getId();
+            } else if (update.hasMessage()) {
+                this.chatId = update.getMessage().getChatId();
+            } else {
+                throw new IllegalArgumentException("Cannot determine chatId from update");
+            }
+            this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserApplicationData());
+        }
+
+        public enum Step {
+            FULL_NAME, PHONE_NUMBER, GROUP_NUMBER, EXPERIENCE, GITHUB, STACK, CONFIRMATION
+        }
+
+        public void handle() {
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                String text = update.getMessage().getText().trim();
+
+                switch (data.getCurrentStep()) {
+                    case FULL_NAME -> handleFullName(text);
+                    case PHONE_NUMBER -> handlePhoneNumber(text);
+                    case GROUP_NUMBER -> handleGroupNumber(text);
+                    case EXPERIENCE -> handleExperience(text);
+                    case GITHUB -> handleGitHub(text);
+                    case STACK -> handleStack(text);
+                    case CONFIRMATION -> handleConfirmation(text);
+                }
+            } else {
+                askFullName();
+            }
+        }
+
+        private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
+        private static final String PHONE_REGEX = "^\\+?\\d{11}$";
+        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?github\\.com/[A-Za-z0-9_-]+/?$";
+        private static final String GROUP_REGEX = "^[1-4](оибас|исип|иис)-\\d{1,4}$";
+        // --- 1. ФИО ---
+        private void askFullName() {
+            sendMessage("Введите ваше ФИО (например: Иванов Иван Иванович):");
+            data.setCurrentStep(Step.FULL_NAME);
+        }
+
+        private void handleFullName(String input) {
+            if (!input.matches(FIO_REGEX)) {
+                sendMessage("❌ Неверный формат ФИО. Только русские буквы, первая — заглавная.\nПример: Иванов Иван Иванович");
+                askFullName();
+                return;
+            }
+            data.setFullName(input);
+            askPhoneNumber();
+        }
+
+        // --- 2. Телефон ---
+        private void askPhoneNumber() {
+            sendMessage("Введите номер телефона (например: +7 000 00 00):");
+            data.setCurrentStep(Step.PHONE_NUMBER);
+        }
+
+        private void handlePhoneNumber(String input) {
+            if (!input.matches(PHONE_REGEX)) {
+                sendMessage("❌ Неверный формат телефона. Используйте только цифры, можно с '+', 11 символов.");
+                askPhoneNumber();
+                return;
+            }
+            data.setPhoneNumber(input);
+            askGroupNumber();
+        }
+
+        // --- 3. Группа ---
+        private void askGroupNumber() {
+            sendMessage("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
+            data.setCurrentStep(Step.GROUP_NUMBER);
+        }
+
+        private void handleGroupNumber(String input) {
+            if (!input.matches(GROUP_REGEX)){
+                sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024");
+                askGroupNumber();
+                return;
+            }
+            data.setGroupNumber(input);
+            askExperience();
+        }
+
+        // --- 4. Опыт ---
+        private void askExperience() {
+            sendMessage("Опишите ваш опыт (пару предложений):");
+            data.setCurrentStep(Step.EXPERIENCE);
+        }
+
+        private void handleExperience(String input) {
+            if (input.trim().split(" ").length < 10) {
+                sendMessage("❌ Слишком коротко. Опишите чуть подробнее:");
+                askExperience();
+                return;
+            }
+            data.setExperience(input);
+            askGitHub();
+        }
+
+        // --- 5. GitHub ---
+        private void askGitHub() {
+            sendMessage("Укажите ссылку на ваш GitHub (пример: https://github.com/username):");
+            data.setCurrentStep(Step.GITHUB);
+        }
+
+        private void handleGitHub(String input) {
+            if (!input.matches(GITHUB_REGEX)) {
+                sendMessage("❌ Неверная ссылка на GitHub. Попробуйте снова:");
+                askGitHub();
+                return;
+            }
+            data.setGitHub(input);
+            askStack();
+        }
+
+        // --- 6. Стек ---
+        private void askStack() {
+            sendMessage("Введите стек технологий (например: Java, Spring, SQL):");
+            data.setCurrentStep(Step.STACK);
+        }
+
+        private void handleStack(String input) {
+            if (input.isEmpty() || input.length() > 200) {
+                sendMessage("❌ Некорректный стек. Попробуйте снова:");
+                askStack();
+                return;
+            }
+            data.setStack(input);
+            askConfirmation();
+        }
+
+        // --- 7. Подтверждение ---
+        private void askConfirmation() {
+            SendMessage message = new SendMessage();
+            message.setText(
+                    "Проверьте введённые данные:\n\n" +
+                            "<b>ФИО:</b> " + escape(data.getFullName()) + "\n" +
+                            "<b>Телефон:</b> " + escape(data.getPhoneNumber()) + "\n" +
+                            "<b>Группа:</b> " + escape(data.getGroupNumber().toUpperCase()) + "\n" +
+                            "<b>Опыт:</b> " + escape(data.getExperience()) + "\n" +
+                            "<b>GitHub:</b> " + escape(data.getGitHub()) + "\n" +
+                            "<b>Стек:</b> " + escape(data.getStack()) + "\n\n" +
+                            "Подтверждаете данные? (Да/Нет)"
+            );
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
+            message.setReplyMarkup(keyboardFactory.create()
+                    .addButton("Да")
+                    .addButton("Нет")
+                    .buildReplyKeyboard()
+            );
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+            data.setCurrentStep(Step.CONFIRMATION);
+        }
+
+        private void handleConfirmation(String input) {
+            String answer = input.toLowerCase();
+            if (answer.equals("да") || answer.equals("yes")) {
+                sendMessage("✅ Спасибо! Ваша заявка сохранена.");
+                userApplicationDataMap.remove(chatId);
+                Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
+            } else if (answer.equals("нет") || answer.equals("no")) {
+                sendMessage("🔄 Хорошо, начнем заново.");
+                data.reset();
+                askFullName();
+            } else {
+                sendMessage("Пожалуйста, ответьте 'Да' или 'Нет'.");
+            }
+        }
+
+        // --- Утилиты ---
+        private void sendMessage(String text) {
+            SendMessage msg = new SendMessage();
+            msg.setChatId(chatId);
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText(text);
+            try {
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private String escape(String text) {
+            return text == null ? "" : text
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;");
+        }
+
+        @Getter
+        @Setter
+        public static class UserApplicationData {
+            private String fullName;
+            private String phoneNumber;
+            private String groupNumber;
+            private String experience;
+            private String gitHub;
+            private String stack;
+            private Step currentStep = Step.FULL_NAME;
+
+            public void reset() {
+                fullName = null;
+                phoneNumber = null;
+                groupNumber = null;
+                experience = null;
+                gitHub = null;
+                stack = null;
+                currentStep = Step.FULL_NAME;
+            }
         }
     }
 
-    public void handleMediaDepartament(Update update) {
-        Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getCallbackQuery().getFrom().getId());
-        message.setText("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте дальнейшим инструкциям...");
-        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
 
-        try {
-            Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+
+
+    public static class MediaHandler {
+        private final Update update;
+        public MediaHandler(Update update) { this.update = update; }
+
+        public void handle() { sendMessage("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте инструкциям."); }
+
+        private void sendMessage(String text) {
+            SendMessage message = new SendMessage();
+            message.setChatId(update.getCallbackQuery().getFrom().getId());
+            message.setText(text);
+            message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+            try { Bot.getInstance().execute(message); }
+            catch (TelegramApiException e) { throw new RuntimeException(e); }
         }
     }
 
+    public static class PRHandler {
+        private final Update update;
+        public PRHandler(Update update) { this.update = update; }
 
-    public void handlePrDepartament(Update update) {
-        Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getCallbackQuery().getFrom().getId());
-        message.setText("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте дальнейшим инструкциям...");
-        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+        public void handle() { sendMessage("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте инструкциям."); }
 
-        try {
-            Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+        private void sendMessage(String text) {
+            SendMessage message = new SendMessage();
+            message.setChatId(update.getCallbackQuery().getFrom().getId());
+            message.setText(text);
+            message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+            try { Bot.getInstance().execute(message); }
+            catch (TelegramApiException e) { throw new RuntimeException(e); }
         }
     }
 
-    public void handleDesignerDepartament(Update update) {
-        Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getCallbackQuery().getFrom().getId());
-        message.setText("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте дальнейшим инструкциям...");
-        message.setReplyMarkup(Bot.getInstance().removeKeyboard());
-        try {
-            Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+    public static class DesignerHandler {
+        private final Update update;
+        public DesignerHandler(Update update) { this.update = update; }
+
+        public void handle() { sendMessage("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте инструкциям."); }
+
+        private void sendMessage(String text) {
+            SendMessage message = new SendMessage();
+            message.setChatId(update.getCallbackQuery().getFrom().getId());
+            message.setText(text);
+            message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+            try { Bot.getInstance().execute(message); }
+            catch (TelegramApiException e) { throw new RuntimeException(e); }
         }
     }
 

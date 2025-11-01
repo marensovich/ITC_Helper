@@ -2,7 +2,9 @@ package me.marensovich.itsKipfin.bot.manager.update;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
 import me.marensovich.itsKipfin.services.UserService;
+import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,10 +15,12 @@ public class UpdateManager {
 
     private final UserService userService;
     private final ButtonManager buttonManager;
+    private final KeyboardFactory keyboardFactory;
 
-    public UpdateManager(UserService userService, ButtonManager buttonManager) {
+    public UpdateManager(UserService userService, ButtonManager buttonManager, KeyboardFactory keyboardFactory) {
         this.userService = userService;
         this.buttonManager = buttonManager;
+        this.keyboardFactory = keyboardFactory;
     }
 
     public void updateHandler(Update update) throws TelegramApiException {
@@ -40,6 +44,10 @@ public class UpdateManager {
                                     }
                                     return;
                                 }
+                            }
+                            if (RegisterITCButton.ProjectTeamHandler.userApplicationDataMap.containsKey(update.getMessage().getFrom().getId())) {
+                                RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(update, keyboardFactory);
+                                handler.handle();
                             }
                             buttonManager.handle(update);
                         }
