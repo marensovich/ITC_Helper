@@ -1,13 +1,14 @@
 package me.marensovich.itsKipfin.bot.manager.button.buttons;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
+import me.marensovich.itsKipfin.database.models.Applications;
+import me.marensovich.itsKipfin.database.repositories.ApplicationsRepository;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -31,6 +32,7 @@ public class RegisterITCButton implements Button {
 
     public static final String ITC_ADMIN_REG_DEFARAMENT_PROJECT_TEAM_PREFIX_YES = "itc_admin_reg_YES:";
     public static final String ITC_ADMIN_REG_DEFARAMENT_PROJECT_TEAM_PREFIX_NO = "itc_admin_reg_NO:";
+
 
     private final KeyboardFactory keyboardFactory;
 
@@ -130,27 +132,47 @@ public class RegisterITCButton implements Button {
 
     // ======= Вложенные классы для каждого направления =======
 
+    @Component
     public static class ProjectTeamHandler {
 
+        // Репозиторий, внедряется один раз через Spring
+        private static ApplicationsRepository applicationsRepository;
+
+        @Autowired
+        public ProjectTeamHandler(ApplicationsRepository repository) {
+            ProjectTeamHandler.applicationsRepository = repository;
+        }
+
+        // --- Данные пользователей ---
         public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
+
+        // --- Регулярки ---
         private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
         private static final String PHONE_REGEX = "^\\+?\\d{11}$";
-        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?github\\.com/[A-Za-z0-9_-]+/?$";
-        private static final String GROUP_REGEX = "^[1-4](оибас|исип|иис)-\\d{1,4}$";
-        private final Long chatId;
-        private final Update update;
-        private final KeyboardFactory keyboardFactory;
-        private final UserApplicationData data;
+        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github|gitlab)\\.com/[A-Za-z0-9_-]+/?$";
+        private static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{1,4}$";
+
+        // --- Поля экземпляра ---
+        private Long chatId;
+        private Update update;
+        private KeyboardFactory keyboardFactory;
+        private UserApplicationData data;
+
+        // --- Конструктор для runtime-создания хэндлера ---
         public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory) {
             this.update = update;
             this.keyboardFactory = keyboardFactory;
+
+            Long resolvedChatId;
             if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
-                this.chatId = update.getCallbackQuery().getFrom().getId();
+                resolvedChatId = update.getCallbackQuery().getFrom().getId();
             } else if (update.hasMessage()) {
-                this.chatId = update.getMessage().getChatId();
+                resolvedChatId = update.getMessage().getChatId();
             } else {
                 throw new IllegalArgumentException("Cannot determine chatId from update");
             }
+
+            this.chatId = resolvedChatId;
             this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserApplicationData());
         }
 
@@ -160,6 +182,7 @@ public class RegisterITCButton implements Button {
 
                 data.tgId = String.valueOf(update.getMessage().getFrom().getId());
                 data.mention = "@" + update.getMessage().getFrom().getUserName();
+
                 switch (data.getCurrentStep()) {
                     case FULL_NAME -> handleFullName(text);
                     case PHONE_NUMBER -> handlePhoneNumber(text);
@@ -192,7 +215,7 @@ public class RegisterITCButton implements Button {
 
         // --- 2. Телефон ---
         private void askPhoneNumber() {
-            sendMessage("Введите номер телефона (например: +7 000 00 00):");
+            sendMessage("Введите номер телефона (например: +79001234567):");
             data.setCurrentStep(Step.PHONE_NUMBER);
         }
 
@@ -213,12 +236,12 @@ public class RegisterITCButton implements Button {
         }
 
         private void handleGroupNumber(String input) {
-            if (!input.matches(GROUP_REGEX)) {
+            if (!input.toUpperCase().matches(GROUP_REGEX)) {
                 sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024");
                 askGroupNumber();
                 return;
             }
-            data.setGroupNumber(input);
+            data.setGroupNumber(input.toUpperCase());
             askExperience();
         }
 
@@ -273,28 +296,31 @@ public class RegisterITCButton implements Button {
         // --- 7. Подтверждение ---
         private void askConfirmation() {
             SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
             message.setText(
                     "Проверьте введённые данные:\n\n" +
                             "<b>ФИО:</b> " + escape(data.getFullName()) + "\n" +
                             "<b>Телефон:</b> " + escape(data.getPhoneNumber()) + "\n" +
-                            "<b>Группа:</b> " + escape(data.getGroupNumber().toUpperCase()) + "\n" +
+                            "<b>Группа:</b> " + escape(data.getGroupNumber()) + "\n" +
                             "<b>Опыт:</b> " + escape(data.getExperience()) + "\n" +
                             "<b>GitHub/GitLab:</b> " + escape(data.getGitHub()) + "\n" +
                             "<b>Стек:</b> " + escape(data.getStack()) + "\n\n" +
                             "Подтверждаете данные? (Да/Нет)"
             );
-            message.setChatId(chatId);
-            message.setParseMode(ParseMode.HTML);
-            message.setReplyMarkup(keyboardFactory.create()
-                    .addButton("Да")
-                    .addButton("Нет")
-                    .buildReplyKeyboard()
+            message.setReplyMarkup(
+                    keyboardFactory.create()
+                            .addButton("Да")
+                            .addButton("Нет")
+                            .buildReplyKeyboard()
             );
+
             try {
                 Bot.getInstance().execute(message);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
+
             data.setCurrentStep(Step.CONFIRMATION);
         }
 
@@ -302,37 +328,37 @@ public class RegisterITCButton implements Button {
             String answer = input.toLowerCase();
             if (answer.equals("да") || answer.equals("yes")) {
                 sendMessage("✅ Спасибо! Ваша заявка сохранена.");
-                SendMessage sendMessage = new SendMessage();
-                sendMessage.setText("<b>Новая заявка на вступление в ИТС от " + data.mention + "(" + data.tgId + ")" + ":</b>\n\n" +
+
+                // Отправка уведомления
+                SendMessage notify = new SendMessage();
+                notify.setParseMode(ParseMode.HTML);
+                notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
+                notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+                notify.setText("<b>Новая заявка от " + data.mention + " (" + data.tgId + "):</b>\n\n" +
                         "<b>ФИО:</b> " + escape(data.getFullName()) + "\n" +
                         "<b>Телефон:</b> " + escape(data.getPhoneNumber()) + "\n" +
-                        "<b>Группа:</b> " + escape(data.getGroupNumber().toUpperCase()) + "\n" +
+                        "<b>Группа:</b> " + escape(data.getGroupNumber()) + "\n" +
                         "<b>Опыт:</b> " + escape(data.getExperience()) + "\n" +
                         "<b>GitHub/GitLab:</b> " + escape(data.getGitHub()) + "\n" +
                         "<b>Стек:</b> " + escape(data.getStack())
                 );
-                sendMessage.setParseMode(ParseMode.HTML);
-                sendMessage.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-                sendMessage.setMessageThreadId(Integer.valueOf(System.getenv("TG_TOPIC")));
 
                 try {
-                    Bot.getInstance().execute(sendMessage);
+                    Bot.getInstance().execute(notify);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
 
-                ObjectMapper mapper = new ObjectMapper();
+                // Сохранение в БД
+                Applications app = new Applications();
+                app.setDepartament(Applications.Departament.Development);
+                app.setData(data);
+                applicationsRepository.save(app);
 
-                String json = null;
-                try {
-                    json = mapper.writeValueAsString(data);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                System.out.println(json);
-
+                // Очистка
                 userApplicationDataMap.remove(chatId);
                 Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
+
             } else if (answer.equals("нет") || answer.equals("no")) {
                 sendMessage("🔄 Хорошо, начнем заново.");
                 data.reset();
@@ -377,13 +403,14 @@ public class RegisterITCButton implements Button {
             private String experience;
             private String gitHub;
             private String stack;
+
             @JsonIgnore
             private Step currentStep = Step.FULL_NAME;
 
             public void reset() {
-                fullName = null;
                 mention = null;
                 tgId = null;
+                fullName = null;
                 phoneNumber = null;
                 groupNumber = null;
                 experience = null;
@@ -393,6 +420,7 @@ public class RegisterITCButton implements Button {
             }
         }
     }
+
 
 
     public static class MediaHandler {
