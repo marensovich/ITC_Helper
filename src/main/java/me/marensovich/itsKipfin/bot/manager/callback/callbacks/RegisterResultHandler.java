@@ -7,16 +7,25 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 /**
- * The type Register result handler.
+ * Обработчик результата регистрации ИТС.
+ * <p>
+ * Используется администраторами для подтверждения или отклонения заявок.
+ *
+ * @author marensovich
+ * @version 0.0.1
+ * @since 0.0.1
  */
 @Component
 public class RegisterResultHandler implements PrefixCallbackHandler {
+
     private final ApplicationService applicationService;
 
     /**
-     * Instantiates a new Register result handler.
+     * Конструктор обработчика.
      *
-     * @param applicationService the application service
+     * @param applicationService сервис для работы с заявками
+     * @author marensovich
+     * @since 0.0.1
      */
     public RegisterResultHandler(ApplicationService applicationService) {
         this.applicationService = applicationService;
@@ -36,25 +45,20 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
 
         switch (department) {
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM -> {
+                RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(applicationService);
                 switch (result) {
-                    case "YES" -> {
-                        RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(applicationService);
-                        handler.handleResultYes(id, update);
-                    }
-                    case "NO" -> {
-                        RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(applicationService);
-                        handler.handleResultNo(id, update);
-                    }
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
                 }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR -> {
-
+                // TODO: обработка PR
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER -> {
-
+                // TODO: обработка Designer
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT -> {
-
+                // TODO: обработка Media
             }
         }
     }

@@ -5,7 +5,13 @@ import me.marensovich.itsKipfin.database.repositories.ApplicationRepository;
 import org.springframework.stereotype.Service;
 
 /**
- * The type Application service.
+ * Сервис для работы с заявками пользователей.
+ * <p>
+ * Предоставляет методы для создания, обновления и получения заявок из базы данных.
+ *
+ * @author marensovich
+ * @version 0.0.1
+ * @since 0.0.1
  */
 @Service
 public class ApplicationService {
@@ -13,22 +19,25 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
 
     /**
-     * Instantiates a new Application service.
+     * Конструктор сервиса заявок.
      *
-     * @param applicationRepository the application repository
+     * @param applicationRepository репозиторий для работы с сущностями {@link Application}
+     * @since 0.0.1
      */
     public ApplicationService(ApplicationRepository applicationRepository) {
         this.applicationRepository = applicationRepository;
     }
 
     /**
-     * Create application application.
+     * Создаёт новую заявку.
      *
-     * @param departament the departament
-     * @param dto         the dto
-     * @param userId      the user id
-     * @param messageId   the message id
-     * @return the application
+     * @param departament отдел, в который подаётся заявка
+     * @param dto         объект данных заявки (DTO)
+     * @param userId      ID пользователя, отправившего заявку
+     * @param messageId   ID сообщения в Telegram, связанного с заявкой
+     * @return созданный объект {@link Application}
+     * @author marensovich
+     * @since 0.0.1
      */
     public Application createApplication(Application.Departament departament, Object dto, Long userId, Long messageId) {
         Application application = new Application();
@@ -40,12 +49,13 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
-
     /**
-     * Update application status.
+     * Обновляет статус заявки.
      *
-     * @param id     the id
-     * @param status the status
+     * @param id     ID заявки
+     * @param status новый статус {@link Application.Status}
+     * @author marensovich
+     * @since 0.0.1
      */
     public void updateApplicationStatus(Long id, Application.Status status) {
         Application application = applicationRepository.findById(id).orElseThrow();
@@ -54,21 +64,25 @@ public class ApplicationService {
     }
 
     /**
-     * Gets application by id.
+     * Возвращает заявку по ID.
      *
-     * @param id the id
-     * @return the application by id
+     * @param id ID заявки
+     * @return объект {@link Application}
+     * @author marensovich
+     * @since 0.0.1
      */
     public Application getApplicationById(Long id) {
         return applicationRepository.findById(id).orElseThrow();
     }
 
     /**
-     * Update application message id application.
+     * Обновляет ID сообщения, связанного с заявкой.
      *
-     * @param id        the id
-     * @param messageId the message id
-     * @return the application
+     * @param id        ID заявки
+     * @param messageId новый ID сообщения
+     * @return обновлённый объект {@link Application}
+     * @author marensovich
+     * @since 0.0.1
      */
     public Application updateApplicationMessageId(Long id, Long messageId) {
         Application application = applicationRepository.findById(id).orElseThrow();
@@ -77,10 +91,12 @@ public class ApplicationService {
     }
 
     /**
-     * Is active application exists boolean.
+     * Проверяет, существует ли активная (ожидающая) заявка у пользователя.
      *
-     * @param userId the user id
-     * @return the boolean
+     * @param userId ID пользователя
+     * @return {@code true}, если активная заявка существует, иначе {@code false}
+     * @author marensovich
+     * @since 0.0.1
      */
     public boolean isActiveApplicationExists(Long userId) {
         return applicationRepository.existsByIdAndStatus(userId, Application.Status.PENDING);

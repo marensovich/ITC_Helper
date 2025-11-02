@@ -8,7 +8,14 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * The type Application.
+ * Сущность заявки пользователя на вступление в отдел.
+ * <p>
+ * Содержит информацию о пользователе, отделе, статусе заявки
+ * и сериализованные данные анкеты в формате JSON.
+ *
+ * @author marensovich
+ * @version 0.0.1
+ * @since 0.0.1
  */
 @Data
 @Entity
@@ -16,73 +23,95 @@ import java.time.LocalDateTime;
 public class Application {
 
     /**
-     * The enum Departament.
+     * Перечисление доступных отделов ИТС.
+     * @author marensovich
+     * @version 0.0.1
+     * @since 0.0.1
      */
     public enum Departament {
-        /**
-         * Development departament.
-         */
+        /** Отдел разработки. */
         Development,
-        /**
-         * Media departament.
-         */
+        /** Медиа-отдел. */
         Media,
-        /**
-         * Communication departament.
-         */
+        /** Отдел коммуникаций. */
         Communication,
-        /**
-         * Designer departament.
-         */
+        /** Отдел дизайнеров. */
         Designer
     }
 
     /**
-     * The enum Status.
+     * Перечисление возможных статусов заявки.
+     * @author marensovich
+     * @version 0.0.1
+     * @since 0.0.1
      */
     public enum Status {
-        /**
-         * Pending status.
-         */
+        /** Заявка ожидает рассмотрения. */
         PENDING,
-        /**
-         * Approved status.
-         */
+        /** Заявка одобрена. */
         APPROVED,
-        /**
-         * Rejected status.
-         */
+        /** Заявка отклонена. */
         REJECTED
     }
 
+    /**
+     * Уникальный идентификатор заявки.
+     * @since 0.0.1
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Идентификатор пользователя Telegram, подавшего заявку.
+     * @since 0.0.1
+     */
     private Long userId;
 
+    /**
+     * Идентификатор Telegram-сообщения, связанного с заявкой (для обновлений/редактирования).
+     * @since 0.0.1
+     */
     private Long messageId;
 
+    /**
+     * Отдел, в который подана заявка.
+     * @since 0.0.1
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Departament departament;
 
+    /**
+     * Текущий статус заявки.
+     * @since 0.0.1
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
+    /**
+     * Дата и время создания заявки.
+     * @since 0.0.1
+     */
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    /**
+     * Сериализованные данные анкеты пользователя (в формате JSON).
+     * @since 0.0.1
+     */
     @Column(columnDefinition = "TEXT", nullable = false)
     private String data;
 
-
     /**
-     * Sets data object.
+     * Сериализует DTO-объект в JSON и сохраняет в поле {@code data}.
      *
-     * @param <T> the type parameter
-     * @param dto the dto
+     * @param <T> тип DTO
+     * @param dto объект данных пользователя
+     * @throws RuntimeException если произошла ошибка сериализации
+     * @author marensovich
+     * @since 0.0.1
      */
     public <T> void setDataObject(T dto) {
         try {
@@ -93,11 +122,14 @@ public class Application {
     }
 
     /**
-     * Gets data object.
+     * Десериализует JSON из {@code data} обратно в указанный тип объекта.
      *
-     * @param <T>  the type parameter
-     * @param type the type
-     * @return the data object
+     * @param <T>  тип возвращаемого объекта
+     * @param type класс, в который нужно преобразовать данные
+     * @return десериализованный объект DTO
+     * @throws RuntimeException если произошла ошибка десериализации
+     * @author marensovich
+     * @since 0.0.1
      */
     public <T> T getDataObject(Class<T> type) {
         try {
@@ -106,5 +138,4 @@ public class Application {
             throw new RuntimeException("Ошибка десериализации DTO", e);
         }
     }
-
 }

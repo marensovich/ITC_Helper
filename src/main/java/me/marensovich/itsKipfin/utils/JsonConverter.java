@@ -6,12 +6,16 @@ import jakarta.persistence.Converter;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
 
 /**
- * The type Json converter.
+ * Утилита для конвертации JSON в DTO
+ * @author marensovich
+ * @since 0.0.1
+ * @version 0.0.1
  */
 @Converter(autoApply = false)
 public class JsonConverter implements AttributeConverter<RegisterITCButton.ProjectTeamHandler.UserApplicationData, String> {
 
     private static final ObjectMapper mapper = new ObjectMapper();
+
 
     @Override
     public String convertToDatabaseColumn(RegisterITCButton.ProjectTeamHandler.UserApplicationData attribute) {

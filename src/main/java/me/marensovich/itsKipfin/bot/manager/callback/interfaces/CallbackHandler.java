@@ -3,21 +3,31 @@ package me.marensovich.itsKipfin.bot.manager.callback.interfaces;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 /**
- * The interface Callback handler.
+ * Интерфейс для обработки callback-запросов Telegram.
+ * <p>
+ * Используется для точного совпадения callbackData с кнопкой.
+ * <p>
+ * @version 0.0.1
+ * @author marensovich
+ * @since 0.0.1
  */
 public interface CallbackHandler {
+
     /**
-     * Gets callback data.
+     * Получить callbackData, с которым связан этот handler.
      *
-     * @return the callback data
+     * @return строка callbackData
+     * @author marensovich
+     * @since 0.0.1
      */
     String getCallbackData();
 
     /**
-     * Handle.
+     * Обработать callback-запрос.
      *
-     * @param update the update
+     * @param update объект обновления Telegram
+     * @author marensovich
+     * @since 0.0.1
      */
     void handle(Update update);
-
 }

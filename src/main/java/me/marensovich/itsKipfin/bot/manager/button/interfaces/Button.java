@@ -3,20 +3,31 @@ package me.marensovich.itsKipfin.bot.manager.button.interfaces;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 /**
- * The interface Button.
+ * Интерфейс кнопки бота.
+ * <p>
+ * Определяет методы для работы с кнопкой:
+ * получения текста кнопки и обработки нажатия.
+ * @version 0.0.1
+ * @author marensovich
+ * @since 0.0.1
  */
 public interface Button {
+
     /**
-     * Gets button text.
+     * Получить текст кнопки.
      *
-     * @return the button text
+     * @return текст, который отображается на кнопке
+     * @author marensovich
+     * @since 0.0.1
      */
     String getButtonText();
 
     /**
-     * Handle.
+     * Обработать нажатие на кнопку.
      *
-     * @param update the update
+     * @param update объект Update из Telegram, содержащий информацию о событии
+     * @author marensovich
+     * @since 0.0.1
      */
     void handle(Update update);
 }

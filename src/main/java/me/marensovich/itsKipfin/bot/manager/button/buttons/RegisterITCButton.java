@@ -22,59 +22,77 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The type Register itc button.
+ * Кнопка "Вступление в ИТС".
+ *
+ * @version 0.0.1
+ * @author marensovich
+ * @since 0.0.1
+ *
  */
 @Component
 public class RegisterITCButton implements Button {
 
     /**
-     * The constant ITC_REGISTRATION_CALLBACK.
+     * Callback data для начальной inline-кнопки "Вступить в ИТС".
+     * @since 0.0.1
      */
     public static final String ITC_REGISTRATION_CALLBACK = "itc_reg_button_callback";
 
     /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_PREFIX.
+     * Префикс callback data для выбора направления: "itc_reg:{department}".
+     * @since 0.0.1
      */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PREFIX = "itc_reg:";
-    /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM.
-     */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM = "project_team";
-    /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT.
-     */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT = "video_content";
-    /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_PR.
-     */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
-    /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_DESIGNER.
-     */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
-
 
     /**
-     * The constant ITC_ADMIN_REG_DEFARAMENT_PREFIX.
+     * Префикс callback data для административных действий с заявками:
+     * "itc_admin_reg:{department}:{YES|NO}:{applicationId}".
+     * @since 0.0.1
      */
     public static final String ITC_ADMIN_REG_DEFARAMENT_PREFIX = "itc_admin_reg:";
+
+    /**
+    * Идентификаторы направлений (строки используются в callbackData)
+    * @since 0.0.1
+    */
+    public static final String ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM = "project_team";
+    public static final String ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT = "video_content";
+    public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
+    public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
 
     private final KeyboardFactory keyboardFactory;
 
     /**
-     * Instantiates a new Register itc button.
+     * Конструктор кнопки.
      *
-     * @param keyboardFactory the keyboard factory
+     * @param keyboardFactory фабрика клавиатур (внедряется Spring)
+     * @since 0.0.1
+     * @author marensovich
      */
     public RegisterITCButton(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
     }
 
+    /**
+     * Текст кнопки, отображаемый на reply-клавиатуре.
+     *
+     * @return локализованный текст кнопки@author marensovich
+     * @author marensovich
+     * @since 0.0.1
+     */
     @Override
     public String getButtonText() {
         return "Вступление в ИТС";
     }
 
+    /**
+     * Обработчик нажатия кнопки пользователем.
+     *
+     * @param update Update, пришедший от Telegram (метод ожидает {@code update.hasMessage() == true})
+     * @throws RuntimeException если отправка сообщения через Telegram API завершилась с ошибкой
+     * @author marensovich
+     * @since 0.0.1
+     */
     @Override
     public void handle(Update update) {
         if (!update.getMessage().getChatId().equals(update.getMessage().getFrom().getId())) {
@@ -85,16 +103,15 @@ public class RegisterITCButton implements Button {
         Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
 
-
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
         message.setText(
                 """
-                        <b>Вступление в ИТС.</b>
-                        
-                        Для вступления в ИТС вам необходимо подать заявку на вступление.
-                        Подать заявку можно используя кнопку ниже.
-                        """
+                <b>Вступление в ИТС.</b>
+                
+                Для вступления в ИТС вам необходимо подать заявку на вступление.
+                Подать заявку можно используя кнопку ниже.
+                """
         );
         message.setParseMode(ParseMode.HTML);
         message.setReplyMarkup(keyboardFactory.create()
@@ -105,48 +122,56 @@ public class RegisterITCButton implements Button {
         try {
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            // выбрасываем runtime-exception: вызывающий код ожидает, что бот не "заглотит" ошибку silently
+            throw new RuntimeException("Ошибка при отправке сообщения о вступлении в ИТС", e);
         }
     }
 
-
     /**
-     * Handle reg button.
+     * Обработчик события нажатия inline-кнопки "Вступить в ИТС".
+     * <p>
+     * Отправляет пользователю краткую информацию о направлениях и inline-кнопки
+     * с callbackData вида {@code itc_reg:{department}}.
+     * </p>
      *
-     * @param update the update
+     * @param update Update содержащий {@code callbackQuery}
+     * @throws RuntimeException если отправка сообщений в Telegram провалилась
+     * @author marensovich
+     * @since 0.0.1
      */
     public void handleRegButton(Update update) {
         Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
 
-        // Отправка общей информации
+        // Информационное сообщение (общая справка)
         SendMessage infoMessage = new SendMessage();
         infoMessage.setChatId(update.getCallbackQuery().getFrom().getId());
         infoMessage.setText(
                 """
-                        <b>Краткая информация о направлениях:</b>
-                        
-                        <b>1. Проектная команда</b> — создание цифровых продуктов.
-                        <b>2. Медиа и контент</b> — видео, фото, социальные сети.
-                        <b>3. PR и коммуникации</b> — продвижение проектов.
-                        <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
-                        """
+                <b>Краткая информация о направлениях:</b>
+                
+                <b>1. Проектная команда</b> — создание цифровых продуктов.
+                <b>2. Медиа и контент</b> — видео, фото, социальные сети.
+                <b>3. PR и коммуникации</b> — продвижение проектов.
+                <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
+                """
         );
         infoMessage.setParseMode(ParseMode.HTML);
 
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getCallbackQuery().getFrom().getId());
-        message.setText(
+        // Сообщение с выбором направления
+        SendMessage directionMessage = new SendMessage();
+        directionMessage.setChatId(update.getCallbackQuery().getFrom().getId());
+        directionMessage.setText(
                 """
-                        <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
-                        
-                        Для завершения регистрации:
-                        1. Выберите направление ниже.
-                        2. Заполните форму после выбора.
-                        3. Дождитесь подтверждения от руководителя.
-                        """
+                <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
+                
+                Для завершения регистрации:
+                1. Выберите направление ниже.
+                2. Заполните форму после выбора.
+                3. Дождитесь подтверждения от руководителя.
+                """
         );
-        message.setParseMode(ParseMode.HTML);
-        message.setReplyMarkup(keyboardFactory.create()
+        directionMessage.setParseMode(ParseMode.HTML);
+        directionMessage.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Проектная команда", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM)
                 .nextInlineRow()
                 .addInlineButton("Медиа и контент", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT)
@@ -159,27 +184,67 @@ public class RegisterITCButton implements Button {
 
         try {
             Bot.getInstance().execute(infoMessage);
-            Bot.getInstance().execute(message);
+            Bot.getInstance().execute(directionMessage);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ошибка при отправке сообщений со списком направлений ИТС", e);
         }
     }
 
-    // ======= Вложенные классы для каждого направления =======
-
     /**
-     * The type Project team handler.
+     * Обработчик процесса подачи заявки для направления "Проектная команда".
+     *
+     * @author marensovich
+     * @since 0.0.1
+     * @version 0.0.1
      */
     @Component
     public static class ProjectTeamHandler {
 
-        // Репозиторий, внедряется один раз через Spring
+        /**
+         * ApplicationService внедряется Spring-ом в static поле через конструктор с {@link Autowired}.
+         * Это позволяет создавать экземпляры handler'а вручную (new ProjectTeamHandler(update, keyboardFactory))
+         * и иметь доступ к applicationService.
+         *
+         * <p>Важно: подход с static-полем выбран для простоты интеграции с текущей архитектурой.
+         * В более строгой архитектуре лучше пользоваться фабрикой/биновым прототипом.</p>
+         *
+         */
         private static ApplicationService applicationService;
 
         /**
-         * Instantiates a new Project team handler.
+         * Временное хранилище данных заявок для пользователей:
+         * key = chatId пользователя, value = {@link UserApplicationData}
          *
-         * @param applicationService the application service
+         * <p>Данные удаляются из map после создания/сброса заявки.</p>
+         * @since 0.0.1
+         */
+        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
+
+        /**
+         * Регулярные выражения для валидации полей
+         * @since 0.0.1
+         */
+        private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
+        private static final String PHONE_REGEX = "^\\+?\\d{11}$";
+        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github|gitlab)\\.com/[A-Za-z0-9_-]+/?$";
+        private static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{1,4}$";
+
+        /**
+         * Экземплярные поля
+         * @since 0.0.1
+         */
+        private Long chatId;
+        private Update update;
+        private KeyboardFactory keyboardFactory;
+        private UserApplicationData data;
+
+        /**
+         * Конструктор, используемый Spring для внедрения {@link ApplicationService}.
+         * <p>Помещает service в статическое поле, доступное всем handler-объектам.</p>
+         *
+         * @param applicationService сервис работы с заявками
+         * @author marensovich
+         * @since 0.0.1
          */
         @Autowired
         public ProjectTeamHandler(ApplicationService applicationService) {
@@ -187,90 +252,153 @@ public class RegisterITCButton implements Button {
         }
 
         /**
-         * The constant userApplicationDataMap.
-         */
-// --- Данные пользователей ---
-        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
-
-        // --- Регулярки ---
-        private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
-        private static final String PHONE_REGEX = "^\\+?\\d{11}$";
-        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github|gitlab)\\.com/[A-Za-z0-9_-]+/?$";
-        private static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{1,4}$";
-
-        // --- Поля экземпляра ---
-        private Long chatId;
-        private Update update;
-        private KeyboardFactory keyboardFactory;
-        private UserApplicationData data;
-
-        /**
-         * Instantiates a new Project team handler.
+         * Конструктор для runtime-использования: создаём handler для конкретного {@code update}.
          *
-         * @param update          the update
-         * @param keyboardFactory the keyboard factory
+         * @param update текущий {@link Update} (сообщение/коллбэк)
+         * @param keyboardFactory фабрика клавиатур (используется при подтверждении)
+         * @throws IllegalArgumentException если невозможно разрешить chatId из update
+         * @author marensovich
+         * @since 0.0.1
          */
-// --- Конструктор для runtime-создания хэндлера ---
         public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory) {
             this.update = update;
             this.keyboardFactory = keyboardFactory;
-
-            Long resolvedChatId;
-            if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
-                resolvedChatId = update.getCallbackQuery().getFrom().getId();
-            } else if (update.hasMessage()) {
-                resolvedChatId = update.getMessage().getChatId();
-            } else {
-                throw new IllegalArgumentException("Cannot determine chatId from update");
-            }
-
-            this.chatId = resolvedChatId;
+            this.chatId = resolveChatId(update);
             this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserApplicationData());
         }
 
         /**
-         * Handle.
+         * Главный метод: начинает/продолжает многошаговый сбор данных.
+         *
+         * <p>Логика:
+         * <ul>
+         *     <li>Если у пользователя уже есть активная заявка — отправляет предупреждение и выходит;</li>
+         *     <li>Если пришёл текст (update.hasMessage()) — прокидывает текст в процессор {@link #processUserInput(String)};</li>
+         *     <li>Иначе — запускает первый шаг {@link #askFullName()}.</li>
+         * </ul>
+         *
+         * @throws RuntimeException если Telegram API вернуло ошибку при отправке сообщения
+         * @author marensovich
+         * @since 0.0.1
          */
         public void handle() {
-            Long id;
-            if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
-                id = update.getCallbackQuery().getFrom().getId();
-            } else if (update.hasMessage()) {
-                id = update.getMessage().getFrom().getId();
-            } else {
-                throw new IllegalArgumentException("Cannot determine userId from update");
-            }
-            if (applicationService.isActiveApplicationExists(id)) {
+            Long userId = resolveUserId(update);
+
+            if (applicationService.isActiveApplicationExists(userId)) {
                 sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
                 userApplicationDataMap.remove(chatId);
                 return;
             }
+
             if (update.hasMessage() && update.getMessage().hasText()) {
-                String text = update.getMessage().getText().trim();
-
-                data.tgId = String.valueOf(update.getMessage().getFrom().getId());
-                data.mention = "@" + update.getMessage().getFrom().getUserName();
-
-                switch (data.getCurrentStep()) {
-                    case FULL_NAME -> handleFullName(text);
-                    case PHONE_NUMBER -> handlePhoneNumber(text);
-                    case GROUP_NUMBER -> handleGroupNumber(text);
-                    case EXPERIENCE -> handleExperience(text);
-                    case GITHUB -> handleGitHub(text);
-                    case STACK -> handleStack(text);
-                    case CONFIRMATION -> handleConfirmation(text);
-                }
+                processUserInput(update.getMessage().getText().trim());
             } else {
                 askFullName();
             }
         }
 
-        // --- 1. ФИО ---
+        /**
+         * Обработать результат YES администратора — одобрить заявку.
+         *
+         * <p>Действия:
+         * <ol>
+         *     <li>Загрузить заявку из БД;</li>
+         *     <li>Уведомить заявителя;</li>
+         *     <li>Редактировать сообщение в админ-чате (пометить как одобренную);</li>
+         *     <li>Обновить статус заявки в БД.</li>
+         * </ol>
+         *
+         * @param applicationId ID заявки (строка, парсится в Long)
+         * @param update Update с callbackQuery от администратора
+         * @throws RuntimeException при ошибках отправки сообщений в Telegram
+         * @author marensovich
+         * @since 0.0.1
+         */
+        public void handleResultYes(String applicationId, Update update) {
+            Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
+            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+
+            // уведомление пользователю
+            sendUserNotification(application.getUserId(),
+                    "✅ Ваша заявка на вступление в ИТС одобрена! " +
+                            "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
+
+            // обновление сообщения в админ-чате
+            updateAdminMessage(update, userData, application, true);
+            applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
+        }
+
+        /**
+         * Обработать результат NO администратора — отклонить заявку.
+         *
+         * <p>Аналогична {@link #handleResultYes(String, Update)} но ставит статус REJECTED и отправляет другой текст.</p>
+         *
+         * @param applicationId ID заявки
+         * @param update Update с callbackQuery от администратора
+         * @throws RuntimeException при ошибках отправки сообщений в Telegram
+         * @author marensovich
+         * @since 0.0.1
+         */
+        public void handleResultNo(String applicationId, Update update) {
+            Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
+            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+
+            // уведомление пользователю
+            sendUserNotification(application.getUserId(),
+                    "❌ Ваша заявка на вступление в ИТС отклонена! " +
+                            "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() +
+                            " для получения ответов на интересующие вопросы.");
+
+            // обновление сообщения в админ-чате
+            updateAdminMessage(update, userData, application, false);
+            applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
+        }
+
+        /**
+         * Обработать текст, пришедший от пользователя, согласно текущему шагу {@code data.currentStep}.
+         *
+         * @param input текст от пользователя (предполагается, что != null)
+         * @author marensovich
+         * @since 0.0.1
+         */
+        private void processUserInput(String input) {
+            // сохраняем метаданные о пользователе
+            data.tgId = String.valueOf(update.getMessage().getFrom().getId());
+            data.mention = "@" + update.getMessage().getFrom().getUserName();
+
+            switch (data.getCurrentStep()) {
+                case FULL_NAME -> handleFullName(input);
+                case PHONE_NUMBER -> handlePhoneNumber(input);
+                case GROUP_NUMBER -> handleGroupNumber(input);
+                case EXPERIENCE -> handleExperience(input);
+                case GITHUB -> handleGitHub(input);
+                case STACK -> handleStack(input);
+                case CONFIRMATION -> handleConfirmation(input);
+            }
+        }
+
+        /**
+         * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askFullName() {
             sendMessage("Введите ваше ФИО (например: Иванов Иван Иванович):");
             data.setCurrentStep(Step.FULL_NAME);
         }
 
+        /**
+         * Обработать введённое ФИО:
+         * <ul>
+         *     <li>валидирует через {@link #FIO_REGEX};</li>
+         *     <li>при корректном вводе — сохраняет и запрашивает телефон;</li>
+         *     <li>при некорректном — просит повторить ввод.</li>
+         * </ul>
+         *
+         * @param input введённое пользователем значение
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handleFullName(String input) {
             if (!input.matches(FIO_REGEX)) {
                 sendMessage("❌ Неверный формат ФИО. Только русские буквы, первая — заглавная.\nПример: Иванов Иван Иванович");
@@ -281,15 +409,26 @@ public class RegisterITCButton implements Button {
             askPhoneNumber();
         }
 
-        // --- 2. Телефон ---
+        /**
+         * Запросить номер телефона и переключить шаг на {@link Step#PHONE_NUMBER}.
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askPhoneNumber() {
             sendMessage("Введите номер телефона (например: +79001234567):");
             data.setCurrentStep(Step.PHONE_NUMBER);
         }
 
+        /**
+         * Обработать введённый телефон: валидация по {@link #PHONE_REGEX}, далее переход к группе.
+         *
+         * @param input введённый телефон
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handlePhoneNumber(String input) {
             if (!input.matches(PHONE_REGEX)) {
-                sendMessage("❌ Неверный формат телефона. Используйте только цифры, можно с '+', 11 символов.");
+                sendMessage("❌ Неверный формат телефона. Используйте только цифры, можно с '+', ожидание 11 цифр (например +7900... ).");
                 askPhoneNumber();
                 return;
             }
@@ -297,12 +436,23 @@ public class RegisterITCButton implements Button {
             askGroupNumber();
         }
 
-        // --- 3. Группа ---
+        /**
+         * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askGroupNumber() {
             sendMessage("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
             data.setCurrentStep(Step.GROUP_NUMBER);
         }
 
+        /**
+         * Обработать введённый номер группы: Uppercase + проверка через {@link #GROUP_REGEX}.
+         *
+         * @param input введённый номер группы
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handleGroupNumber(String input) {
             if (!input.toUpperCase().matches(GROUP_REGEX)) {
                 sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024");
@@ -313,15 +463,27 @@ public class RegisterITCButton implements Button {
             askExperience();
         }
 
-        // --- 4. Опыт ---
+        /**
+         * Запросить текст об опыте и переключить шаг на {@link Step#EXPERIENCE}.
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askExperience() {
             sendMessage("Опишите ваш опыт (пару предложений):");
             data.setCurrentStep(Step.EXPERIENCE);
         }
 
+        /**
+         * Обработать введённый опыт (проверка на минимальную длину семантически).
+         *
+         * @param input введённый текст опыта
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handleExperience(String input) {
-            if (input.trim().split(" ").length < 10) {
-                sendMessage("❌ Слишком коротко. Опишите чуть подробнее:");
+            // Простая эвристика — минимум ~10 слов. При необходимости замените на более гибкую логику.
+            if (input.trim().split("\\s+").length < 10) {
+                sendMessage("❌ Слишком коротко. Опишите чуть подробнее (несколько предложений):");
                 askExperience();
                 return;
             }
@@ -329,15 +491,26 @@ public class RegisterITCButton implements Button {
             askGitHub();
         }
 
-        // --- 5. GitHub ---
+        /**
+         * Запросить ссылку на репозиторий и переключить шаг на {@link Step#GITHUB}.
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askGitHub() {
             sendMessage("Укажите ссылку на ваш GitHub/GitLab (пример: https://github.com/username):");
             data.setCurrentStep(Step.GITHUB);
         }
 
+        /**
+         * Обработать введённую ссылку на GitHub/GitLab (проверка по {@link #GITHUB_REGEX}).
+         *
+         * @param input введённая ссылка
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handleGitHub(String input) {
             if (!input.matches(GITHUB_REGEX)) {
-                sendMessage("❌ Неверная ссылка на GitHub/GitLab. Попробуйте снова:");
+                sendMessage("❌ Неверная ссылка на GitHub/GitLab. Попробуйте снова (пример: https://github.com/username):");
                 askGitHub();
                 return;
             }
@@ -345,15 +518,26 @@ public class RegisterITCButton implements Button {
             askStack();
         }
 
-        // --- 6. Стек ---
+        /**
+         * Запросить стек технологий и переключить шаг на {@link Step#STACK}.
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askStack() {
             sendMessage("Введите стек технологий (например: Java, Spring, SQL):");
             data.setCurrentStep(Step.STACK);
         }
 
+        /**
+         * Обработать введённый стек — проверяет пустоту и длину.
+         *
+         * @param input введённый стек
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handleStack(String input) {
             if (input.isEmpty() || input.length() > 200) {
-                sendMessage("❌ Некорректный стек. Попробуйте снова:");
+                sendMessage("❌ Некорректный стек. Попробуйте снова (коротко, через запятую):");
                 askStack();
                 return;
             }
@@ -361,21 +545,36 @@ public class RegisterITCButton implements Button {
             askConfirmation();
         }
 
-        // --- 7. Подтверждение ---
+        /**
+         * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void askConfirmation() {
+            String confirmationText = String.format(
+                    """
+                    Проверьте введённые данные:
+                    
+                    <b>ФИО:</b> %s
+                    <b>Телефон:</b> %s
+                    <b>Группа:</b> %s
+                    <b>Опыт:</b> %s
+                    <b>GitHub/GitLab:</b> %s
+                    <b>Стек:</b> %s
+                    
+                    Подтверждаете данные? (Да/Нет)""",
+                    escape(data.getFullName()),
+                    escape(data.getPhoneNumber()),
+                    escape(data.getGroupNumber()),
+                    escape(data.getExperience()),
+                    escape(data.getGitHub()),
+                    escape(data.getStack())
+            );
+
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
             message.setParseMode(ParseMode.HTML);
-            message.setText(
-                    "Проверьте введённые данные:\n\n" +
-                            "<b>ФИО:</b> " + escape(data.getFullName()) + "\n" +
-                            "<b>Телефон:</b> " + escape(data.getPhoneNumber()) + "\n" +
-                            "<b>Группа:</b> " + escape(data.getGroupNumber()) + "\n" +
-                            "<b>Опыт:</b> " + escape(data.getExperience()) + "\n" +
-                            "<b>GitHub/GitLab:</b> " + escape(data.getGitHub()) + "\n" +
-                            "<b>Стек:</b> " + escape(data.getStack()) + "\n\n" +
-                            "Подтверждаете данные? (Да/Нет)"
-            );
+            message.setText(confirmationText);
             message.setReplyMarkup(
                     keyboardFactory.create()
                             .addButton("Да")
@@ -386,166 +585,198 @@ public class RegisterITCButton implements Button {
             try {
                 Bot.getInstance().execute(message);
             } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Ошибка при отправке сообщения подтверждения", e);
             }
-
             data.setCurrentStep(Step.CONFIRMATION);
         }
 
+        /**
+         * Обработать ответ пользователя на подтверждение ("Да"/"Нет").
+         *
+         * @param input ввод пользователя
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void handleConfirmation(String input) {
             String answer = input.toLowerCase();
             if (answer.equals("да") || answer.equals("yes")) {
-                sendMessage("✅ Спасибо! Ваша заявка сохранена.");
-
-                // Отправка уведомления
-                SendMessage notify = new SendMessage();
-                notify.setParseMode(ParseMode.HTML);
-                notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-                notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
-                notify.setText("<b>Новая заявка от " + data.mention + " (" + data.tgId + "):</b>\n\n" +
-                        "<b>ФИО:</b> " + escape(data.getFullName()) + "\n" +
-                        "<b>Телефон:</b> " + escape(data.getPhoneNumber()) + "\n" +
-                        "<b>Группа:</b> " + escape(data.getGroupNumber()) + "\n" +
-                        "<b>Опыт:</b> " + escape(data.getExperience()) + "\n" +
-                        "<b>GitHub/GitLab:</b> " + escape(data.getGitHub()) + "\n" +
-                        "<b>Стек:</b> " + escape(data.getStack())
-                );
-
-                Application application = applicationService.createApplication(
-                        Application.Departament.Development,
-                        data,
-                        Long.valueOf(data.getTgId()),
-                        null
-                );
-
-                notify.setReplyMarkup(keyboardFactory.create()
-                        .addInlineButton("Принять заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":YES:" + application.getId())
-                        .nextInlineRow()
-                        .addInlineButton("Отклонить заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":NO:" + application.getId())
-                        .buildInlineKeyboard()
-                );
-
-                Message message;
-                try {
-                    message = Bot.getInstance().execute(notify);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-
-                applicationService.updateApplicationMessageId(application.getId(), Long.valueOf(message.getMessageId()));
-
-                // Очистка
-                userApplicationDataMap.remove(chatId);
-                Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
-
+                processApplicationConfirmation();
             } else if (answer.equals("нет") || answer.equals("no")) {
                 sendMessage("🔄 Хорошо, начнем заново.");
                 data.reset();
                 askFullName();
             } else {
-                sendMessage("Пожалуйста, ответьте 'Да' или 'Нет'.");
+                sendMessage("Пожалуйста, ответьте 'Да' или 'Нет' (без кавычек).");
             }
         }
 
         /**
-         * Handle result yes.
+         * Заключительный шаг: сохранение заявки в БД и уведомление админов.
          *
-         * @param id     the id
-         * @param update the update
+         * <p>Порядок:
+         * <ol>
+         *     <li>Создать запись {@link Application} через {@link ApplicationService#createApplication}.</li>
+         *     <li>Отправить уведомление в админ-топик с inline-кнопками Принять/Отклонить (callback содержит ID заявки).</li>
+         *     <li>Сохранить messageId админ-сообщения в заявке (через applicationService.updateApplicationMessageId).</li>
+         *     <li>Очистить временные данные и снять активную кнопку у пользователя.</li>
+         * </ol>
+         * @author marensovich
+         * @since 0.0.1
          */
-        public void handleResultYes(String id, Update update) {
-            Application application = applicationService.getApplicationById(Long.valueOf(id));
+        private void processApplicationConfirmation() {
+            sendMessage("✅ Спасибо! Ваша заявка сохранена.");
 
-            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+            Application application = applicationService.createApplication(
+                    Application.Departament.Development,
+                    data,
+                    Long.valueOf(data.getTgId()),
+                    null
+            );
 
-            // 1️⃣ Отправляем пользователю уведомление
-            SendMessage notify = new SendMessage();
-            notify.setParseMode(ParseMode.HTML);
-            notify.setText("✅ Ваша заявка на вступление в ИТС одобрена! Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
-            notify.setChatId(application.getUserId());
+            Message adminMessage = sendAdminNotification(application);
+            applicationService.updateApplicationMessageId(application.getId(), Long.valueOf(adminMessage.getMessageId()));
 
-            try {
-                Bot.getInstance().execute(notify);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-
-            if (update.hasCallbackQuery()) {
-                EditMessageText editMessage = new EditMessageText();
-                editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
-                editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-                editMessage.setParseMode(ParseMode.HTML);
-                editMessage.setText("<b>Новая заявка от " + userData.mention + " (" + userData.tgId + "):</b>\n\n" +
-                        "<b>ФИО:</b> " + escape(userData.getFullName()) + "\n" +
-                        "<b>Телефон:</b> " + escape(userData.getPhoneNumber()) + "\n" +
-                        "<b>Группа:</b> " + escape(userData.getGroupNumber()) + "\n" +
-                        "<b>Опыт:</b> " + escape(userData.getExperience()) + "\n" +
-                        "<b>GitHub/GitLab:</b> " + escape(userData.getGitHub()) + "\n" +
-                        "<b>Стек:</b> " + escape(userData.getStack()) + "\n\n" +
-                        "✅ Заявка одобрена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "."
-                );
-
-                applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
-
-                try {
-                    Bot.getInstance().execute(editMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            userApplicationDataMap.remove(chatId);
+            Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
         }
-
 
         /**
-         * Handle result no.
+         * Отправить уведомление администраторам (в чат/топик) и вернуть отправленное {@link Message}.
          *
-         * @param id     the id
-         * @param update the update
+         * <p>Использует переменные окружения:
+         * <ul>
+         *     <li>TELEGRAM_NOTIFICATION_ID — id чата/топика для уведомлений;</li>
+         *     <li>TG_TOPIC — id темы (при использовании форумов/топиков).</li>
+         * </ul>
+         *
+         * @param application созданная заявка
+         * @return отправленное сообщение (Telegram Message)
+         * @throws RuntimeException если отправка сообщения не удалась
+         * @author marensovich
+         * @since 0.0.1
          */
-        public void handleResultNo(String id, Update update) {
-            Application application = applicationService.getApplicationById(Long.valueOf(id));
+        private Message sendAdminNotification(Application application) {
+            String adminNotificationText = String.format(
+                    """
+                    <b>Новая заявка от %s (%s):</b>
+                    
+                    <b>ФИО:</b> %s
+                    <b>Телефон:</b> %s
+                    <b>Группа:</b> %s
+                    <b>Опыт:</b> %s
+                    <b>GitHub/GitLab:</b> %s
+                    <b>Стек:</b> %s""",
+                    data.mention, data.tgId,
+                    escape(data.getFullName()),
+                    escape(data.getPhoneNumber()),
+                    escape(data.getGroupNumber()),
+                    escape(data.getExperience()),
+                    escape(data.getGitHub()),
+                    escape(data.getStack())
+            );
 
-            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
-
-            // 1️⃣ Отправляем пользователю уведомление
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
-            notify.setText("❌ Ваша заявка на вступление в ИТС отклонена! Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + "для получения ответов на интересующие вопросы.");
-            notify.setChatId(application.getUserId());
+            notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
+            notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+            notify.setText(adminNotificationText);
+            notify.setReplyMarkup(keyboardFactory.create()
+                    .addInlineButton("Принять заявку",
+                            ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                                    ":YES:" + application.getId())
+                    .nextInlineRow()
+                    .addInlineButton("Отклонить заявку",
+                            ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                                    ":NO:" + application.getId())
+                    .buildInlineKeyboard()
+            );
 
             try {
-                Bot.getInstance().execute(notify);
+                return Bot.getInstance().execute(notify);
             } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-
-            if (update.hasCallbackQuery()) {
-                EditMessageText editMessage = new EditMessageText();
-                editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
-                editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-                editMessage.setParseMode(ParseMode.HTML);
-                editMessage.setText("<b>Новая заявка от " + userData.mention + " (" + userData.tgId + "):</b>\n\n" +
-                        "<b>ФИО:</b> " + escape(userData.getFullName()) + "\n" +
-                        "<b>Телефон:</b> " + escape(userData.getPhoneNumber()) + "\n" +
-                        "<b>Группа:</b> " + escape(userData.getGroupNumber()) + "\n" +
-                        "<b>Опыт:</b> " + escape(userData.getExperience()) + "\n" +
-                        "<b>GitHub/GitLab:</b> " + escape(userData.getGitHub()) + "\n" +
-                        "<b>Стек:</b> " + escape(userData.getStack()) + "\n\n" +
-                        "❌ Заявка отклонена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "."
-                );
-
-                applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
-
-
-                try {
-                    Bot.getInstance().execute(editMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
+                throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
             }
         }
 
-        // --- Утилиты ---
+        /**
+         * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
+         *
+         * @param update Update с callbackQuery от администратора
+         * @param userData данные пользователя (десериализованные из application.data)
+         * @param application сущность заявки
+         * @param approved true — одобрена, false — отклонена
+         * @author marensovich
+         * @since 0.0.1
+         */
+        private void updateAdminMessage(Update update, UserApplicationData userData, Application application, boolean approved) {
+            if (!update.hasCallbackQuery()) return;
+
+            String statusText = approved ?
+                    "✅ Заявка одобрена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "." :
+                    "❌ Заявка отклонена администратором @" + update.getCallbackQuery().getFrom().getUserName() + ".";
+
+            String messageText = String.format(
+                    """
+                    <b>Новая заявка от %s (%s):</b>
+                    
+                    <b>ФИО:</b> %s
+                    <b>Телефон:</b> %s
+                    <b>Группа:</b> %s
+                    <b>Опыт:</b> %s
+                    <b>GitHub/GitLab:</b> %s
+                    <b>Стек:</b> %s
+                    
+                    %s""",
+                    userData.mention, userData.tgId,
+                    escape(userData.getFullName()),
+                    escape(userData.getPhoneNumber()),
+                    escape(userData.getGroupNumber()),
+                    escape(userData.getExperience()),
+                    escape(userData.getGitHub()),
+                    escape(userData.getStack()),
+                    statusText
+            );
+
+            EditMessageText editMessage = new EditMessageText();
+            editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+            editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+            editMessage.setParseMode(ParseMode.HTML);
+            editMessage.setText(messageText);
+
+            try {
+                Bot.getInstance().execute(editMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException("Ошибка при редактировании админского сообщения", e);
+            }
+        }
+
+        /**
+         * Отправить приватное уведомление пользователю.
+         *
+         * @param userId id пользователя (chat id в личных сообщениях)
+         * @param text текст уведомления (может содержать HTML, экранируется при необходимости)
+         * @author marensovich
+         * @since 0.0.1
+         */
+        private void sendUserNotification(Long userId, String text) {
+            SendMessage notify = new SendMessage();
+            notify.setParseMode(ParseMode.HTML);
+            notify.setText(text);
+            notify.setChatId(userId);
+            try {
+                Bot.getInstance().execute(notify);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException("Ошибка при отправке уведомления пользователю", e);
+            }
+        }
+
+        /**
+         * Утилитный метод быстрой отправки текстового сообщения в текущий chatId (используется внутри handler).
+         *
+         * @param text текст сообщения (HTML-неэкранированный)
+         * @author marensovich
+         * @since 0.0.1
+         */
         private void sendMessage(String text) {
             SendMessage msg = new SendMessage();
             msg.setChatId(chatId);
@@ -554,10 +785,56 @@ public class RegisterITCButton implements Button {
             try {
                 Bot.getInstance().execute(msg);
             } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Ошибка при отправке сообщения пользователю (внутренний sendMessage)", e);
             }
         }
 
+        /**
+         * Разрешить chatId из {@link Update}.
+         *
+         * @param update текущий update
+         * @return chatId (Long)
+         * @throws IllegalArgumentException если chatId нельзя получить
+         * @author marensovich
+         * @since 0.0.1
+         */
+        private Long resolveChatId(Update update) {
+            if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
+                return update.getCallbackQuery().getFrom().getId();
+            } else if (update.hasMessage()) {
+                return update.getMessage().getChatId();
+            } else {
+                throw new IllegalArgumentException("Cannot determine chatId from update");
+            }
+        }
+
+        /**
+         * Разрешить userId (идентификатор отправителя) из {@link Update}.
+         *
+         * @param update текущий update
+         * @return userId
+         * @throws IllegalArgumentException если userId нельзя получить
+         * @author marensovich
+         * @since 0.0.1
+         */
+        private Long resolveUserId(Update update) {
+            if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
+                return update.getCallbackQuery().getFrom().getId();
+            } else if (update.hasMessage()) {
+                return update.getMessage().getFrom().getId();
+            } else {
+                throw new IllegalArgumentException("Cannot determine userId from update");
+            }
+        }
+
+        /**
+         * Экранирует HTML-символы в тексте, чтобы избежать поломки парсинга HTML у Telegram.
+         *
+         * @param text исходный текст
+         * @return экранированный текст (если input == null — возвращается пустая строка)
+         * @author marensovich
+         * @since 0.0.1
+         */
         private String escape(String text) {
             return text == null ? "" : text
                     .replace("&", "&amp;")
@@ -566,59 +843,125 @@ public class RegisterITCButton implements Button {
         }
 
         /**
-         * The enum Step.
+         * Шаги процесса многошаговой формы.
+         * @author marensovich
+         * @since 0.0.1
          */
         public enum Step {
             /**
-             * Full name step.
+             * Ввод ФИО
+             * @since 0.0.1
              */
             FULL_NAME,
+
             /**
-             * Phone number step.
+             * Ввод номера телефона
+             * @since 0.0.1
              */
             PHONE_NUMBER,
+
             /**
-             * Group number step.
+             * Ввод номера группы
+             * @since 0.0.1
              */
             GROUP_NUMBER,
+
             /**
-             * Experience step.
+             * Описание опыта
+             * @since 0.0.1
              */
             EXPERIENCE,
+
             /**
-             * Github step.
+             * Ссылка на GitHub/GitLab
+             * @since 0.0.1
              */
             GITHUB,
+
             /**
-             * Stack step.
+             * Ввод стека технологий
+             * @since 0.0.1
              */
             STACK,
+
             /**
-             * Confirmation step.
+             * Подтверждение данных
+             * @since 0.0.1
              */
             CONFIRMATION
         }
 
         /**
-         * The type User application data.
+         * DTO временных данных заявки пользователя, хранится в {@link #userApplicationDataMap}.
+         *
+         * <p>Поле {@code currentStep} помечено {@link JsonIgnore} чтобы при сериализации DTO
+         * в базу (если потребуется) шаг не сохранялся автоматически.</p>
+         * @author marensovich
+         * @since 0.0.1
+         * @version 0.0.1
          */
         @Getter
         @Setter
         public static class UserApplicationData {
+            /**
+             * Упоминание пользователя в Telegram (например @login)
+             * @since 0.0.1
+             */
             private String mention;
+
+            /**
+             * Telegram id пользователя (строка)
+             * @since 0.0.1
+             */
             private String tgId;
+
+            /**
+             * ФИО
+             * @since 0.0.1
+             */
             private String fullName;
+
+            /**
+             * Телефон
+             * @since 0.0.1
+             */
             private String phoneNumber;
+
+            /**
+             * Номер учебной группы
+             * @since 0.0.1
+             */
             private String groupNumber;
+
+            /**
+             * Описание опыта
+             * @since 0.0.1
+             */
             private String experience;
+
+            /**
+             * Ссылка на GitHub или GitLab
+             * @since 0.0.1
+             */
             private String gitHub;
+
+            /**
+             * Стек технологий
+             * @since 0.0.1
+             */
             private String stack;
 
+            /**
+             * Текущий шаг
+             * @since 0.0.1
+             */
             @JsonIgnore
             private Step currentStep = Step.FULL_NAME;
 
             /**
-             * Reset.
+             * Сброс всех полей в начальное состояние.
+             * @since 0.0.1
+             * @author marensovich
              */
             public void reset() {
                 mention = null;
@@ -636,22 +979,24 @@ public class RegisterITCButton implements Button {
 
 
     /**
-     * The type Media handler.
+     * Простой обработчик направления "Медиа и контент".
+     * <p>Оставлен как placeholder для будущей реализации.</p>
+     * @author marensovich
+     * @since 0.0.1
+     * @version 0.0.1
      */
     public static class MediaHandler {
         private final Update update;
 
-        /**
-         * Instantiates a new Media handler.
-         *
-         * @param update the update
-         */
         public MediaHandler(Update update) {
             this.update = update;
         }
 
         /**
-         * Handle.
+         * Отправляет простое текстовое подтверждение выбора направления
+         * и удаляет клавиатуру (использует {@link Bot#removeKeyboard()}).
+         * @author marensovich
+         * @since 0.0.1
          */
         public void handle() {
             sendMessage("Вы выбрали направление 'Медиа и контент'. Пожалуйста, следуйте инструкциям.");
@@ -665,28 +1010,29 @@ public class RegisterITCButton implements Button {
             try {
                 Bot.getInstance().execute(message);
             } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Ошибка при отправке сообщения в MediaHandler", e);
             }
         }
     }
 
     /**
-     * The type Pr handler.
+     * Заглушка для направления "PR и коммуникации".
+     * @author marensovich
+     * @since 0.0.1
+     * @version 0.0.1
      */
     public static class PRHandler {
         private final Update update;
 
-        /**
-         * Instantiates a new Pr handler.
-         *
-         * @param update the update
-         */
         public PRHandler(Update update) {
             this.update = update;
         }
 
         /**
-         * Handle.
+         * Отправляет простое текстовое подтверждение выбора направления
+         * и удаляет клавиатуру (использует {@link Bot#removeKeyboard()}).
+         * @author marensovich
+         * @since 0.0.1
          */
         public void handle() {
             sendMessage("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте инструкциям.");
@@ -700,28 +1046,29 @@ public class RegisterITCButton implements Button {
             try {
                 Bot.getInstance().execute(message);
             } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Ошибка при отправке сообщения в PRHandler", e);
             }
         }
     }
 
     /**
-     * The type Designer handler.
+     * Заглушка для направления "Дизайнеры".
+     * @author marensovich
+     * @since 0.0.1
+     * @version 0.0.1
      */
     public static class DesignerHandler {
         private final Update update;
 
-        /**
-         * Instantiates a new Designer handler.
-         *
-         * @param update the update
-         */
         public DesignerHandler(Update update) {
             this.update = update;
         }
 
         /**
-         * Handle.
+         * Отправляет простое текстовое подтверждение выбора направления
+         * и удаляет клавиатуру (использует {@link Bot#removeKeyboard()}).
+         * @author marensovich
+         * @since 0.0.1
          */
         public void handle() {
             sendMessage("Вы выбрали направление 'Дизайнеры'. Пожалуйста, следуйте инструкциям.");
@@ -735,9 +1082,8 @@ public class RegisterITCButton implements Button {
             try {
                 Bot.getInstance().execute(message);
             } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Ошибка при отправке сообщения в DesignerHandler", e);
             }
         }
     }
-
 }

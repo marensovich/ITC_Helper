@@ -5,7 +5,13 @@ import me.marensovich.itsKipfin.database.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
- * The type User service.
+ * Сервис для управления пользователями.
+ * <p>
+ * Отвечает за создание пользователей, проверку существования и определение прав администратора.
+ *
+ * @author marensovich
+ * @version 0.0.1
+ * @since 0.0.1
  */
 @Service
 public class UserService {
@@ -13,67 +19,77 @@ public class UserService {
     private final UserRepository userRepository;
 
     /**
-     * Instantiates a new User service.
+     * Конструктор сервиса пользователей.
      *
-     * @param userRepository the user repository
+     * @param userRepository репозиторий для работы с сущностями {@link User}
+     * @author marensovich
+     * @since 0.0.1
      */
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     /**
-     * Create user user.
+     * Создаёт нового пользователя по его ID.
      *
-     * @param userId the user id
-     * @return the user
+     * @param userId ID пользователя
+     * @return созданный объект {@link User}
+     * @since 0.0.1
+     * @author marensovich
      */
     public User createUser(Long userId) {
         User user = new User();
         user.setUserId(userId);
         user.setAdmin(false);
-
         return userRepository.save(user);
     }
 
     /**
-     * Create user user.
+     * Создаёт нового пользователя по строковому ID.
      *
-     * @param userId the user id
-     * @return the user
+     * @param userId строковый идентификатор пользователя
+     * @return созданный объект {@link User}
+     * @since 0.0.1
+     * @author marensovich
      */
     public User createUser(String userId) {
         User user = new User();
         user.setUserId(Long.valueOf(userId));
         user.setAdmin(false);
-
         return userRepository.save(user);
     }
 
     /**
-     * Is user exists boolean.
+     * Проверяет, существует ли пользователь.
      *
-     * @param userId the user id
-     * @return the boolean
+     * @param userId ID пользователя
+     * @return {@code true}, если пользователь существует, иначе {@code false}
+     * @since 0.0.1
+     * @author marensovich
      */
     public boolean isUserExists(Long userId) {
         return userRepository.existsById(userId);
     }
 
     /**
-     * Is user admin boolean.
+     * Проверяет, является ли пользователь администратором.
      *
-     * @param user the user
-     * @return the boolean
+     * @param user объект пользователя
+     * @return {@code true}, если пользователь — администратор, иначе {@code false}
+     * @since 0.0.1
+     * @author marensovich
      */
     public boolean isUserAdmin(User user) {
         return user != null && user.isAdmin();
     }
 
     /**
-     * Is user admin boolean.
+     * Проверяет, является ли пользователь администратором по ID.
      *
-     * @param userId the user id
-     * @return the boolean
+     * @param userId ID пользователя
+     * @return {@code true}, если пользователь — администратор, иначе {@code false}
+     * @since 0.0.1
+     * @author marensovich
      */
     public boolean isUserAdmin(Long userId) {
         User user = userRepository.findById(userId).orElse(null);

@@ -14,57 +14,83 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type Keyboard factory.
+ * Фабрика для создания различных типов клавиатур (Reply и Inline)
+ * для Telegram-бота. Используется для удобного построения
+ * интерфейсов взаимодействия с пользователем.
+ *
+ * <p>Поддерживает работу как с текстовыми кнопками, так и
+ * с кнопками, связанными с классами, реализующими интерфейс {@link Button}.
+ *
+ * @author marensovich
+ * @version 0.0.2
+ * @since 0.0.1
  */
 @Component
 public class KeyboardFactory {
+
     @Lazy
     private final ButtonManager buttonManager;
 
     /**
-     * Instantiates a new Keyboard factory.
+     * Конструктор фабрики клавиатур.
      *
-     * @param buttonManager the button manager
+     * @author marensovich
+     * @since 0.0.1
+     * @param buttonManager менеджер кнопок, предоставляющий информацию
+     *                      о зарегистрированных кнопках и их текстах
      */
     public KeyboardFactory(@Lazy ButtonManager buttonManager) {
         this.buttonManager = buttonManager;
     }
 
     /**
-     * Create universal keyboard builder.
+     * Создаёт универсальный билдер клавиатур.
+     * <p>Билдер позволяет создавать как обычные (Reply),
+     * так и встроенные (Inline) клавиатуры.
      *
-     * @return the universal keyboard builder
+     * @return экземпляр {@link UniversalKeyboardBuilder}
+     * @author marensovich
+     * @since 0.0.1
      */
     public UniversalKeyboardBuilder create() {
         return new UniversalKeyboardBuilder(buttonManager);
     }
 
     /**
-     * The type Universal keyboard builder.
+     * Вложенный класс, реализующий шаблон проектирования "Билдер"
+     * для создания клавиатур Telegram (Reply и Inline).
+     * <p>Не требует экземпляра внешнего класса {@link KeyboardFactory}.
+     * @since 0.0.1
+     * @version 0.0.2
+     * @author marensovich
      */
-// 👇 вот здесь вложенный, но static класс, чтобы не требовал экземпляр внешнего класса
     public static class UniversalKeyboardBuilder {
 
         private final ButtonManager buttonManager;
 
         /**
-         * Instantiates a new Universal keyboard builder.
+         * Конструктор билдера клавиатур.
          *
-         * @param buttonManager the button manager
+         * @author marensovich
+         * @since 0.0.1
+         * @param buttonManager менеджер кнопок, предоставляющий тексты кнопок
+         *                      и их callback-данные
          */
         public UniversalKeyboardBuilder(@Lazy ButtonManager buttonManager) {
             this.buttonManager = buttonManager;
         }
 
-        // --- Reply кнопки ---
+        // --- Reply-кнопки ---
         private final List<KeyboardRow> rows = new ArrayList<>();
         private KeyboardRow currentRow = new KeyboardRow();
 
         /**
-         * Add button universal keyboard builder.
+         * Добавляет кнопку в текущий ряд, используя зарегистрированный класс кнопки.
          *
-         * @param buttonClass the button class
-         * @return the universal keyboard builder
+         * @param buttonClass класс кнопки, реализующий интерфейс {@link Button}
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.1
          */
         public UniversalKeyboardBuilder addButton(Class<? extends Button> buttonClass) {
             Button button = buttonManager.getByClass(buttonClass);
@@ -75,10 +101,12 @@ public class KeyboardFactory {
         }
 
         /**
-         * Add button universal keyboard builder.
+         * Добавляет обычную текстовую кнопку в текущий ряд.
          *
-         * @param text the text
-         * @return the universal keyboard builder
+         * @param text текст кнопки
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.1
          */
         public UniversalKeyboardBuilder addButton(String text) {
             currentRow.add(new KeyboardButton(text));
@@ -86,9 +114,11 @@ public class KeyboardFactory {
         }
 
         /**
-         * Next row universal keyboard builder.
+         * Завершает текущий ряд кнопок и создаёт новый.
          *
-         * @return the universal keyboard builder
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.1
          */
         public UniversalKeyboardBuilder nextRow() {
             rows.add(currentRow);
@@ -97,9 +127,11 @@ public class KeyboardFactory {
         }
 
         /**
-         * Build reply keyboard reply keyboard markup.
+         * Завершает построение Reply-клавиатуры и возвращает готовую разметку.
          *
-         * @return the reply keyboard markup
+         * @return объект {@link ReplyKeyboardMarkup} для отправки в Telegram API
+         * @author marensovich
+         * @since 0.0.1
          */
         public ReplyKeyboardMarkup buildReplyKeyboard() {
             if (!currentRow.isEmpty()) rows.add(currentRow);
@@ -109,15 +141,17 @@ public class KeyboardFactory {
             return markup;
         }
 
-        // --- Inline кнопки ---
+        // --- Inline-кнопки ---
         private final List<List<InlineKeyboardButton>> inlineRows = new ArrayList<>();
         private List<InlineKeyboardButton> currentInlineRow = new ArrayList<>();
 
         /**
-         * Add inline button universal keyboard builder.
+         * Добавляет Inline-кнопку, связанную с классом {@link Button}.
          *
-         * @param buttonClass the button class
-         * @return the universal keyboard builder
+         * @param buttonClass класс кнопки, реализующий интерфейс {@link Button}
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.1
          */
         public UniversalKeyboardBuilder addInlineButton(Class<? extends Button> buttonClass) {
             Button button = buttonManager.getByClass(buttonClass);
@@ -131,11 +165,13 @@ public class KeyboardFactory {
         }
 
         /**
-         * Add inline button universal keyboard builder.
+         * Добавляет Inline-кнопку с заданным текстом и callback-данными.
          *
-         * @param text         the text
-         * @param callbackData the callback data
-         * @return the universal keyboard builder
+         * @param text         текст кнопки
+         * @param callbackData данные, передаваемые при нажатии кнопки
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.1
          */
         public UniversalKeyboardBuilder addInlineButton(String text, String callbackData) {
             InlineKeyboardButton inlineButton = new InlineKeyboardButton();
@@ -146,9 +182,11 @@ public class KeyboardFactory {
         }
 
         /**
-         * Next inline row universal keyboard builder.
+         * Завершает текущий ряд Inline-кнопок и создаёт новый.
          *
-         * @return the universal keyboard builder
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.1
          */
         public UniversalKeyboardBuilder nextInlineRow() {
             inlineRows.add(currentInlineRow);
@@ -157,9 +195,11 @@ public class KeyboardFactory {
         }
 
         /**
-         * Build inline keyboard inline keyboard markup.
+         * Завершает построение Inline-клавиатуры и возвращает готовую разметку.
          *
-         * @return the inline keyboard markup
+         * @return объект {@link InlineKeyboardMarkup} для отправки в Telegram API
+         * @author marensovich
+         * @since 0.0.1
          */
         public InlineKeyboardMarkup buildInlineKeyboard() {
             if (!currentInlineRow.isEmpty()) inlineRows.add(currentInlineRow);

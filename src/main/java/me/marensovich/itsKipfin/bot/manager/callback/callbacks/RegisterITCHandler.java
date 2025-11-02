@@ -8,7 +8,12 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 /**
- * The type Register itc handler.
+ * Обработчик callback-запросов с префиксом регистрации ИТС.
+ * <p>
+ * Используется для выбора подразделения при регистрации пользователя.
+ * @version 0.0.1
+ * @author marensovich
+ * @since 0.0.1
  */
 @Component
 public class RegisterITCHandler implements PrefixCallbackHandler {
@@ -16,9 +21,11 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
     private final KeyboardFactory keyboardFactory;
 
     /**
-     * Instantiates a new Register itc handler.
+     * Конструктор обработчика.
      *
-     * @param keyboardFactory the keyboard factory
+     * @param keyboardFactory фабрика клавиатур
+     * @author marensovich
+     * @since 0.0.1
      */
     public RegisterITCHandler(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
@@ -54,10 +61,10 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
                         new RegisterITCButton.MediaHandler(update).handle();
 
                 default -> Bot.getInstance()
-                        .sendErrorMessage(chatId, "Invalid callback data: " + callbackData);
+                        .sendErrorMessage(chatId, "Неверные данные callback: " + callbackData);
             }
         } else if (command == null) {
-            Bot.getInstance().sendErrorMessage(chatId, "No active command found for this chat.");
+            Bot.getInstance().sendErrorMessage(chatId, "Нет активной команды для этого чата.");
         }
     }
 }

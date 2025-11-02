@@ -11,21 +11,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The type Button manager.
+ * Менеджер кнопок.
+ * <p>
+ * Управляет всеми кнопками бота, их регистрацией, поиском по тексту,
+ * а также хранит активные кнопки, закрепленные за пользователями.
+ * @version 0.0.1
+ * @author marensovich
+ * @since 0.0.1
  */
 @Service
 @Slf4j
 public class ButtonManager {
+
     private final Map<Class<? extends Button>, Button> buttonsByClass = new HashMap<>();
     private final Map<String, Button> buttonsByText = new HashMap<>();
-
     private final Map<Long, Button> activeButtons = new HashMap<>();
 
-
     /**
-     * Instantiates a new Button manager.
+     * Конструктор менеджера.
      *
-     * @param buttonList the button list
+     * @param buttonList список всех кнопок для регистрации
+     * @author marensovich
+     * @since 0.0.1
      */
     @Autowired
     public ButtonManager(List<Button> buttonList) {
@@ -36,29 +43,35 @@ public class ButtonManager {
     }
 
     /**
-     * Gets by class.
+     * Получить кнопку по классу.
      *
-     * @param clazz the clazz
-     * @return the by class
+     * @param clazz класс кнопки
+     * @return кнопка, если зарегистрирована, иначе null
+     * @author marensovich
+     * @since 0.0.1
      */
     public Button getByClass(Class<? extends Button> clazz) {
         return buttonsByClass.get(clazz);
     }
 
     /**
-     * Find by text button.
+     * Найти кнопку по тексту.
      *
-     * @param text the text
-     * @return the button
+     * @param text текст кнопки
+     * @return кнопка, если найдена, иначе null
+     * @author marensovich
+     * @since 0.0.1
      */
     public Button findByText(String text) {
         return buttonsByText.get(text);
     }
 
     /**
-     * Handle.
+     * Обработать нажатие кнопки.
      *
-     * @param update the update
+     * @param update объект Update из Telegram
+     * @author marensovich
+     * @since 0.0.1
      */
     public void handle(Update update) {
         if (!update.hasMessage() || !update.getMessage().hasText()) return;
@@ -67,12 +80,13 @@ public class ButtonManager {
         if (button != null) button.handle(update);
     }
 
-
     /**
-     * Sets active command.
+     * Установить активную кнопку для пользователя.
      *
-     * @param userId the user id
-     * @param button the button
+     * @param userId id пользователя
+     * @param button кнопка, которая становится активной
+     * @author marensovich
+     * @since 0.0.1
      */
     public void setActiveCommand(Long userId, Button button) {
         log.debug("Активная кнопка " + button.getButtonText() + " закреплена за пользователем " + userId);
@@ -80,9 +94,11 @@ public class ButtonManager {
     }
 
     /**
-     * Unset active command.
+     * Снять активную кнопку у пользователя.
      *
-     * @param userId the user id
+     * @param userId id пользователя
+     * @author marensovich
+     * @since 0.0.1
      */
     public void unsetActiveCommand(Long userId) {
         log.debug("Активная кнопка пользователя " + userId + " была очищена");
@@ -90,25 +106,26 @@ public class ButtonManager {
     }
 
     /**
-     * Has active command boolean.
+     * Проверить, есть ли у пользователя активная кнопка.
      *
-     * @param userId the user id
-     * @return the boolean
+     * @param userId id пользователя
+     * @return true, если кнопка есть, иначе false
+     * @author marensovich
+     * @since 0.0.1
      */
     public boolean hasActiveCommand(Long userId) {
         return activeButtons.containsKey(userId);
     }
 
     /**
-     * Gets active command.
+     * Получить активную кнопку пользователя.
      *
-     * @param userId the user id
-     * @return the active command
+     * @param userId id пользователя
+     * @return активная кнопка, или null если её нет
+     * @author marensovich
+     * @since 0.0.1
      */
     public Button getActiveCommand(Long userId) {
         return activeButtons.get(userId);
     }
-
-
 }
-

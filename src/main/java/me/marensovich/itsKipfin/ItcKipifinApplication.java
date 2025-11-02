@@ -4,15 +4,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * The type Itc kipifin application.
+ * Главный класс приложения
+ *
+ * @author marensovich
+ * @since 0.0.1
+ * @version 0.0.1
  */
 @SpringBootApplication
 public class ItcKipifinApplication {
 
     /**
-     * The entry point of application.
-     *
-     * @param args the input arguments
+     * Метод запуска приложения
+     * @author marensovich
+     * @since 0.0.1
      */
     public static void main(String[] args) {
         SpringApplication.run(ItcKipifinApplication.class, args);
