@@ -18,16 +18,11 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
     @Override
     public void handle(Update update) {
         String[] parts = update.getCallbackQuery().getData().split(":");
-        String departament = parts[1];
+        String department = parts[1];
         String result = parts[2];
         String id = parts[3];
 
-        //TODO: 2025-11-02T00:49:06.988+03:00 ERROR 148 --- [ITC_KIPIFIN] [legram Executor] o.t.t.u.DefaultBotSession                : Index 3 out of bounds for length 3
-        //
-        //java.lang.ArrayIndexOutOfBoundsException: Index 3 out of bounds for length 3
-        //	at me.marensovich.itsKipfin.bot.manager.callback.callbacks.RegisterResultHandler.handle(RegisterResultHandler.java:20) ~[main/:na]
-
-        switch (departament) {
+        switch (department) {
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM -> {
                 switch (result) {
                     case "YES" -> {

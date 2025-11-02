@@ -410,9 +410,9 @@ public class RegisterITCButton implements Button {
                 );
 
                 notify.setReplyMarkup(keyboardFactory.create()
-                        .addInlineButton("Принять заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + "YES:" + data.tgId)
+                        .addInlineButton("Принять заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":YES:" + data.tgId)
                         .nextInlineRow()
-                        .addInlineButton("Отклонить заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + "NO:" + data.tgId)
+                        .addInlineButton("Отклонить заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":NO:" + data.tgId)
                         .buildInlineKeyboard()
                 );
 
