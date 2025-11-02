@@ -450,7 +450,8 @@ public class RegisterITCButton implements Button {
         /**
          * Handle result yes.
          *
-         * @param id the id
+         * @param id     the id
+         * @param update the update
          */
         public void handleResultYes(String id, Update update) {
             Application application = applicationService.getApplicationById(Long.valueOf(id));
@@ -495,11 +496,11 @@ public class RegisterITCButton implements Button {
         }
 
 
-
         /**
          * Handle result no.
          *
-         * @param id the id
+         * @param id     the id
+         * @param update the update
          */
         public void handleResultNo(String id, Update update) {
             Application application = applicationService.getApplicationById(Long.valueOf(id));

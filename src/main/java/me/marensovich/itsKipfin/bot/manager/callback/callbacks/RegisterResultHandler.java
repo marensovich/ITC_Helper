@@ -13,6 +13,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class RegisterResultHandler implements PrefixCallbackHandler {
     private final ApplicationService applicationService;
 
+    /**
+     * Instantiates a new Register result handler.
+     *
+     * @param applicationService the application service
+     */
     public RegisterResultHandler(ApplicationService applicationService) {
         this.applicationService = applicationService;
     }
