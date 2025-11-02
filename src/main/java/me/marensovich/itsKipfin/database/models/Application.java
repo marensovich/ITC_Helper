@@ -56,7 +56,12 @@ public class Application {
     }
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Long userId;
+
+    private Long messageId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

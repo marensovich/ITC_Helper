@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -240,7 +242,7 @@ public class RegisterITCButton implements Button {
             }
             if (applicationService.isActiveApplicationExists(id)) {
                 sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
-                Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
+                userApplicationDataMap.remove(chatId);
                 return;
             }
             if (update.hasMessage() && update.getMessage().hasText()) {
@@ -409,20 +411,28 @@ public class RegisterITCButton implements Button {
                         "<b>Стек:</b> " + escape(data.getStack())
                 );
 
+                Application application = applicationService.createApplication(
+                        Application.Departament.Development,
+                        data,
+                        Long.valueOf(data.getTgId()),
+                        null
+                );
+
                 notify.setReplyMarkup(keyboardFactory.create()
-                        .addInlineButton("Принять заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":YES:" + data.tgId)
+                        .addInlineButton("Принять заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":YES:" + application.getId())
                         .nextInlineRow()
-                        .addInlineButton("Отклонить заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":NO:" + data.tgId)
+                        .addInlineButton("Отклонить заявку", ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM + ":NO:" + application.getId())
                         .buildInlineKeyboard()
                 );
 
+                Message message;
                 try {
-                    Bot.getInstance().execute(notify);
+                    message = Bot.getInstance().execute(notify);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
 
-                applicationService.createApplication(Application.Departament.Development, data, Long.valueOf(data.getTgId()));
+                applicationService.updateApplicationMessageId(application.getId(), Long.valueOf(message.getMessageId()));
 
                 // Очистка
                 userApplicationDataMap.remove(chatId);
@@ -442,18 +452,48 @@ public class RegisterITCButton implements Button {
          *
          * @param id the id
          */
-        public static void handleResultYes(String id) {
+        public void handleResultYes(String id, Update update) {
+            Application application = applicationService.getApplicationById(Long.valueOf(id));
+
+            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+
+            // 1️⃣ Отправляем пользователю уведомление
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
-            notify.setText("✅ Ваша заявка на вступление в ИТС одобрена! Добро пожаловать в команду.");
-            notify.setChatId(id);
+            notify.setText("✅ Ваша заявка на вступление в ИТС одобрена! Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
+            notify.setChatId(application.getUserId());
 
             try {
                 Bot.getInstance().execute(notify);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
+
+            if (update.hasCallbackQuery()) {
+                EditMessageText editMessage = new EditMessageText();
+                editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+                editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                editMessage.setParseMode(ParseMode.HTML);
+                editMessage.setText("<b>Новая заявка от " + userData.mention + " (" + userData.tgId + "):</b>\n\n" +
+                        "<b>ФИО:</b> " + escape(userData.getFullName()) + "\n" +
+                        "<b>Телефон:</b> " + escape(userData.getPhoneNumber()) + "\n" +
+                        "<b>Группа:</b> " + escape(userData.getGroupNumber()) + "\n" +
+                        "<b>Опыт:</b> " + escape(userData.getExperience()) + "\n" +
+                        "<b>GitHub/GitLab:</b> " + escape(userData.getGitHub()) + "\n" +
+                        "<b>Стек:</b> " + escape(userData.getStack()) + "\n\n" +
+                        "✅ Заявка одобрена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "."
+                );
+
+                applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
+
+                try {
+                    Bot.getInstance().execute(editMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
+
 
 
         /**
@@ -461,16 +501,46 @@ public class RegisterITCButton implements Button {
          *
          * @param id the id
          */
-        public static void handleResultNo(String id) {
+        public void handleResultNo(String id, Update update) {
+            Application application = applicationService.getApplicationById(Long.valueOf(id));
+
+            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+
+            // 1️⃣ Отправляем пользователю уведомление
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
-            notify.setText("❌ Ваша заявка на вступление в ИТС отклонена! Спасибо за интерес к нашей команде.");
-            notify.setChatId(id);
+            notify.setText("❌ Ваша заявка на вступление в ИТС отклонена! Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + "для получения ответов на интересующие вопросы.");
+            notify.setChatId(application.getUserId());
 
             try {
                 Bot.getInstance().execute(notify);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
+            }
+
+            if (update.hasCallbackQuery()) {
+                EditMessageText editMessage = new EditMessageText();
+                editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+                editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                editMessage.setParseMode(ParseMode.HTML);
+                editMessage.setText("<b>Новая заявка от " + userData.mention + " (" + userData.tgId + "):</b>\n\n" +
+                        "<b>ФИО:</b> " + escape(userData.getFullName()) + "\n" +
+                        "<b>Телефон:</b> " + escape(userData.getPhoneNumber()) + "\n" +
+                        "<b>Группа:</b> " + escape(userData.getGroupNumber()) + "\n" +
+                        "<b>Опыт:</b> " + escape(userData.getExperience()) + "\n" +
+                        "<b>GitHub/GitLab:</b> " + escape(userData.getGitHub()) + "\n" +
+                        "<b>Стек:</b> " + escape(userData.getStack()) + "\n\n" +
+                        "❌ Заявка отклонена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "."
+                );
+
+                applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
+
+
+                try {
+                    Bot.getInstance().execute(editMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

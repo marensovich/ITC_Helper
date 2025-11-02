@@ -29,12 +29,30 @@ public class ApplicationService {
      * @param userId      the user id
      * @return the application
      */
-    public Application createApplication(Application.Departament departament, Object dto, Long userId) {
+    public Application createApplication(Application.Departament departament, Object dto, Long userId, Long messageId) {
         Application application = new Application();
         application.setDepartament(departament);
         application.setStatus(Application.Status.PENDING);
         application.setDataObject(dto);
-        application.setId(userId);
+        application.setUserId(userId);
+        application.setMessageId(messageId);
+        return applicationRepository.save(application);
+    }
+
+
+    public void updateApplicationStatus(Long id, Application.Status status) {
+        Application application = applicationRepository.findById(id).orElseThrow();
+        application.setStatus(status);
+        applicationRepository.save(application);
+    }
+
+    public Application getApplicationById(Long id) {
+        return applicationRepository.findById(id).orElseThrow();
+    }
+
+    public Application updateApplicationMessageId(Long id, Long messageId) {
+        Application application = applicationRepository.findById(id).orElseThrow();
+        application.setMessageId(messageId);
         return applicationRepository.save(application);
     }
 

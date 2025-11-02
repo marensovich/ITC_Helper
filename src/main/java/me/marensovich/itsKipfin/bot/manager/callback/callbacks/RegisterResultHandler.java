@@ -2,6 +2,7 @@ package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
+import me.marensovich.itsKipfin.services.ApplicationService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -10,6 +11,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  */
 @Component
 public class RegisterResultHandler implements PrefixCallbackHandler {
+    private final ApplicationService applicationService;
+
+    public RegisterResultHandler(ApplicationService applicationService) {
+        this.applicationService = applicationService;
+    }
+
     @Override
     public String getPrefixCallbackData() {
         return RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX;
@@ -26,10 +33,12 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM -> {
                 switch (result) {
                     case "YES" -> {
-                        RegisterITCButton.ProjectTeamHandler.handleResultYes(id);
+                        RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(applicationService);
+                        handler.handleResultYes(id, update);
                     }
                     case "NO" -> {
-                        RegisterITCButton.ProjectTeamHandler.handleResultNo(id);
+                        RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(applicationService);
+                        handler.handleResultNo(id, update);
                     }
                 }
             }
