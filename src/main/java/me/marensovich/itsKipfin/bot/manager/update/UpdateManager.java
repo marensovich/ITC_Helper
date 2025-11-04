@@ -89,8 +89,15 @@ public class UpdateManager {
                     RegisterITCButton.ProjectTeamHandler handler =
                             new RegisterITCButton.ProjectTeamHandler(update, keyboardFactory);
                     handler.handle();
+                    return;
                 }
 
+                if (RegisterITCButton.MediaHandler.userApplicationDataMap.containsKey(userId)) {
+                    RegisterITCButton.MediaHandler handler =
+                            new RegisterITCButton.MediaHandler(update, keyboardFactory);
+                    handler.handle();
+                    return;
+                }
                 // Обработка обычных кнопок
                 buttonManager.handle(update);
 

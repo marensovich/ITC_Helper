@@ -12,13 +12,13 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
  * @version 0.0.1
  */
 @Converter(autoApply = false)
-public class JsonConverter implements AttributeConverter<RegisterITCButton.ProjectTeamHandler.UserApplicationData, String> {
+public class JsonConverter implements AttributeConverter<RegisterITCButton.ProjectTeamHandler.UserProjectTeamApplicationData, String> {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
 
     @Override
-    public String convertToDatabaseColumn(RegisterITCButton.ProjectTeamHandler.UserApplicationData attribute) {
+    public String convertToDatabaseColumn(RegisterITCButton.ProjectTeamHandler.UserProjectTeamApplicationData attribute) {
         try {
             return mapper.writeValueAsString(attribute);
         } catch (Exception e) {
@@ -27,9 +27,9 @@ public class JsonConverter implements AttributeConverter<RegisterITCButton.Proje
     }
 
     @Override
-    public RegisterITCButton.ProjectTeamHandler.UserApplicationData convertToEntityAttribute(String dbData) {
+    public RegisterITCButton.ProjectTeamHandler.UserProjectTeamApplicationData convertToEntityAttribute(String dbData) {
         try {
-            return mapper.readValue(dbData, RegisterITCButton.ProjectTeamHandler.UserApplicationData.class);
+            return mapper.readValue(dbData, RegisterITCButton.ProjectTeamHandler.UserProjectTeamApplicationData.class);
         } catch (Exception e) {
             throw new IllegalStateException("Ошибка десериализации JSON", e);
         }

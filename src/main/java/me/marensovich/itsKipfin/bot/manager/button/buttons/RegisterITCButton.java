@@ -213,12 +213,12 @@ public class RegisterITCButton implements Button {
 
         /**
          * Временное хранилище данных заявок для пользователей:
-         * key = chatId пользователя, value = {@link UserApplicationData}
+         * key = chatId пользователя, value = {@link UserProjectTeamApplicationData}
          *
          * <p>Данные удаляются из map после создания/сброса заявки.</p>
          * @since 0.0.1
          */
-        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
+        public static final Map<Long, UserProjectTeamApplicationData> userApplicationDataMap = new HashMap<>();
 
         /**
          * Регулярные выражения для валидации полей
@@ -236,7 +236,7 @@ public class RegisterITCButton implements Button {
         private Long chatId;
         private Update update;
         private KeyboardFactory keyboardFactory;
-        private UserApplicationData data;
+        private UserProjectTeamApplicationData data;
 
         /**
          * Конструктор, используемый Spring для внедрения {@link ApplicationService}.
@@ -264,7 +264,7 @@ public class RegisterITCButton implements Button {
             this.update = update;
             this.keyboardFactory = keyboardFactory;
             this.chatId = resolveChatId(update);
-            this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserApplicationData());
+            this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserProjectTeamApplicationData());
         }
 
         /**
@@ -316,7 +316,7 @@ public class RegisterITCButton implements Button {
          */
         public void handleResultYes(String applicationId, Update update) {
             Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
-            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+            UserProjectTeamApplicationData userData = application.getDataObject(UserProjectTeamApplicationData.class);
 
             // уведомление пользователю
             sendUserNotification(application.getUserId(),
@@ -341,7 +341,7 @@ public class RegisterITCButton implements Button {
          */
         public void handleResultNo(String applicationId, Update update) {
             Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
-            UserApplicationData userData = application.getDataObject(UserApplicationData.class);
+            UserProjectTeamApplicationData userData = application.getDataObject(UserProjectTeamApplicationData.class);
 
             // уведомление пользователю
             sendUserNotification(application.getUserId(),
@@ -708,7 +708,7 @@ public class RegisterITCButton implements Button {
          * @author marensovich
          * @since 0.0.1
          */
-        private void updateAdminMessage(Update update, UserApplicationData userData, Application application, boolean approved) {
+        private void updateAdminMessage(Update update, UserProjectTeamApplicationData userData, Application application, boolean approved) {
             if (!update.hasCallbackQuery()) return;
 
             String statusText = approved ?
@@ -902,7 +902,7 @@ public class RegisterITCButton implements Button {
          */
         @Getter
         @Setter
-        public static class UserApplicationData {
+        public static class UserProjectTeamApplicationData {
             /**
              * Упоминание пользователя в Telegram (например @login)
              * @since 0.0.1
@@ -977,7 +977,6 @@ public class RegisterITCButton implements Button {
         }
     }
 
-
     /**
      * Простой обработчик направления "Медиа и контент".
      * <p>Оставлен как placeholder для будущей реализации.</p>
@@ -1000,12 +999,12 @@ public class RegisterITCButton implements Button {
 
         /**
          * Временное хранилище данных заявок для пользователей:
-         * key = chatId пользователя, value = {@link MediaHandler.UserApplicationData}
+         * key = chatId пользователя, value = {@link UserMediaApplicationData}
          *
          * <p>Данные удаляются из map после создания/сброса заявки.</p>
          * @since 0.0.1
          */
-        public static final Map<Long, UserApplicationData> userApplicationDataMap = new HashMap<>();
+        public static final Map<Long, UserMediaApplicationData> userApplicationDataMap = new HashMap<>();
 
         /**
          * Регулярные выражения для валидации полей
@@ -1013,7 +1012,6 @@ public class RegisterITCButton implements Button {
          */
         private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
         private static final String PHONE_REGEX = "^\\+?\\d{11}$";
-        private static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github|gitlab)\\.com/[A-Za-z0-9_-]+/?$";
         private static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{1,4}$";
 
         /**
@@ -1023,7 +1021,7 @@ public class RegisterITCButton implements Button {
         private Long chatId;
         private Update update;
         private KeyboardFactory keyboardFactory;
-        private UserApplicationData data;
+        private UserMediaApplicationData data;
 
         /**
          * Конструктор, используемый Spring для внедрения {@link ApplicationService}.
@@ -1051,7 +1049,7 @@ public class RegisterITCButton implements Button {
             this.update = update;
             this.keyboardFactory = keyboardFactory;
             this.chatId = resolveChatId(update);
-            this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new MediaHandler.UserApplicationData());
+            this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserMediaApplicationData());
         }
 
         /**
@@ -1103,7 +1101,7 @@ public class RegisterITCButton implements Button {
          */
         public void handleResultYes(String applicationId, Update update) {
             Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
-            ProjectTeamHandler.UserApplicationData userData = application.getDataObject(ProjectTeamHandler.UserApplicationData.class);
+            UserMediaApplicationData userData = application.getDataObject(UserMediaApplicationData.class);
 
             // уведомление пользователю
             sendUserNotification(application.getUserId(),
@@ -1128,7 +1126,7 @@ public class RegisterITCButton implements Button {
          */
         public void handleResultNo(String applicationId, Update update) {
             Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
-            ProjectTeamHandler.UserApplicationData userData = application.getDataObject(ProjectTeamHandler.UserApplicationData.class);
+            UserMediaApplicationData userData = application.getDataObject(UserMediaApplicationData.class);
 
             // уведомление пользователю
             sendUserNotification(application.getUserId(),
@@ -1158,8 +1156,7 @@ public class RegisterITCButton implements Button {
                 case PHONE_NUMBER -> handlePhoneNumber(input);
                 case GROUP_NUMBER -> handleGroupNumber(input);
                 case EXPERIENCE -> handleExperience(input);
-                case GITHUB -> handleGitHub(input);
-                case STACK -> handleStack(input);
+                case PHOTO -> handleHasPhoto(input);
                 case CONFIRMATION -> handleConfirmation(input);
             }
         }
@@ -1171,7 +1168,7 @@ public class RegisterITCButton implements Button {
          */
         private void askFullName() {
             sendMessage("Введите ваше ФИО (например: Иванов Иван Иванович):");
-            data.setCurrentStep(ProjectTeamHandler.Step.FULL_NAME);
+            data.setCurrentStep(MediaHandler.Step.FULL_NAME);
         }
 
         /**
@@ -1203,7 +1200,7 @@ public class RegisterITCButton implements Button {
          */
         private void askPhoneNumber() {
             sendMessage("Введите номер телефона (например: +79001234567):");
-            data.setCurrentStep(ProjectTeamHandler.Step.PHONE_NUMBER);
+            data.setCurrentStep(MediaHandler.Step.PHONE_NUMBER);
         }
 
         /**
@@ -1224,13 +1221,13 @@ public class RegisterITCButton implements Button {
         }
 
         /**
-         * Запросить номер группы и переключить шаг на {@link ProjectTeamHandler.Step#GROUP_NUMBER}.
+         * Запросить номер группы и переключить шаг на {@link MediaHandler.Step#GROUP_NUMBER}.
          * @author marensovich
          * @since 0.0.1
          */
         private void askGroupNumber() {
             sendMessage("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
-            data.setCurrentStep(ProjectTeamHandler.Step.GROUP_NUMBER);
+            data.setCurrentStep(MediaHandler.Step.GROUP_NUMBER);
         }
 
         /**
@@ -1251,13 +1248,13 @@ public class RegisterITCButton implements Button {
         }
 
         /**
-         * Запросить текст об опыте и переключить шаг на {@link ProjectTeamHandler.Step#EXPERIENCE}.
+         * Запросить текст об опыте и переключить шаг на {@link MediaHandler.Step#EXPERIENCE}.
          * @author marensovich
          * @since 0.0.1
          */
         private void askExperience() {
             sendMessage("Опишите ваш опыт (пару предложений):");
-            data.setCurrentStep(ProjectTeamHandler.Step.EXPERIENCE);
+            data.setCurrentStep(MediaHandler.Step.EXPERIENCE);
         }
 
         /**
@@ -1275,62 +1272,61 @@ public class RegisterITCButton implements Button {
                 return;
             }
             data.setExperience(input);
-            askGitHub();
+            askHasPhoto();
         }
 
         /**
-         * Запросить ссылку на репозиторий и переключить шаг на {@link ProjectTeamHandler.Step#GITHUB}.
+         * Запросить ссылку на репозиторий и переключить шаг на {@link MediaHandler.Step#CONFIRMATION}.
          * @author marensovich
          * @since 0.0.1
          */
-        private void askGitHub() {
-            sendMessage("Укажите ссылку на ваш GitHub/GitLab (пример: https://github.com/username):");
-            data.setCurrentStep(ProjectTeamHandler.Step.GITHUB);
+        private void askHasPhoto() {
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
+            message.setText("Есть ли у вас фотоаппарат? (Да/Нет):");
+            message.setReplyMarkup(
+                    keyboardFactory.create()
+                            .addButton("Да")
+                            .addButton("Нет")
+                            .buildReplyKeyboard()
+            );
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException();
+            }
+            data.setCurrentStep(MediaHandler.Step.PHOTO);
         }
 
         /**
-         * Обработать введённую ссылку на GitHub/GitLab (проверка по {@link #GITHUB_REGEX}).
+         * Обработка информации о наличии фотоаппарата.
          *
          * @param input введённая ссылка
          * @author marensovich
          * @since 0.0.1
          */
-        private void handleGitHub(String input) {
-            if (!input.matches(GITHUB_REGEX)) {
-                sendMessage("❌ Неверная ссылка на GitHub/GitLab. Попробуйте снова (пример: https://github.com/username):");
-                askGitHub();
+        private void handleHasPhoto(String input) {
+            Boolean hasPhoto = parseYesNo(input);
+            if (hasPhoto == null) {
+                sendMessage("Пожалуйста, ответьте 'Да' или 'Нет'");
+                askHasPhoto();
                 return;
             }
-            data.setGitHub(input);
-            askStack();
-        }
-
-        /**
-         * Запросить стек технологий и переключить шаг на {@link ProjectTeamHandler.Step#STACK}.
-         * @author marensovich
-         * @since 0.0.1
-         */
-        private void askStack() {
-            sendMessage("Введите стек технологий (например: Java, Spring, SQL):");
-            data.setCurrentStep(ProjectTeamHandler.Step.STACK);
-        }
-
-        /**
-         * Обработать введённый стек — проверяет пустоту и длину.
-         *
-         * @param input введённый стек
-         * @author marensovich
-         * @since 0.0.1
-         */
-        private void handleStack(String input) {
-            if (input.isEmpty() || input.length() > 200) {
-                sendMessage("❌ Некорректный стек. Попробуйте снова (коротко, через запятую):");
-                askStack();
-                return;
-            }
-            data.setStack(input);
+            data.setHasPhoto(hasPhoto);
             askConfirmation();
         }
+
+        private Boolean parseYesNo(String input) {
+            if (input == null) return null;
+            String normalized = input.trim().toLowerCase();
+            if (normalized.equals("да") || normalized.equals("yes")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
 
         /**
          * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
@@ -1346,16 +1342,14 @@ public class RegisterITCButton implements Button {
                     <b>Телефон:</b> %s
                     <b>Группа:</b> %s
                     <b>Опыт:</b> %s
-                    <b>GitHub/GitLab:</b> %s
-                    <b>Стек:</b> %s
-                    
+                    <b>Наличие фотоаппарата:</b> %s
+            
                     Подтверждаете данные? (Да/Нет)""",
                     escape(data.getFullName()),
                     escape(data.getPhoneNumber()),
                     escape(data.getGroupNumber()),
                     escape(data.getExperience()),
-                    escape(data.getGitHub()),
-                    escape(data.getStack())
+                    escape(data.getHasPhoto() ? "Есть" : "Нет")
             );
 
             SendMessage message = new SendMessage();
@@ -1374,7 +1368,7 @@ public class RegisterITCButton implements Button {
             } catch (TelegramApiException e) {
                 throw new RuntimeException("Ошибка при отправке сообщения подтверждения", e);
             }
-            data.setCurrentStep(ProjectTeamHandler.Step.CONFIRMATION);
+            data.setCurrentStep(MediaHandler.Step.CONFIRMATION);
         }
 
         /**
@@ -1414,7 +1408,7 @@ public class RegisterITCButton implements Button {
             sendMessage("✅ Спасибо! Ваша заявка сохранена.");
 
             Application application = applicationService.createApplication(
-                    Application.Departament.Development,
+                    Application.Departament.Media,
                     data,
                     Long.valueOf(data.getTgId()),
                     null
@@ -1451,15 +1445,13 @@ public class RegisterITCButton implements Button {
                     <b>Телефон:</b> %s
                     <b>Группа:</b> %s
                     <b>Опыт:</b> %s
-                    <b>GitHub/GitLab:</b> %s
-                    <b>Стек:</b> %s""",
+                    <b>Наличие фотоаппарата:</b> %s""",
                     data.mention, data.tgId,
                     escape(data.getFullName()),
                     escape(data.getPhoneNumber()),
                     escape(data.getGroupNumber()),
                     escape(data.getExperience()),
-                    escape(data.getGitHub()),
-                    escape(data.getStack())
+                    escape(data.getHasPhoto() ? "Есть" : "Нет")
             );
 
             SendMessage notify = new SendMessage();
@@ -1469,11 +1461,11 @@ public class RegisterITCButton implements Button {
             notify.setText(adminNotificationText);
             notify.setReplyMarkup(keyboardFactory.create()
                     .addInlineButton("Принять заявку",
-                            ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                            ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT +
                                     ":YES:" + application.getId())
                     .nextInlineRow()
                     .addInlineButton("Отклонить заявку",
-                            ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                            ITC_ADMIN_REG_DEFARAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT +
                                     ":NO:" + application.getId())
                     .buildInlineKeyboard()
             );
@@ -1495,7 +1487,7 @@ public class RegisterITCButton implements Button {
          * @author marensovich
          * @since 0.0.1
          */
-        private void updateAdminMessage(Update update, ProjectTeamHandler.UserApplicationData userData, Application application, boolean approved) {
+        private void updateAdminMessage(Update update, UserMediaApplicationData userData, Application application, boolean approved) {
             if (!update.hasCallbackQuery()) return;
 
             String statusText = approved ?
@@ -1510,8 +1502,7 @@ public class RegisterITCButton implements Button {
                     <b>Телефон:</b> %s
                     <b>Группа:</b> %s
                     <b>Опыт:</b> %s
-                    <b>GitHub/GitLab:</b> %s
-                    <b>Стек:</b> %s
+                    <b>Наличие фотоаппарата:</b> %s
                     
                     %s""",
                     userData.mention, userData.tgId,
@@ -1519,8 +1510,7 @@ public class RegisterITCButton implements Button {
                     escape(userData.getPhoneNumber()),
                     escape(userData.getGroupNumber()),
                     escape(userData.getExperience()),
-                    escape(userData.getGitHub()),
-                    escape(userData.getStack()),
+                    escape(userData.getHasPhoto() ? "Есть" : "Нет"),
                     statusText
             );
 
@@ -1660,16 +1650,10 @@ public class RegisterITCButton implements Button {
             EXPERIENCE,
 
             /**
-             * Ссылка на GitHub/GitLab
+             * Наличие фотоаппарата
              * @since 0.0.1
              */
-            GITHUB,
-
-            /**
-             * Ввод стека технологий
-             * @since 0.0.1
-             */
-            STACK,
+            PHOTO,
 
             /**
              * Подтверждение данных
@@ -1689,7 +1673,7 @@ public class RegisterITCButton implements Button {
          */
         @Getter
         @Setter
-        public static class UserApplicationData {
+        public static class UserMediaApplicationData {
             /**
              * Упоминание пользователя в Telegram (например @login)
              * @since 0.0.1
@@ -1727,23 +1711,17 @@ public class RegisterITCButton implements Button {
             private String experience;
 
             /**
-             * Ссылка на GitHub или GitLab
+             * Наличие фотоаппарата
              * @since 0.0.1
              */
-            private String gitHub;
-
-            /**
-             * Стек технологий
-             * @since 0.0.1
-             */
-            private String stack;
+            private Boolean hasPhoto;
 
             /**
              * Текущий шаг
              * @since 0.0.1
              */
             @JsonIgnore
-            private ProjectTeamHandler.Step currentStep = ProjectTeamHandler.Step.FULL_NAME;
+            private MediaHandler.Step currentStep = MediaHandler.Step.FULL_NAME;
 
             /**
              * Сброс всех полей в начальное состояние.
@@ -1757,9 +1735,8 @@ public class RegisterITCButton implements Button {
                 phoneNumber = null;
                 groupNumber = null;
                 experience = null;
-                gitHub = null;
-                stack = null;
-                currentStep = ProjectTeamHandler.Step.FULL_NAME;
+                hasPhoto = null;
+                currentStep = MediaHandler.Step.FULL_NAME;
             }
         }
     }

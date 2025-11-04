@@ -99,7 +99,7 @@ public class ApplicationService {
      * @since 0.0.1
      */
     public boolean isActiveApplicationExists(Long userId) {
-        return applicationRepository.existsByIdAndStatus(userId, Application.Status.PENDING);
+        return applicationRepository.existsApplicationByUserIdAndStatus(userId, Application.Status.PENDING);
     }
 
 }
