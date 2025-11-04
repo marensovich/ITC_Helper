@@ -6,9 +6,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.*;
+import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +113,160 @@ public class KeyboardFactory {
         }
 
         /**
+         * Добавляет кнопку, которая при нажатии запрашивает контакт у пользователя.
+         * Текст кнопки передаётся напрямую.
+         *
+         * @param text текст кнопки (например: "Отправить контакт")
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.2
+         */
+        public UniversalKeyboardBuilder addContactButton(String text) {
+            KeyboardButton contactButton = new KeyboardButton(text);
+            contactButton.setRequestContact(true);
+            currentRow.add(contactButton);
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, которая при нажатии запрашивает контакт у пользователя.
+         * Текст кнопки берётся из зарегистрированного класса, реализующего {@link Button}.
+         *
+         * @param buttonClass класс кнопки, реализующий интерфейс {@link Button}
+         * @return текущий экземпляр билдера
+         * @author marensovich
+         * @since 0.0.2
+         */
+        public UniversalKeyboardBuilder addContactButton(Class<? extends Button> buttonClass) {
+            Button button = buttonManager.getByClass(buttonClass);
+            if (button != null) {
+                KeyboardButton contactButton = new KeyboardButton(button.getButtonText());
+                contactButton.setRequestContact(true);
+                currentRow.add(contactButton);
+            }
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, запрашивающую местоположение пользователя.
+         * @param text текст кнопки
+         */
+        public UniversalKeyboardBuilder addLocationButton(String text) {
+            KeyboardButton button = new KeyboardButton(text);
+            button.setRequestLocation(true);
+            currentRow.add(button);
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, которая предлагает пользователю выбрать конкретного пользователя Telegram.
+         *
+         * @param text текст кнопки
+         * @param requestId уникальный ID запроса (любое число, например 1)
+         * @param userIsBot если true — выбирает только ботов
+         * @param userIsPremium если true — выбирает только Premium-пользователей
+         */
+        public UniversalKeyboardBuilder addRequestUserButton(String text, int requestId, boolean userIsBot, boolean userIsPremium) {
+            KeyboardButton button = new KeyboardButton(text);
+
+            KeyboardButtonRequestUser request = new KeyboardButtonRequestUser();
+            request.setRequestId(String.valueOf(requestId));
+            request.setUserIsBot(userIsBot);
+            request.setUserIsPremium(userIsPremium);
+
+            button.setRequestUser(request);
+            currentRow.add(button);
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, которая предлагает выбрать несколько пользователей (Bot API 7.0+).
+         *
+         * @param text текст кнопки
+         * @param requestId уникальный ID запроса
+         * @param allowBots разрешить ли выбор ботов
+         * @param allowPremium разрешить ли выбор Premium-пользователей
+         * @param maxUsers максимальное количество пользователей, которых можно выбрать
+         */
+        public UniversalKeyboardBuilder addRequestUsersButton(String text,
+                                                              int requestId,
+                                                              boolean allowBots,
+                                                              boolean allowPremium,
+                                                              int maxUsers) {
+            KeyboardButton button = new KeyboardButton(text);
+
+            KeyboardButtonRequestUsers request = new KeyboardButtonRequestUsers();
+            request.setRequestId(String.valueOf(requestId));
+            request.setUserIsBot(allowBots);
+            request.setUserIsPremium(allowPremium);
+            request.setMaxQuantity(maxUsers);
+
+            button.setRequestUsers(request);
+            currentRow.add(button);
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, которая предлагает пользователю выбрать чат (группу, супергруппу или канал).
+         *
+         * @param text текст кнопки
+         * @param requestId уникальный ID запроса
+         * @param chatIsChannel true — запросить только каналы, false — обычные чаты
+         * @param botIsMember true — бот должен быть участником чата
+         * @param hasUsername true — чат должен иметь username
+         * @param chatIsForum true — чат должен быть форумом
+         */
+        public UniversalKeyboardBuilder addRequestChatButton(String text,
+                                                             int requestId,
+                                                             boolean chatIsChannel,
+                                                             boolean botIsMember,
+                                                             boolean hasUsername,
+                                                             boolean chatIsForum
+        ) {
+            KeyboardButton button = new KeyboardButton(text);
+
+            KeyboardButtonRequestChat request = new KeyboardButtonRequestChat();
+            request.setRequestId(String.valueOf(requestId));
+            request.setChatIsChannel(chatIsChannel);
+            request.setBotIsMember(botIsMember);
+            request.setChatHasUsername(hasUsername);
+            request.setChatIsForum(chatIsForum);
+
+            button.setRequestChat(request);
+            currentRow.add(button);
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, которая предлагает создать опрос.
+         *
+         * @param text текст кнопки
+         * @param pollType тип опроса: "quiz" или "regular" (null = любой)
+         */
+        public UniversalKeyboardBuilder addPollButton(String text, String pollType) {
+            KeyboardButton button = new KeyboardButton(text);
+            KeyboardButtonPollType poll = new KeyboardButtonPollType();
+            poll.setType(pollType);
+            button.setRequestPoll(poll);
+            currentRow.add(button);
+            return this;
+        }
+
+        /**
+         * Добавляет кнопку, открывающую WebApp.
+         *
+         * @param text текст кнопки
+         * @param url URL веб-приложения
+         */
+        public UniversalKeyboardBuilder addWebAppButton(String text, String url) {
+            KeyboardButton button = new KeyboardButton(text);
+            button.setWebApp(new WebAppInfo(url));
+            currentRow.add(button);
+            return this;
+        }
+
+
+        /**
          * Завершает текущий ряд кнопок и создаёт новый.
          *
          * @return текущий экземпляр билдера
@@ -137,6 +290,7 @@ public class KeyboardFactory {
             if (!currentRow.isEmpty()) rows.add(currentRow);
             ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
             markup.setResizeKeyboard(true);
+            markup.setOneTimeKeyboard(true);
             markup.setKeyboard(rows);
             return markup;
         }
