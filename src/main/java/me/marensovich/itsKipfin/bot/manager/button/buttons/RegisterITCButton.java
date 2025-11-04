@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -290,11 +291,18 @@ public class RegisterITCButton implements Button {
                 return;
             }
 
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                processUserInput(update.getMessage().getText().trim());
+            if (update.hasMessage()){
+                if (update.getMessage().hasText()){
+                    processUserInput(update.getMessage().getText().trim());
+                    return;
+                }
+                if (update.getMessage().hasContact() && data.getCurrentStep().equals(ProjectTeamHandler.Step.PHONE_NUMBER)){
+                    processUserInput(update.getMessage().getContact().getPhoneNumber());
+                }
             } else {
                 askFullName();
             }
+
         }
 
         /**
@@ -415,35 +423,52 @@ public class RegisterITCButton implements Button {
          * @since 0.0.1
          */
         private void askPhoneNumber() {
-            sendMessage("Введите номер телефона (например: +79001234567):");
-            data.setCurrentStep(Step.PHONE_NUMBER);
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
+            message.setText("Отправьте ваш номер телефона:");
+            message.setReplyMarkup(
+                    keyboardFactory.create()
+                            .addContactButton("Отправить номер телефона")
+                            .buildReplyKeyboard()
+            );
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException();
+            }
+            data.setCurrentStep(ProjectTeamHandler.Step.PHONE_NUMBER);
         }
 
         /**
-         * Обработать введённый телефон: валидация по {@link #PHONE_REGEX}, далее переход к группе.
+         * Обработать введённый телефон, далее переход к группе.
          *
-         * @param input введённый телефон
+         * @param number отправленный номер телефона
          * @author marensovich
          * @since 0.0.1
          */
-        private void handlePhoneNumber(String input) {
-            if (!input.matches(PHONE_REGEX)) {
-                sendMessage("❌ Неверный формат телефона. Используйте только цифры, можно с '+', ожидание 11 цифр (например +7900... ).");
-                askPhoneNumber();
-                return;
-            }
-            data.setPhoneNumber(input);
+        private void handlePhoneNumber(String number) {
+            data.setPhoneNumber(number);
             askGroupNumber();
         }
 
         /**
-         * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+         * Запросить номер группы и переключить шаг на {@link MediaHandler.Step#GROUP_NUMBER}.
          * @author marensovich
          * @since 0.0.1
          */
         private void askGroupNumber() {
-            sendMessage("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
-            data.setCurrentStep(Step.GROUP_NUMBER);
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
+            message.setText("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
+            message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+            data.setCurrentStep(ProjectTeamHandler.Step.GROUP_NUMBER);
         }
 
         /**
@@ -1011,7 +1036,6 @@ public class RegisterITCButton implements Button {
          * @since 0.0.1
          */
         private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
-        private static final String PHONE_REGEX = "^\\+?\\d{11}$";
         private static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{1,4}$";
 
         /**
@@ -1058,6 +1082,7 @@ public class RegisterITCButton implements Button {
          * <p>Логика:
          * <ul>
          *     <li>Если у пользователя уже есть активная заявка — отправляет предупреждение и выходит;</li>
+         *     <li>Если пользователь отправил контакт и текущий шаг {@link MediaHandler.Step#PHONE_NUMBER} мы получаем номер телефона в качестве строки и передаем напрямую методу</li>
          *     <li>Если пришёл текст (update.hasMessage()) — прокидывает текст в процессор {@link #processUserInput(String)};</li>
          *     <li>Иначе — запускает первый шаг {@link #askFullName()}.</li>
          * </ul>
@@ -1075,11 +1100,18 @@ public class RegisterITCButton implements Button {
                 return;
             }
 
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                processUserInput(update.getMessage().getText().trim());
+            if (update.hasMessage()){
+                if (update.getMessage().hasText()){
+                    processUserInput(update.getMessage().getText().trim());
+                    return;
+                }
+                if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
+                    processUserInput(update.getMessage().getContact().getPhoneNumber());
+                }
             } else {
                 askFullName();
             }
+
         }
 
         /**
@@ -1199,24 +1231,32 @@ public class RegisterITCButton implements Button {
          * @since 0.0.1
          */
         private void askPhoneNumber() {
-            sendMessage("Введите номер телефона (например: +79001234567):");
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
+            message.setText("Отправьте ваш номер телефона:");
+            message.setReplyMarkup(
+                    keyboardFactory.create()
+                            .addContactButton("Отправить номер телефона")
+                            .buildReplyKeyboard()
+            );
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException();
+            }
             data.setCurrentStep(MediaHandler.Step.PHONE_NUMBER);
         }
 
         /**
-         * Обработать введённый телефон: валидация по {@link #PHONE_REGEX}, далее переход к группе.
+         * Обработать введённый телефон, далее переход к группе.
          *
-         * @param input введённый телефон
+         * @param number отправленный номер телефона
          * @author marensovich
          * @since 0.0.1
          */
-        private void handlePhoneNumber(String input) {
-            if (!input.matches(PHONE_REGEX)) {
-                sendMessage("❌ Неверный формат телефона. Используйте только цифры, можно с '+', ожидание 11 цифр (например +7900... ).");
-                askPhoneNumber();
-                return;
-            }
-            data.setPhoneNumber(input);
+        private void handlePhoneNumber(String number) {
+            data.setPhoneNumber(number);
             askGroupNumber();
         }
 
@@ -1226,7 +1266,16 @@ public class RegisterITCButton implements Button {
          * @since 0.0.1
          */
         private void askGroupNumber() {
-            sendMessage("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setParseMode(ParseMode.HTML);
+            message.setText("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
+            message.setReplyMarkup(Bot.getInstance().removeKeyboard());
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
             data.setCurrentStep(MediaHandler.Step.GROUP_NUMBER);
         }
 
