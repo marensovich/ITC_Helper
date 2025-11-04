@@ -58,7 +58,7 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
                         new RegisterITCButton.PRHandler(update).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT ->
-                        new RegisterITCButton.MediaHandler(update).handle();
+                        new RegisterITCButton.MediaHandler(update, keyboardFactory).handle();
 
                 default -> Bot.getInstance()
                         .sendErrorMessage(chatId, "Неверные данные callback: " + callbackData);

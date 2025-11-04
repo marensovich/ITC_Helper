@@ -58,7 +58,11 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
                 // TODO: обработка Designer
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT -> {
-                // TODO: обработка Media
+                RegisterITCButton.MediaHandler handler = new RegisterITCButton.MediaHandler(applicationService);
+                switch (result) {
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
+                }
             }
         }
     }
