@@ -191,42 +191,6 @@ public class RegisterITCButton implements Button {
     }
 
     /**
-     * Заглушка для направления "PR и коммуникации".
-     * @author marensovich
-     * @since 0.0.1
-     * @version 0.0.1
-     */
-    public static class PRHandler {
-        private final Update update;
-
-        public PRHandler(Update update) {
-            this.update = update;
-        }
-
-        /**
-         * Отправляет простое текстовое подтверждение выбора направления
-         * и удаляет клавиатуру (использует {@link Bot#removeKeyboard()}).
-         * @author marensovich
-         * @since 0.0.1
-         */
-        public void handle() {
-            sendMessage("Вы выбрали направление 'PR и коммуникации'. Пожалуйста, следуйте инструкциям.");
-        }
-
-        private void sendMessage(String text) {
-            SendMessage message = new SendMessage();
-            message.setChatId(update.getCallbackQuery().getFrom().getId());
-            message.setText(text);
-            message.setReplyMarkup(Bot.getInstance().removeKeyboard());
-            try {
-                Bot.getInstance().execute(message);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException("Ошибка при отправке сообщения в PRHandler", e);
-            }
-        }
-    }
-
-    /**
      * Заглушка для направления "Дизайнеры".
      * @author marensovich
      * @since 0.0.1

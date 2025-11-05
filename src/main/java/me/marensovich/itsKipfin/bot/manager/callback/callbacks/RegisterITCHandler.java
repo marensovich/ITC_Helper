@@ -3,6 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
@@ -57,7 +58,7 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
                         new RegisterITCButton.DesignerHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR ->
-                        new RegisterITCButton.PRHandler(update).handle();
+                        new PRHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT ->
                         new MediaHandler(update, keyboardFactory).handle();

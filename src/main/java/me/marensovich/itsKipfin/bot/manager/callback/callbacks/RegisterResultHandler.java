@@ -2,6 +2,7 @@ package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
 import me.marensovich.itsKipfin.services.ApplicationService;
@@ -54,7 +55,11 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
                 }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR -> {
-                // TODO: обработка PR
+                PRHandler handler = new PRHandler(applicationService);
+                switch (result) {
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
+                }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER -> {
                 RegisterITCButton.DesignerHandler handler = new RegisterITCButton.DesignerHandler(applicationService);
