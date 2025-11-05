@@ -3,6 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.update;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.database.models.User;
@@ -114,8 +115,8 @@ public class UpdateManager {
                     return;
                 }
 
-                if (RegisterITCButton.DesignerHandler.userApplicationDataMap.containsKey(userId)) {
-                    RegisterITCButton.DesignerHandler handler = new RegisterITCButton.DesignerHandler(update, keyboardFactory);
+                if (DesignerHandler.userApplicationDataMap.containsKey(userId)) {
+                    DesignerHandler handler = new DesignerHandler(update, keyboardFactory);
                     handler.handle();
                     return;
                 }

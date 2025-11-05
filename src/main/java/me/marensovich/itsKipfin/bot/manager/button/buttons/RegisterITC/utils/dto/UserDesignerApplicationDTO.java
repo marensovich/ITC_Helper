@@ -3,10 +3,10 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dt
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
 
 /**
- * DTO временных данных заявки пользователя, хранится в {@link ProjectTeamHandler#userApplicationDataMap}.
+ * DTO временных данных заявки пользователя, хранится в {@link DesignerHandler#userApplicationDataMap}.
  *
  * <p>Поле {@code currentStep} помечено {@link JsonIgnore} чтобы при сериализации DTO
  * в базу (если потребуется) шаг не сохранялся автоматически.</p>
@@ -14,33 +14,28 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
  * @since 0.0.1
  * @version 0.0.1
  */
-@Getter @Setter
-public class UserProjectTeamApplicationDTO extends BaseApplicationDTO {
+@Getter
+@Setter
+public class UserDesignerApplicationDTO extends BaseApplicationDTO {
 
     /**
-     * Описание опыта
+     * Основные приложения
      * @since 0.0.1
      */
-    private String experience;
+    private String mainApps;
 
     /**
-     * Ссылка на GitHub или GitLab
+     * Примеры работ
      * @since 0.0.1
      */
-    private String gitHub;
-
-    /**
-     * Стек технологий
-     * @since 0.0.1
-     */
-    private String stack;
+    private String examples;
 
     /**
      * Текущий шаг
      * @since 0.0.1
      */
     @JsonIgnore
-    private ProjectTeamHandler.Step currentStep = ProjectTeamHandler.Step.FULL_NAME;
+    private DesignerHandler.Step currentStep = DesignerHandler.Step.FULL_NAME;
 
     /**
      * Сброс всех полей в начальное состояние.
@@ -53,10 +48,8 @@ public class UserProjectTeamApplicationDTO extends BaseApplicationDTO {
         setFullName(null);
         setPhoneNumber(null);
         setGroupNumber(null);
-        experience = null;
-        gitHub = null;
-        stack = null;
-        currentStep = ProjectTeamHandler.Step.FULL_NAME;
+        mainApps = null;
+        examples = null;
+        currentStep = DesignerHandler.Step.FULL_NAME;
     }
 }
-

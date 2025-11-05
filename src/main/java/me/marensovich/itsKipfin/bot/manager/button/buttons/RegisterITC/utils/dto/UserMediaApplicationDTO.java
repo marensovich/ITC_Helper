@@ -15,36 +15,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
  * @version 0.0.1
  */
 @Getter @Setter
-public class UserMediaApplicationDTO {
-    /**
-     * Упоминание пользователя в Telegram (например @login)
-     * @since 0.0.1
-     */
-    private String mention;
-
-    /**
-     * Telegram id пользователя (строка)
-     * @since 0.0.1
-     */
-    private String tgId;
-
-    /**
-     * ФИО
-     * @since 0.0.1
-     */
-    private String fullName;
-
-    /**
-     * Телефон
-     * @since 0.0.1
-     */
-    private String phoneNumber;
-
-    /**
-     * Номер учебной группы
-     * @since 0.0.1
-     */
-    private String groupNumber;
+public class UserMediaApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Описание опыта
@@ -71,11 +42,11 @@ public class UserMediaApplicationDTO {
      * @author marensovich
      */
     public void reset() {
-        mention = null;
-        tgId = null;
-        fullName = null;
-        phoneNumber = null;
-        groupNumber = null;
+        setMention(null);
+        setTgId(null);
+        setFullName(null);
+        setPhoneNumber(null);
+        setGroupNumber(null);
         experience = null;
         hasPhoto = null;
         currentStep = MediaHandler.Step.FULL_NAME;

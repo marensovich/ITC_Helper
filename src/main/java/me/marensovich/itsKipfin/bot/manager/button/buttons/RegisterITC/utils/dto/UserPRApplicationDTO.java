@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 
 
 /**
@@ -16,6 +17,8 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
  * @version 0.0.1
  */
 @Getter @Setter
-public class UserPRApplicationDTO {
+public class UserPRApplicationDTO extends BaseApplicationDTO {
+
+
 
 }
