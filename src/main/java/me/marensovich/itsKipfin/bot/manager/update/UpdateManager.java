@@ -5,6 +5,7 @@ import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
@@ -117,6 +118,12 @@ public class UpdateManager {
 
                 if (DesignerHandler.userApplicationDataMap.containsKey(userId)) {
                     DesignerHandler handler = new DesignerHandler(update, keyboardFactory);
+                    handler.handle();
+                    return;
+                }
+
+                if (PRHandler.userApplicationDataMap.containsKey(userId)) {
+                    PRHandler handler = new PRHandler(update, keyboardFactory);
                     handler.handle();
                     return;
                 }

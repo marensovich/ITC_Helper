@@ -477,7 +477,7 @@ public class DesignerHandler {
         sendMessage("✅ Спасибо! Ваша заявка сохранена.");
 
         Application application = applicationService.createApplication(
-                Application.Departament.Media,
+                Application.Departament.Designer,
                 data,
                 Long.valueOf(data.getTgId()),
                 null
