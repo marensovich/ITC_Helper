@@ -1,12 +1,20 @@
 package me.marensovich.itsKipfin.bot.manager.command.commands;
 
 import me.marensovich.itsKipfin.bot.Bot;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
+import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.stream.Stream;
 
 /**
  * Команда для отмены текущей активной команды пользователя.
@@ -20,6 +28,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 @Component
 public class CancelCommand implements Command {
+
+    @Autowired private KeyboardFactory keyboardFactory;
 
     /**
      * Получить имя команды.
@@ -69,6 +79,13 @@ public class CancelCommand implements Command {
             Bot.getInstance().getButtonManager().unsetActiveCommand(userId);
             commandCleared = true;
         }
+
+        Stream.of(
+                ProjectTeamHandler.userApplicationDataMap,
+                MediaHandler.userApplicationDataMap,
+                DesignerHandler.userApplicationDataMap,
+                PRHandler.userApplicationDataMap
+        ).forEach(map -> map.remove(userId));
 
         Bot.getInstance().showBotAction(userId, ActionType.TYPING);
 
