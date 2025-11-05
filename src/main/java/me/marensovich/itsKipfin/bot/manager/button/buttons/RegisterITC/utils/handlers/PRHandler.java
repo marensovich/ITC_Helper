@@ -92,7 +92,7 @@ public class PRHandler implements ApplicationHandler {
     @Override
     public void handle() {
         SendMessage message = new SendMessage();
-        message.setChatId(update.getMessage().getChatId());
+        message.setChatId(update.getCallbackQuery().getFrom().getId());
         message.enableHtml(true);
         message.setText("В разработке. Ждите обновлений");
 
