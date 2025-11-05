@@ -52,7 +52,7 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
                         new RegisterITCButton.ProjectTeamHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER ->
-                        new RegisterITCButton.DesignerHandler(update).handle();
+                        new RegisterITCButton.DesignerHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR ->
                         new RegisterITCButton.PRHandler(update).handle();

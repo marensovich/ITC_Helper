@@ -55,7 +55,11 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
                 // TODO: обработка PR
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER -> {
-                // TODO: обработка Designer
+                RegisterITCButton.DesignerHandler handler = new RegisterITCButton.DesignerHandler(applicationService);
+                switch (result) {
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
+                }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT -> {
                 RegisterITCButton.MediaHandler handler = new RegisterITCButton.MediaHandler(applicationService);

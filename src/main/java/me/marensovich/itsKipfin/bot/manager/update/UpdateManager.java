@@ -98,6 +98,13 @@ public class UpdateManager {
                     handler.handle();
                     return;
                 }
+
+                if (RegisterITCButton.DesignerHandler.userApplicationDataMap.containsKey(userId)) {
+                    RegisterITCButton.DesignerHandler handler =
+                            new RegisterITCButton.DesignerHandler(update, keyboardFactory);
+                    handler.handle();
+                    return;
+                }
                 // Обработка обычных кнопок
                 buttonManager.handle(update);
 
