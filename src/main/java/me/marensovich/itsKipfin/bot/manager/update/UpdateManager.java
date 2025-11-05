@@ -19,7 +19,11 @@ import java.util.Map;
  * <p>
  * Отвечает за маршрутизацию сообщений и callback-запросов, проверку существования пользователей
  * и делегирование команд {@link Bot#getCommandManager()} и кнопок {@link ButtonManager}.
- * Также инициирует обработку пошаговых заявок через {@link RegisterITCButton.ProjectTeamHandler}.
+ * Также инициирует обработку пошаговых заявок через:
+ * <li>{@link RegisterITCButton.ProjectTeamHandler}</li>
+ * <li>{@link RegisterITCButton.MediaHandler}</li>
+ * <li>{@link RegisterITCButton.PRHandler}</li>
+ * <li>{@link RegisterITCButton.DesignerHandler}</li>
  *
  * @author marensovich
  * @version 0.0.1
