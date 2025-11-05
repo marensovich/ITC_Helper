@@ -4,6 +4,8 @@ import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.database.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Сервис для управления пользователями.
  * <p>
@@ -69,6 +71,16 @@ public class UserService {
      */
     public boolean isUserExists(Long userId) {
         return userRepository.existsById(userId);
+    }
+
+    /**
+     * Возвращает всех пользователей
+     * @since 0.0.1
+     * @author marensovich
+     * @return Список всех пользователей
+     */
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     /**

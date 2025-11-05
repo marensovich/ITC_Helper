@@ -3,12 +3,16 @@ package me.marensovich.itsKipfin.bot.manager.update;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Менеджер обработки обновлений от Telegram API.
@@ -23,6 +27,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 @Component
 public class UpdateManager {
+
+    public Map<String, User> hashedUsers = new HashMap<>();
 
     private final UserService userService;
     private final ButtonManager buttonManager;
@@ -61,9 +67,14 @@ public class UpdateManager {
         if (update.hasMessage()) {
             long userId = update.getMessage().getFrom().getId();
 
-            // Создаём нового пользователя, если его нет в базе
-            if (!userService.isUserExists(userId)) {
-                userService.createUser(userId);
+            // Проверяем наличие пользователя в списке
+            if (!hashedUsers.containsKey(String.valueOf(userId))) {
+                // Создаём нового пользователя, если его нет в базе
+                // Добавляем в список
+                if (!userService.isUserExists(userId)) {
+                    User user = userService.createUser(userId);
+                    hashedUsers.put(String.valueOf(userId), user);
+                }
             }
 
             // Проверка активной команды
@@ -119,9 +130,14 @@ public class UpdateManager {
         if (update.hasCallbackQuery()) {
             long userId = update.getCallbackQuery().getFrom().getId();
 
-            // Создаём нового пользователя, если его нет
-            if (!userService.isUserExists(userId)) {
-                userService.createUser(userId);
+            // Проверяем наличие пользователя в списке
+            if (!hashedUsers.containsKey(String.valueOf(userId))) {
+                // Создаём нового пользователя, если его нет в базе
+                // Добавляем в список
+                if (!userService.isUserExists(userId)) {
+                    User user = userService.createUser(userId);
+                    hashedUsers.put(String.valueOf(userId), user);
+                }
             }
 
             // Делегирование обработки callback-а
