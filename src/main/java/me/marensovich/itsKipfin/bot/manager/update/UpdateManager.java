@@ -2,7 +2,9 @@ package me.marensovich.itsKipfin.bot.manager.update;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
@@ -20,8 +22,8 @@ import java.util.Map;
  * Отвечает за маршрутизацию сообщений и callback-запросов, проверку существования пользователей
  * и делегирование команд {@link Bot#getCommandManager()} и кнопок {@link ButtonManager}.
  * Также инициирует обработку пошаговых заявок через:
- * <li>{@link RegisterITCButton.ProjectTeamHandler}</li>
- * <li>{@link RegisterITCButton.MediaHandler}</li>
+ * <li>{@link ProjectTeamHandler}</li>
+ * <li>{@link MediaHandler}</li>
  * <li>{@link RegisterITCButton.PRHandler}</li>
  * <li>{@link RegisterITCButton.DesignerHandler}</li>
  *
@@ -100,23 +102,20 @@ public class UpdateManager {
                 }
 
                 // Обработка пошаговых заявок на вступление
-                if (RegisterITCButton.ProjectTeamHandler.userApplicationDataMap.containsKey(userId)) {
-                    RegisterITCButton.ProjectTeamHandler handler =
-                            new RegisterITCButton.ProjectTeamHandler(update, keyboardFactory);
+                if (ProjectTeamHandler.userApplicationDataMap.containsKey(userId)) {
+                    ProjectTeamHandler handler = new ProjectTeamHandler(update, keyboardFactory);
                     handler.handle();
                     return;
                 }
 
-                if (RegisterITCButton.MediaHandler.userApplicationDataMap.containsKey(userId)) {
-                    RegisterITCButton.MediaHandler handler =
-                            new RegisterITCButton.MediaHandler(update, keyboardFactory);
+                if (MediaHandler.userApplicationDataMap.containsKey(userId)) {
+                    MediaHandler handler = new MediaHandler(update, keyboardFactory);
                     handler.handle();
                     return;
                 }
 
                 if (RegisterITCButton.DesignerHandler.userApplicationDataMap.containsKey(userId)) {
-                    RegisterITCButton.DesignerHandler handler =
-                            new RegisterITCButton.DesignerHandler(update, keyboardFactory);
+                    RegisterITCButton.DesignerHandler handler = new RegisterITCButton.DesignerHandler(update, keyboardFactory);
                     handler.handle();
                     return;
                 }

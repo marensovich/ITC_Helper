@@ -2,7 +2,7 @@ package me.marensovich.itsKipfin.bot.manager.command.commands;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.HelpButton;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
