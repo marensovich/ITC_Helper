@@ -60,6 +60,15 @@ public class RegisterITCButton implements Button {
     public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
     public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
 
+    /**
+     * Регулярные выражения для валидации полей
+     * @since 0.0.1
+     */
+    public static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
+    public static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github|gitlab)\\.com/[A-Za-z0-9_-]+/?$";
+    public static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{3,4}$";
+
+
     private final KeyboardFactory keyboardFactory;
 
     /**

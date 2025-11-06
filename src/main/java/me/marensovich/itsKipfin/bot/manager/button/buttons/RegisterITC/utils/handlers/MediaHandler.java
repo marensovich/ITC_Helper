@@ -50,13 +50,6 @@ public class MediaHandler implements ApplicationHandler {
     public static final Map<Long, UserMediaApplicationDTO> userApplicationDataMap = new HashMap<>();
 
     /**
-     * Регулярные выражения для валидации полей
-     * @since 0.0.1
-     */
-    private static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
-    private static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{1,4}$";
-
-    /**
      * Экземплярные поля
      * @since 0.0.1
      */
@@ -272,7 +265,7 @@ public class MediaHandler implements ApplicationHandler {
     /**
      * Обработать введённое ФИО:
      * <ul>
-     *     <li>валидирует через {@link #FIO_REGEX};</li>
+     *     <li>валидирует через {@link RegisterITCButton#FIO_REGEX};</li>
      *     <li>при корректном вводе — сохраняет и запрашивает телефон;</li>
      *     <li>при некорректном — просит повторить ввод.</li>
      * </ul>
@@ -283,7 +276,7 @@ public class MediaHandler implements ApplicationHandler {
      */
     @Override
     public void handleFullName(String input) {
-        if (!input.matches(FIO_REGEX)) {
+        if (!input.matches(RegisterITCButton.FIO_REGEX)) {
             sendMessage("❌ Неверный формат ФИО. Только русские буквы, первая — заглавная.\nПример: Иванов Иван Иванович", chatId);
             askFullName();
             return;
@@ -350,7 +343,7 @@ public class MediaHandler implements ApplicationHandler {
     }
 
     /**
-     * Обработать введённый номер группы: Uppercase + проверка через {@link #GROUP_REGEX}.
+     * Обработать введённый номер группы: Uppercase + проверка через {@link RegisterITCButton#GROUP_REGEX}.
      *
      * @param input введённый номер группы
      * @author marensovich
@@ -358,7 +351,7 @@ public class MediaHandler implements ApplicationHandler {
      */
     @Override
     public void handleGroupNumber(String input) {
-        if (!input.toUpperCase().matches(GROUP_REGEX)) {
+        if (!input.toUpperCase().matches(RegisterITCButton.GROUP_REGEX)) {
             sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024", chatId);
             askGroupNumber();
             return;
