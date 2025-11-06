@@ -16,7 +16,9 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageCaption;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
@@ -256,7 +258,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             data.getPhotoFileIds().add(fileId);
             int photoCount = data.getPhotoFileIds().size();
             String message = String.format(
-                    "✅ Фотография #%d добавлена!\n\nВы можете отправить еще фотографии или написать описание и нажать Отправить.",
+                    "✅ Фотография #%d добавлена!\n\nВы можете отправить еще фотографии и нажать 'Отправить' или написать описание.",
                     photoCount);
             sendMessage(message, chatId);
         }
@@ -662,6 +664,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                 <b>Группа:</b> %s
                 <b>Основные программы:</b> %s
                 <b>Примеры работ:</b> %s
+                <b>Фотографии:</b> %s
                 
                 %s""",
                 userData.getMention(), userData.getTgId(),
@@ -670,19 +673,48 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                 escape(userData.getGroupNumber()),
                 escape(userData.getMainApps()),
                 escape(userData.getExamples()),
+                userData.getPhotoFileIds().isEmpty() ? "Нет" : userData.getPhotoFileIds().size() + " шт.",
                 statusText
         );
 
-        EditMessageText editMessage = new EditMessageText();
-        editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
-        editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-        editMessage.setParseMode(ParseMode.HTML);
-        editMessage.setText(messageText);
+        MaybeInaccessibleMessage maybeMessage = update.getCallbackQuery().getMessage();
 
-        try {
-            Bot.getInstance().execute(editMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при редактировании админского сообщения", e);
+        // Проверяем, доступно ли сообщение для редактирования
+        if (!(maybeMessage instanceof Message)) {
+            // Если сообщение недоступно (например, слишком старое), отправляем новое сообщение
+            sendMessage(messageText, maybeMessage.getChatId().toString());
+            return;
+        }
+
+        Message originalMessage = (Message) maybeMessage;
+
+        // Проверяем, было ли оригинальное сообщение с фото или текстом
+        if (originalMessage.hasPhoto()) {
+            // Если было фото - редактируем подпись через EditMessageCaption
+            EditMessageCaption editCaption = new EditMessageCaption();
+            editCaption.setChatId(originalMessage.getChatId().toString());
+            editCaption.setMessageId(originalMessage.getMessageId());
+            editCaption.setCaption(messageText);
+            editCaption.setParseMode(ParseMode.HTML);
+
+            try {
+                Bot.getInstance().execute(editCaption);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException("Ошибка при редактировании подписи к фото: ", e);
+            }
+        } else {
+            // Если было текстовое сообщение - редактируем текст
+            EditMessageText editMessage = new EditMessageText();
+            editMessage.setChatId(originalMessage.getChatId().toString());
+            editMessage.setMessageId(originalMessage.getMessageId());
+            editMessage.setParseMode(ParseMode.HTML);
+            editMessage.setText(messageText);
+
+            try {
+                Bot.getInstance().execute(editMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException("Ошибка при редактировании админского сообщения: ", e);
+            }
         }
     }
 
