@@ -1,7 +1,7 @@
 package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 
 import me.marensovich.itsKipfin.bot.Bot;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.CallbackHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;

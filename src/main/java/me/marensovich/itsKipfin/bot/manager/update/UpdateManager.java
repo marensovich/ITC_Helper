@@ -2,7 +2,12 @@ package me.marensovich.itsKipfin.bot.manager.update;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
+import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
@@ -10,12 +15,19 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Менеджер обработки обновлений от Telegram API.
  * <p>
  * Отвечает за маршрутизацию сообщений и callback-запросов, проверку существования пользователей
  * и делегирование команд {@link Bot#getCommandManager()} и кнопок {@link ButtonManager}.
- * Также инициирует обработку пошаговых заявок через {@link RegisterITCButton.ProjectTeamHandler}.
+ * Также инициирует обработку пошаговых заявок через:
+ * <li>{@link ProjectTeamHandler}</li>
+ * <li>{@link MediaHandler}</li>
+ * <li>{@link RegisterITCButton.PRHandler}</li>
+ * <li>{@link RegisterITCButton.DesignerHandler}</li>
  *
  * @author marensovich
  * @version 0.0.1
@@ -23,6 +35,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 @Component
 public class UpdateManager {
+
+    public Map<String, User> hashedUsers = new HashMap<>();
 
     private final UserService userService;
     private final ButtonManager buttonManager;
@@ -61,9 +75,14 @@ public class UpdateManager {
         if (update.hasMessage()) {
             long userId = update.getMessage().getFrom().getId();
 
-            // Создаём нового пользователя, если его нет в базе
-            if (!userService.isUserExists(userId)) {
-                userService.createUser(userId);
+            // Проверяем наличие пользователя в списке
+            if (!hashedUsers.containsKey(String.valueOf(userId))) {
+                // Создаём нового пользователя, если его нет в базе
+                // Добавляем в список
+                if (!userService.isUserExists(userId)) {
+                    User user = userService.createUser(userId);
+                    hashedUsers.put(String.valueOf(userId), user);
+                }
             }
 
             // Проверка активной команды
@@ -85,12 +104,29 @@ public class UpdateManager {
                 }
 
                 // Обработка пошаговых заявок на вступление
-                if (RegisterITCButton.ProjectTeamHandler.userApplicationDataMap.containsKey(userId)) {
-                    RegisterITCButton.ProjectTeamHandler handler =
-                            new RegisterITCButton.ProjectTeamHandler(update, keyboardFactory);
+                if (ProjectTeamHandler.userApplicationDataMap.containsKey(userId)) {
+                    ProjectTeamHandler handler = new ProjectTeamHandler(update, keyboardFactory);
                     handler.handle();
+                    return;
                 }
 
+                if (MediaHandler.userApplicationDataMap.containsKey(userId)) {
+                    MediaHandler handler = new MediaHandler(update, keyboardFactory);
+                    handler.handle();
+                    return;
+                }
+
+                if (DesignerHandler.userApplicationDataMap.containsKey(userId)) {
+                    DesignerHandler handler = new DesignerHandler(update, keyboardFactory);
+                    handler.handle();
+                    return;
+                }
+
+                if (PRHandler.userApplicationDataMap.containsKey(userId)) {
+                    PRHandler handler = new PRHandler(update, keyboardFactory);
+                    handler.handle();
+                    return;
+                }
                 // Обработка обычных кнопок
                 buttonManager.handle(update);
 
@@ -105,9 +141,14 @@ public class UpdateManager {
         if (update.hasCallbackQuery()) {
             long userId = update.getCallbackQuery().getFrom().getId();
 
-            // Создаём нового пользователя, если его нет
-            if (!userService.isUserExists(userId)) {
-                userService.createUser(userId);
+            // Проверяем наличие пользователя в списке
+            if (!hashedUsers.containsKey(String.valueOf(userId))) {
+                // Создаём нового пользователя, если его нет в базе
+                // Добавляем в список
+                if (!userService.isUserExists(userId)) {
+                    User user = userService.createUser(userId);
+                    hashedUsers.put(String.valueOf(userId), user);
+                }
             }
 
             // Делегирование обработки callback-а

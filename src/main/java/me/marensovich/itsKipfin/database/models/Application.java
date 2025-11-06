@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
+@Slf4j
 @Table(name = "applications")
 public class Application {
 
@@ -135,7 +137,8 @@ public class Application {
         try {
             return new ObjectMapper().readValue(this.data, type);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Ошибка десериализации DTO", e);
+            log.error("Ошибка десериализации DTO. targetClass={}, json={}", type.getName(), this.data, e);
+            throw new RuntimeException("Ошибка десериализации DTO: " + e.getMessage(), e);
         }
     }
 }

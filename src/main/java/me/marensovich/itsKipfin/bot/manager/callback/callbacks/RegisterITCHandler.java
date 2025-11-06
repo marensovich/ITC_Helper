@@ -1,7 +1,11 @@
 package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 
 import me.marensovich.itsKipfin.bot.Bot;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
@@ -49,16 +53,16 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
         if (command != null && parts.length > 1) {
             switch (parts[1]) {
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM ->
-                        new RegisterITCButton.ProjectTeamHandler(update, keyboardFactory).handle();
+                        new ProjectTeamHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER ->
-                        new RegisterITCButton.DesignerHandler(update).handle();
+                        new DesignerHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR ->
-                        new RegisterITCButton.PRHandler(update).handle();
+                        new PRHandler(update, keyboardFactory).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT ->
-                        new RegisterITCButton.MediaHandler(update).handle();
+                        new MediaHandler(update, keyboardFactory).handle();
 
                 default -> Bot.getInstance()
                         .sendErrorMessage(chatId, "Неверные данные callback: " + callbackData);

@@ -1,6 +1,10 @@
 package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
 import me.marensovich.itsKipfin.services.ApplicationService;
 import org.springframework.stereotype.Component;
@@ -45,20 +49,32 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
 
         switch (department) {
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM -> {
-                RegisterITCButton.ProjectTeamHandler handler = new RegisterITCButton.ProjectTeamHandler(applicationService);
+                ProjectTeamHandler handler = new ProjectTeamHandler(applicationService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR -> {
-                // TODO: обработка PR
+                PRHandler handler = new PRHandler(applicationService);
+                switch (result) {
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
+                }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER -> {
-                // TODO: обработка Designer
+                DesignerHandler handler = new DesignerHandler(applicationService);
+                switch (result) {
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
+                }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT -> {
-                // TODO: обработка Media
+                MediaHandler handler = new MediaHandler(applicationService);
+                switch (result) {
+                    case "YES" -> handler.handleResultYes(id, update);
+                    case "NO" -> handler.handleResultNo(id, update);
+                }
             }
         }
     }
