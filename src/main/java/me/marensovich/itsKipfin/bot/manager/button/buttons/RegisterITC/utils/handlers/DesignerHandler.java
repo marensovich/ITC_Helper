@@ -14,14 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Comparator;
 @Component
 public class DesignerHandler implements ApplicationHandler<UserDesignerApplicationDTO> {
     private static ApplicationService applicationService;
@@ -149,6 +151,10 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
                 processUserInput(update.getMessage().getContact().getPhoneNumber());
             }
+            if (update.getMessage().hasPhoto() && data.getCurrentStep().equals(Step.EXAMPLES)){
+                processPhoto(update.getMessage().getPhoto());
+                return;
+            }
         } else {
             askFullName();
         }
@@ -236,7 +242,25 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             case CONFIRMATION -> handleConfirmation(input);
         }
     }
-
+    /**
+     * Обработать прикреплённые фотографии на шаге примеров работ.
+     * @author yanchev01
+     * @since 0.0.1
+     */
+    private void processPhoto(java.util.List<PhotoSize> photos) {
+        String fileId = photos.stream()
+                .max(Comparator.comparing(PhotoSize::getFileSize))
+                .map(PhotoSize::getFileId)
+                .orElse(null);
+        if (fileId != null) {
+            data.getPhotoFileIds().add(fileId);
+            int photoCount = data.getPhotoFileIds().size();
+            String message = String.format(
+                    "✅ Фотография #%d добавлена!\n\nВы можете отправить еще фотографии или написать описание и нажать Отправить.",
+                    photoCount);
+            sendMessage(message, chatId);
+        }
+    }
     /**
      * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
      * @author marensovich
@@ -379,7 +403,18 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      * @since 0.0.1
      */
     private void askExamples() {
-        sendMessage("Расскажите о примерах ваших работ: \n\nНе прикрепляйте фотографии к сообщению. Используйте ссылки на файлообменники", chatId);
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("📸 Прикрепите фотографии ваших работ (можно несколько):\n\nПосле загрузки фото напишите описание к ним");
+        message.setReplyMarkup(
+                keyboardFactory.create().addButton("Продолжить")
+                        .buildReplyKeyboard()
+        );
+        try {
+            Bot.getInstance().execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException("Ошибка при отправке сообщения", e);
+        }
         data.setCurrentStep(Step.EXAMPLES);
     }
 
@@ -391,9 +426,18 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      * @since 0.0.1
      */
     private void handleExamples(String input) {
-        if (input.length() < 2) {
-            sendMessage("❌ Слишком коротко.", chatId);
-            askMainApps();
+        if (input.equals("Продолжить")){
+            if (data.getPhotoFileIds().isEmpty())
+            {
+                sendMessage("❌ Добавьте хотя бы одну фотографию перед продолжением", chatId);
+                return;
+            }
+            data.setExamples("Без описания");
+            askConfirmation();
+            return;
+        }
+        if (input.length() < 2 && data.getPhotoFileIds().isEmpty()) {
+            sendMessage("❌ Добавьте фотографии или напишите описание работ", chatId);
             return;
         }
         data.setExamples(input);
@@ -417,13 +461,15 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                 <b>Группа:</b> %s
                 <b>Основные программы:</b> %s
                 <b>Примеры работ:</b> %s
+                <b>Фотографии:</b> %s
         
                 Подтверждаете данные? (Да/Нет)""",
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
                 escape(data.getMainApps()),
-                escape(data.getExamples())
+                escape(data.getExamples()),
+                data.getPhotoFileIds().isEmpty() ? "Нет" : data.getPhotoFileIds().size() + "шт."
         );
 
         SendMessage message = new SendMessage();
@@ -524,21 +570,57 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                 <b>Телефон:</b> %s
                 <b>Группа:</b> %s
                 <b>Основные программы:</b> %s
-                <b>Примеры работ:</b> %s""",
+                <b>Примеры работ:</b> %s
+                <b>Фотографии:</b> %s""",
+
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
                 escape(data.getMainApps()),
-                escape(data.getExamples())
+                escape(data.getExamples()),
+                data.getPhotoFileIds().isEmpty() ? "Нет" : data.getPhotoFileIds().size() + "шт."
         );
+        if (!data.getPhotoFileIds().isEmpty()) {
+            return sendPhotoWidthCaption(data.getPhotoFileIds().get(0), adminNotificationText, application);
+        }else{
+            SendMessage notify = new SendMessage();
+            notify.setParseMode(ParseMode.HTML);
+            notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
+            notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+            notify.setText(adminNotificationText);
+            notify.setReplyMarkup(keyboardFactory.create()
+                    .addInlineButton("Принять заявку",
+                            RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
+                                    ":YES:" + application.getId())
+                    .nextInlineRow()
+                    .addInlineButton("Отклонить заявку",
+                            RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
+                                    ":NO:" + application.getId())
+                    .buildInlineKeyboard()
+            );
 
-        SendMessage notify = new SendMessage();
-        notify.setParseMode(ParseMode.HTML);
-        notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-        notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
-        notify.setText(adminNotificationText);
-        notify.setReplyMarkup(keyboardFactory.create()
+            try {
+                return Bot.getInstance().execute(notify);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
+            }
+        }
+    }
+
+    /**
+     * Отправление фото с подписью администраторам
+     *
+     * @since 0.0.1
+     */
+    private Message sendPhotoWidthCaption(String photoFileId, String caption, Application application) {
+        SendPhoto photo = new SendPhoto();
+        photo.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
+        photo.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+            photo.setPhoto(new InputFile(photoFileId));
+            photo.setCaption(caption);
+        photo.setParseMode(ParseMode.HTML);
+        photo.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
                         RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
                                 ":YES:" + application.getId())
@@ -548,15 +630,12 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                                 ":NO:" + application.getId())
                 .buildInlineKeyboard()
         );
-
         try {
-            return Bot.getInstance().execute(notify);
+            return Bot.getInstance().execute(photo);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
+            throw new RuntimeException("Ошибка при отправке фотографии: ", e);
         }
     }
-
-
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *

@@ -3,6 +3,9 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dt
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Базовая DTO с обязательной информацией для подачи заявок в ИТС
@@ -10,6 +13,7 @@ import lombok.Setter;
  * @version 0.0.1
  * @since 0.0.1
  * @author marensovich
+ * @author yanchev01
  */
 @Getter
 @Setter
@@ -44,7 +48,11 @@ public class BaseApplicationDTO {
      * @since 0.0.1
      */
     private String groupNumber;
-
+    /**
+     * Список fileId прикрепленных фотографий
+     * @since 0.0.1
+     */
+    private List<String> photoFileIds = new ArrayList<>();
     /**
      * Сброс всех полей в начальное состояние.
      * @since 0.0.1
@@ -56,6 +64,7 @@ public class BaseApplicationDTO {
         fullName = null;
         phoneNumber = null;
         groupNumber = null;
+        photoFileIds.clear();
     }
 
 }

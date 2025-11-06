@@ -65,7 +65,7 @@ public class RegisterITCButton implements Button {
      * @since 0.0.1
      */
     public static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
-    public static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github|gitlab)\\.com/[A-Za-z0-9_-]+/?$";
+    public static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github)\\.com/[A-Za-z0-9_-]+/?$";
     public static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{3,4}$";
 
 
