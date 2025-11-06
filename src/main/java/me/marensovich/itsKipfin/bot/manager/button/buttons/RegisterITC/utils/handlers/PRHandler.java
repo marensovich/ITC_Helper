@@ -378,7 +378,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     private void handleReason(String input) {
         if (input.length() < 10){
-            sendMessage("❌ Ответ слишком короткий. Пожалуйста, напишите развернутый ответ (минимум 15 символов). Почему именно PR-сектор интересует вас?", chatId);
+            sendMessage("❌ Ответ слишком короткий. Пожалуйста, напишите развернутый ответ (минимум 10 символов). Почему именно PR-сектор интересует вас?", chatId);
             askReason();
             return;
         }
