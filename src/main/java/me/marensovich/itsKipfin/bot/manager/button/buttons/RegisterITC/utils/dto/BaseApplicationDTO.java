@@ -45,4 +45,17 @@ public class BaseApplicationDTO {
      */
     private String groupNumber;
 
+    /**
+     * Сброс всех полей в начальное состояние.
+     * @since 0.0.1
+     * @author marensovich
+     */
+    public void reset(){
+        mention = null;
+        tgId = null;
+        fullName = null;
+        phoneNumber = null;
+        groupNumber = null;
+    }
+
 }

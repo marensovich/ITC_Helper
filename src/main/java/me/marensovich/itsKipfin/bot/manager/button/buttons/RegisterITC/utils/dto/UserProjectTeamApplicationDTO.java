@@ -48,11 +48,7 @@ public class UserProjectTeamApplicationDTO extends BaseApplicationDTO {
      * @author marensovich
      */
     public void reset() {
-        setMention(null);
-        setTgId(null);
-        setFullName(null);
-        setPhoneNumber(null);
-        setGroupNumber(null);
+        super.reset();
         experience = null;
         gitHub = null;
         stack = null;

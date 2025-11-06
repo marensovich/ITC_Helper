@@ -67,11 +67,7 @@ public class UserPRApplicationDTO extends BaseApplicationDTO {
      * @author marensovich
      */
     public void reset() {
-        setMention(null);
-        setTgId(null);
-        setFullName(null);
-        setPhoneNumber(null);
-        setGroupNumber(null);
+        super.reset();
         reasonToJoin = null;
         experience = null;
         interests.clear();

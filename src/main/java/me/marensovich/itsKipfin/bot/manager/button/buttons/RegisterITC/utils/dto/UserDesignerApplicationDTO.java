@@ -42,12 +42,9 @@ public class UserDesignerApplicationDTO extends BaseApplicationDTO {
      * @since 0.0.1
      * @author marensovich
      */
+    @Override
     public void reset() {
-        setMention(null);
-        setTgId(null);
-        setFullName(null);
-        setPhoneNumber(null);
-        setGroupNumber(null);
+        super.reset();
         mainApps = null;
         examples = null;
         currentStep = DesignerHandler.Step.FULL_NAME;

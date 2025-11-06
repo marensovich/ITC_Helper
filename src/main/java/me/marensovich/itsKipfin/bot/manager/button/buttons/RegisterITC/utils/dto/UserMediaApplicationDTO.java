@@ -42,11 +42,7 @@ public class UserMediaApplicationDTO extends BaseApplicationDTO {
      * @author marensovich
      */
     public void reset() {
-        setMention(null);
-        setTgId(null);
-        setFullName(null);
-        setPhoneNumber(null);
-        setGroupNumber(null);
+        super.reset();
         experience = null;
         hasPhoto = null;
         currentStep = MediaHandler.Step.FULL_NAME;
