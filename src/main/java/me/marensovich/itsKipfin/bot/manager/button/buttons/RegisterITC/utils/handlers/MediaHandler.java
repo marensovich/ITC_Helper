@@ -378,12 +378,12 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      * @since 0.0.1
      */
     private void handleExperience(String input) {
-        // Простая эвристика — минимум ~10 слов. При необходимости замените на более гибкую логику.
-        if (input.trim().split("\\s+").length < 10) {
-            sendMessage("❌ Слишком коротко. Опишите чуть подробнее (несколько предложений):", chatId);
-            askExperience();
-            return;
-        }
+//        // Простая эвристика — минимум ~10 слов. При необходимости замените на более гибкую логику.
+//        if (input.trim().split("\\s+").length < 10) {
+//            sendMessage("❌ Слишком коротко. Опишите чуть подробнее (несколько предложений):", chatId);
+//            askExperience();
+//            return;
+//        }
         data.setExperience(input);
         askHasPhoto();
     }

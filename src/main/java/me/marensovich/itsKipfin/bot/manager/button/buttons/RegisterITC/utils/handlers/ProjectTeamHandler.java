@@ -385,12 +385,12 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * @since 0.0.1
      */
     private void handleExperience(String input) {
-        // Простая эвристика — минимум ~10 слов. При необходимости замените на более гибкую логику.
-        if (input.trim().split("\\s+").length < 10) {
-            sendMessage("❌ Слишком коротко. Опишите чуть подробнее (несколько предложений):", chatId);
-            askExperience();
-            return;
-        }
+//        // Простая эвристика — минимум ~10 слов. При необходимости замените на более гибкую логику.
+//        if (input.trim().split("\\s+").length < 10) {
+//            sendMessage("❌ Слишком коротко. Опишите чуть подробнее (несколько предложений):", chatId);
+//            askExperience();
+//            return;
+//        }
         data.setExperience(input);
         askGitHub();
     }
@@ -401,7 +401,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * @since 0.0.1
      */
     private void askGitHub() {
-        sendMessage("Укажите ссылку на ваш GitHub/GitLab (пример: https://github.com/username):", chatId);
+        sendMessage("Укажите ссылку на ваш GitHub (пример: https://github.com/username):", chatId);
         data.setCurrentStep(Step.GITHUB);
     }
 

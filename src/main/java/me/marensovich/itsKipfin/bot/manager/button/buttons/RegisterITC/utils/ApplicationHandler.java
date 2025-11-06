@@ -136,6 +136,15 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      */
     Message sendAdminNotification(Application application);
 
+    /**
+     * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
+     *
+     * @param update Update с callbackQuery от администратора
+     * @param userData данные пользователя (десериализованные из application.data)
+     * @param approved true — одобрена, false — отклонена
+     * @author marensovich
+     * @since 0.0.1
+     */
     void updateAdminMessage(Update update, T userData, boolean approved);
 
     /**
