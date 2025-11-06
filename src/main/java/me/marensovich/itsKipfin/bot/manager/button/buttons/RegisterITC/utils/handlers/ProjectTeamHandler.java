@@ -120,7 +120,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         EXPERIENCE,
 
         /**
-         * Ссылка на GitHub/GitLab
+         * Ссылка на GitHub
          * @since 0.0.1
          */
         GITHUB,
@@ -406,7 +406,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     }
 
     /**
-     * Обработать введённую ссылку на GitHub/GitLab (проверка по {@link RegisterITCButton#GITHUB_REGEX}).
+     * Обработать введённую ссылку на GitHub (проверка по {@link RegisterITCButton#GITHUB_REGEX}).
      *
      * @param input введённая ссылка
      * @author marensovich
@@ -414,7 +414,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      */
     private void handleGitHub(String input) {
         if (!input.matches(RegisterITCButton.GITHUB_REGEX)) {
-            sendMessage("❌ Неверная ссылка на GitHub/GitLab. Попробуйте снова (пример: https://github.com/username):", chatId);
+            sendMessage("❌ Неверная ссылка на GitHub. Попробуйте снова (пример: https://github.com/username):", chatId);
             askGitHub();
             return;
         }
@@ -464,7 +464,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
                 <b>Телефон:</b> %s
                 <b>Группа:</b> %s
                 <b>Опыт:</b> %s
-                <b>GitHub/GitLab:</b> %s
+                <b>GitHub:</b> %s
                 <b>Стек:</b> %s
                 
                 Подтверждаете данные? (Да/Нет)""",
@@ -572,7 +572,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
                 <b>Телефон:</b> %s
                 <b>Группа:</b> %s
                 <b>Опыт:</b> %s
-                <b>GitHub/GitLab:</b> %s
+                <b>GitHub:</b> %s
                 <b>Стек:</b> %s""",
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
@@ -652,7 +652,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
                 <b>Телефон:</b> %s
                 <b>Группа:</b> %s
                 <b>Опыт:</b> %s
-                <b>GitHub/GitLab:</b> %s
+                <b>GitHub:</b> %s
                 <b>Стек:</b> %s
                 
                 %s""",
