@@ -7,6 +7,8 @@ import me.marensovich.itsKipfin.bot.manager.callback.CallbackManager;
 import me.marensovich.itsKipfin.bot.manager.command.CommandManager;
 import me.marensovich.itsKipfin.bot.manager.update.UpdateManager;
 import me.marensovich.itsKipfin.services.UserService;
+import me.marensovich.itsKipfin.settings.SettingsManager;
+import me.marensovich.itsKipfin.settings.dto.BotSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
@@ -47,6 +49,10 @@ public class Bot extends TelegramLongPollingBot {
     @Autowired
     @Getter
     private ButtonManager buttonManager;
+
+    @Autowired
+    @Getter
+    private SettingsManager settingsManager;
 
     /** Глобальный экземпляр бота (Singleton). */
     @Getter
@@ -165,6 +171,7 @@ public class Bot extends TelegramLongPollingBot {
         userService.getAllUsers().forEach(user -> {
             updateManager.hashedUsers.put(String.valueOf(user.getUserId()), user);
         });
+        settingsManager.saveSettings();
     }
 
     /**
