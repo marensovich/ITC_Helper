@@ -1,6 +1,7 @@
 package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils;
 
 import me.marensovich.itsKipfin.bot.Bot;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.BaseApplicationDTO;
 import me.marensovich.itsKipfin.database.models.Application;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,7 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * @version 0.0.1
  * @since 0.0.1
  */
-public interface ApplicationHandler {
+public interface ApplicationHandler <T extends BaseApplicationDTO> {
     /**
      * Начало обработки события
      * @since 0.0.1
@@ -134,6 +135,8 @@ public interface ApplicationHandler {
      * @author marensovich
      */
     Message sendAdminNotification(Application application);
+
+    void updateAdminMessage(Update update, T userData, boolean approved);
 
     /**
      * Экранирует HTML-символы в тексте, чтобы избежать поломки парсинга HTML у Telegram.

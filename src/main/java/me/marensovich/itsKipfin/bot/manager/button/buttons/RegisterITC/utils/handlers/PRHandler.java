@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class PRHandler implements ApplicationHandler {
+public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     /**
      * ApplicationService внедряется Spring-ом в static поле через конструктор с {@link Autowired}.
      * Это позволяет создавать экземпляры handler'а вручную (new ProjectTeamHandler(update, keyboardFactory))
@@ -206,7 +206,7 @@ public class PRHandler implements ApplicationHandler {
                         "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, true);
+        updateAdminMessage(update, userData, true);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
     }
 
@@ -233,7 +233,7 @@ public class PRHandler implements ApplicationHandler {
                         " для получения ответов на интересующие вопросы.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, false);
+        updateAdminMessage(update, userData, false);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
     }
 
@@ -628,65 +628,6 @@ public class PRHandler implements ApplicationHandler {
         Bot.getInstance().getButtonManager().unsetActiveCommand(chatId);
     }
 
-    /**
-     * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
-     *
-     * @param update Update с callbackQuery от администратора
-     * @param userData данные пользователя (десериализованные из application.data)
-     * @param application сущность заявки
-     * @param approved true — одобрена, false — отклонена
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private void updateAdminMessage(Update update, UserPRApplicationDTO userData, Application application, boolean approved) {
-        if (!update.hasCallbackQuery()) return;
-        String interestsText = userData.getInterests() == null || userData.getInterests().isEmpty()
-                ? "—"
-                : String.join(", ", userData.getInterests());
-
-        String statusText = approved ?
-                "✅ Заявка одобрена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "." :
-                "❌ Заявка отклонена администратором @" + update.getCallbackQuery().getFrom().getUserName() + ".";
-
-        String messageText = String.format(
-                """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                
-                <b>Почему в PR:</b> %s
-                <b>Опыт:</b> %s
-                <b>Интересы:</b> %s
-                <b>Вопросы к руководителям:</b> %s
-                
-                %s""",
-                userData.getMention(), userData.getTgId(),
-                escape(userData.getFullName()),
-                escape(userData.getPhoneNumber()),
-                escape(userData.getGroupNumber()),
-                escape(userData.getReasonToJoin()),
-                escape(userData.getExperience()),
-                escape(interestsText),
-                escape(userData.getQuestions()),
-                statusText
-        );
-
-        EditMessageText editMessage = new EditMessageText();
-        editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
-        editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-        editMessage.setParseMode(ParseMode.HTML);
-        editMessage.setText(messageText);
-
-        try {
-            Bot.getInstance().execute(editMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при редактировании админского сообщения", e);
-        }
-    }
-
-
     @Override
     public Message sendAdminNotification(Application application) {
         String interestsText = data.getInterests() == null || data.getInterests().isEmpty()
@@ -738,6 +679,64 @@ public class PRHandler implements ApplicationHandler {
             return Bot.getInstance().execute(notify);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
+        }
+    }
+
+    /**
+     * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
+     *
+     * @param update Update с callbackQuery от администратора
+     * @param userData данные пользователя (десериализованные из application.data)
+     * @param approved true — одобрена, false — отклонена
+     * @author marensovich
+     * @since 0.0.1
+     */
+    @Override
+    public void updateAdminMessage(Update update, UserPRApplicationDTO userData, boolean approved) {
+        if (!update.hasCallbackQuery()) return;
+        String interestsText = userData.getInterests() == null || userData.getInterests().isEmpty()
+                ? "—"
+                : String.join(", ", userData.getInterests());
+
+        String statusText = approved ?
+                "✅ Заявка одобрена администратором @" + update.getCallbackQuery().getFrom().getUserName() + "." :
+                "❌ Заявка отклонена администратором @" + update.getCallbackQuery().getFrom().getUserName() + ".";
+
+        String messageText = String.format(
+                """
+                <b>Новая заявка от %s (%s):</b>
+                
+                <b>ФИО:</b> %s
+                <b>Телефон:</b> %s
+                <b>Группа:</b> %s
+                
+                <b>Почему в PR:</b> %s
+                <b>Опыт:</b> %s
+                <b>Интересы:</b> %s
+                <b>Вопросы к руководителям:</b> %s
+                
+                %s""",
+                userData.getMention(), userData.getTgId(),
+                escape(userData.getFullName()),
+                escape(userData.getPhoneNumber()),
+                escape(userData.getGroupNumber()),
+                escape(userData.getReasonToJoin()),
+                escape(userData.getExperience()),
+                escape(interestsText),
+                escape(userData.getQuestions()),
+                statusText
+        );
+
+        EditMessageText editMessage = new EditMessageText();
+        editMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        editMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+        editMessage.setParseMode(ParseMode.HTML);
+        editMessage.setText(messageText);
+
+        try {
+            Bot.getInstance().execute(editMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException("Ошибка при редактировании админского сообщения", e);
         }
     }
 

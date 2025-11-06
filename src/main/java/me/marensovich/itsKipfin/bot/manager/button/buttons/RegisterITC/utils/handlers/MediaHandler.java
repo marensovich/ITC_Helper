@@ -28,7 +28,7 @@ import java.util.Map;
  * @version 0.0.1
  */
 @Component
-public class MediaHandler implements ApplicationHandler {
+public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO> {
     /**
      * ApplicationService внедряется Spring-ом в static поле через конструктор с {@link Autowired}.
      * Это позволяет создавать экземпляры handler'а вручную (new ProjectTeamHandler(update, keyboardFactory))
@@ -197,7 +197,7 @@ public class MediaHandler implements ApplicationHandler {
                         "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, true);
+        updateAdminMessage(update, userData, true);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
     }
 
@@ -224,7 +224,7 @@ public class MediaHandler implements ApplicationHandler {
                         " для получения ответов на интересующие вопросы.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, false);
+        updateAdminMessage(update, userData, false);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
     }
 
@@ -602,17 +602,18 @@ public class MediaHandler implements ApplicationHandler {
         }
     }
 
+
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
      * @param update Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
-     * @param application сущность заявки
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
      * @since 0.0.1
      */
-    private void updateAdminMessage(Update update, UserMediaApplicationDTO userData, Application application, boolean approved) {
+    @Override
+    public void updateAdminMessage(Update update, UserMediaApplicationDTO userData, boolean approved) {
         if (!update.hasCallbackQuery()) return;
 
         String statusText = approved ?

@@ -3,6 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ha
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.BaseApplicationDTO;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserProjectTeamApplicationDTO;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.services.ApplicationService;
@@ -27,7 +28,7 @@ import java.util.Map;
  * @version 0.0.1
  */
 @Component
-public class ProjectTeamHandler implements ApplicationHandler {
+public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApplicationDTO> {
 
     /**
      * ApplicationService внедряется Spring-ом в static поле через конструктор с {@link Autowired}.
@@ -202,7 +203,7 @@ public class ProjectTeamHandler implements ApplicationHandler {
                         "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, true);
+        updateAdminMessage(update, userData, true);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
     }
 
@@ -229,7 +230,7 @@ public class ProjectTeamHandler implements ApplicationHandler {
                         " для получения ответов на интересующие вопросы.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, false);
+        updateAdminMessage(update, userData, false);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
     }
 
@@ -625,17 +626,18 @@ public class ProjectTeamHandler implements ApplicationHandler {
         return ApplicationHandler.super.resolveChatId(update);
     }
 
+
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
      * @param update Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
-     * @param application сущность заявки
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
      * @since 0.0.1
      */
-    private void updateAdminMessage(Update update, UserProjectTeamApplicationDTO userData, Application application, boolean approved) {
+    @Override
+    public void updateAdminMessage(Update update, UserProjectTeamApplicationDTO userData, boolean approved) {
         if (!update.hasCallbackQuery()) return;
 
         String statusText = approved ?

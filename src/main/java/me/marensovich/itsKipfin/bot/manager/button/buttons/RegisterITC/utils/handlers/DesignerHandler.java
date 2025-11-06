@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
+import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserDesignerApplicationDTO;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.services.ApplicationService;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class DesignerHandler {
+public class DesignerHandler implements ApplicationHandler<UserDesignerApplicationDTO> {
     private static ApplicationService applicationService;
 
     /**
@@ -135,7 +136,7 @@ public class DesignerHandler {
         Long userId = resolveUserId(update);
 
         if (applicationService.isActiveApplicationExists(userId)) {
-            sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
+            sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.", chatId);
             userApplicationDataMap.remove(chatId);
             return;
         }
@@ -171,6 +172,7 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
+    @Override
     public void handleResultYes(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserDesignerApplicationDTO userData = application.getDataObject(UserDesignerApplicationDTO.class);
@@ -181,7 +183,7 @@ public class DesignerHandler {
                         "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, true);
+        updateAdminMessage(update, userData, true);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.APPROVED);
     }
 
@@ -196,6 +198,7 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
+    @Override
     public void handleResultNo(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserDesignerApplicationDTO userData = application.getDataObject(UserDesignerApplicationDTO.class);
@@ -207,7 +210,7 @@ public class DesignerHandler {
                         " для получения ответов на интересующие вопросы.");
 
         // обновление сообщения в админ-чате
-        updateAdminMessage(update, userData, application, false);
+        updateAdminMessage(update, userData, false);
         applicationService.updateApplicationStatus(application.getId(), Application.Status.REJECTED);
     }
 
@@ -218,7 +221,8 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void processUserInput(String input) {
+    @Override
+    public void processUserInput(String input) {
         // сохраняем метаданные о пользователе
         data.setTgId(String.valueOf(update.getMessage().getFrom().getId()));
         data.setMention("@" + update.getMessage().getFrom().getUserName());
@@ -238,8 +242,9 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void askFullName() {
-        sendMessage("Введите ваше ФИО (например: Иванов Иван Иванович):");
+    @Override
+    public void askFullName() {
+        sendMessage("Введите ваше ФИО (например: Иванов Иван Иванович):", chatId);
         data.setCurrentStep(Step.FULL_NAME);
     }
 
@@ -255,9 +260,10 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void handleFullName(String input) {
+    @Override
+    public void handleFullName(String input) {
         if (!input.matches(RegisterITCButton.FIO_REGEX)) {
-            sendMessage("❌ Неверный формат ФИО. Только русские буквы, первая — заглавная.\nПример: Иванов Иван Иванович");
+            sendMessage("❌ Неверный формат ФИО. Только русские буквы, первая — заглавная.\nПример: Иванов Иван Иванович", chatId);
             askFullName();
             return;
         }
@@ -270,7 +276,8 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void askPhoneNumber() {
+    @Override
+    public void askPhoneNumber() {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setParseMode(ParseMode.HTML);
@@ -295,7 +302,8 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void handlePhoneNumber(String number) {
+    @Override
+    public void handlePhoneNumber(String number) {
         data.setPhoneNumber(number);
         askGroupNumber();
     }
@@ -305,7 +313,8 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void askGroupNumber() {
+    @Override
+    public void askGroupNumber() {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setParseMode(ParseMode.HTML);
@@ -326,9 +335,10 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void handleGroupNumber(String input) {
+    @Override
+    public void handleGroupNumber(String input) {
         if (!input.toUpperCase().matches(RegisterITCButton.GROUP_REGEX)) {
-            sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024");
+            sendMessage("❌ Неверный формат номера группы. Пример: 2ИСИП-1224 или 3ОИБАС-1024", chatId);
             askGroupNumber();
             return;
         }
@@ -342,7 +352,7 @@ public class DesignerHandler {
      * @since 0.0.1
      */
     private void askMainApps() {
-        sendMessage("Расскажите, какими приложениями пользуетесь для работы:");
+        sendMessage("Расскажите, какими приложениями пользуетесь для работы:", chatId);
         data.setCurrentStep(Step.MAIN_APPS);
     }
 
@@ -355,7 +365,7 @@ public class DesignerHandler {
      */
     private void handleMainApps(String input) {
         if (input.length() < 2) {
-            sendMessage("❌ Слишком коротко.");
+            sendMessage("❌ Слишком коротко.", chatId);
             askMainApps();
             return;
         }
@@ -369,7 +379,7 @@ public class DesignerHandler {
      * @since 0.0.1
      */
     private void askExamples() {
-        sendMessage("Расскажите о примерах ваших работ: \n\nНе прикрепляйте фотографии к сообщению. Используйте ссылки на файлообменники");
+        sendMessage("Расскажите о примерах ваших работ: \n\nНе прикрепляйте фотографии к сообщению. Используйте ссылки на файлообменники", chatId);
         data.setCurrentStep(Step.EXAMPLES);
     }
 
@@ -382,7 +392,7 @@ public class DesignerHandler {
      */
     private void handleExamples(String input) {
         if (input.length() < 2) {
-            sendMessage("❌ Слишком коротко.");
+            sendMessage("❌ Слишком коротко.", chatId);
             askMainApps();
             return;
         }
@@ -396,7 +406,8 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void askConfirmation() {
+    @Override
+    public void askConfirmation() {
         String confirmationText = String.format(
                 """
                 Проверьте введённые данные:
@@ -441,18 +452,21 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void handleConfirmation(String input) {
+    @Override
+    public void handleConfirmation(String input) {
         String answer = input.toLowerCase();
         if (answer.equals("да") || answer.equals("yes")) {
             processApplicationConfirmation();
         } else if (answer.equals("нет") || answer.equals("no")) {
-            sendMessage("🔄 Хорошо, начнем заново.");
+            sendMessage("🔄 Хорошо, начнем заново.", chatId);
             data.reset();
             askFullName();
         } else {
-            sendMessage("Пожалуйста, ответьте 'Да' или 'Нет' (без кавычек).");
+            sendMessage("Пожалуйста, ответьте 'Да' или 'Нет' (без кавычек).", chatId);
         }
     }
+
+
 
     /**
      * Заключительный шаг: сохранение заявки в БД и уведомление админов.
@@ -467,8 +481,9 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private void processApplicationConfirmation() {
-        sendMessage("✅ Спасибо! Ваша заявка сохранена.");
+    @Override
+    public void processApplicationConfirmation() {
+        sendMessage("✅ Спасибо! Ваша заявка сохранена.", chatId);
 
         Application application = applicationService.createApplication(
                 Application.Departament.Designer,
@@ -499,7 +514,8 @@ public class DesignerHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    private Message sendAdminNotification(Application application) {
+    @Override
+    public Message sendAdminNotification(Application application) {
         String adminNotificationText = String.format(
                 """
                 <b>Новая заявка от %s (%s):</b>
@@ -540,17 +556,18 @@ public class DesignerHandler {
         }
     }
 
+
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
      * @param update Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
-     * @param application сущность заявки
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
      * @since 0.0.1
      */
-    private void updateAdminMessage(Update update, UserDesignerApplicationDTO userData, Application application, boolean approved) {
+    @Override
+    public void updateAdminMessage(Update update, UserDesignerApplicationDTO userData, boolean approved) {
         if (!update.hasCallbackQuery()) return;
 
         String statusText = approved ?
@@ -590,95 +607,34 @@ public class DesignerHandler {
         }
     }
 
-    /**
-     * Отправить приватное уведомление пользователю.
-     *
-     * @param userId id пользователя (chat id в личных сообщениях)
-     * @param text текст уведомления (может содержать HTML, экранируется при необходимости)
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private void sendUserNotification(Long userId, String text) {
-        SendMessage notify = new SendMessage();
-        notify.setParseMode(ParseMode.HTML);
-        notify.setText(text);
-        notify.setChatId(userId);
-        try {
-            Bot.getInstance().execute(notify);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке уведомления пользователю", e);
-        }
+    @Override
+    public String escape(String text) {
+        return ApplicationHandler.super.escape(text);
     }
 
-    /**
-     * Утилитный метод быстрой отправки текстового сообщения в текущий chatId (используется внутри handler).
-     *
-     * @param text текст сообщения (HTML-неэкранированный)
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private void sendMessage(String text) {
-        SendMessage msg = new SendMessage();
-        msg.setChatId(chatId);
-        msg.setParseMode(ParseMode.HTML);
-        msg.setText(text);
-        try {
-            Bot.getInstance().execute(msg);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения пользователю (внутренний sendMessage)", e);
-        }
+    @Override
+    public void sendMessage(String text, Long chatId) {
+        ApplicationHandler.super.sendMessage(text, chatId);
     }
 
-    /**
-     * Разрешить chatId из {@link Update}.
-     *
-     * @param update текущий update
-     * @return chatId (Long)
-     * @throws IllegalArgumentException если chatId нельзя получить
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private Long resolveChatId(Update update) {
-        if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
-            return update.getCallbackQuery().getFrom().getId();
-        } else if (update.hasMessage()) {
-            return update.getMessage().getChatId();
-        } else {
-            throw new IllegalArgumentException("Cannot determine chatId from update");
-        }
+    @Override
+    public void sendUserNotification(Long userId, String text) {
+        ApplicationHandler.super.sendUserNotification(userId, text);
     }
 
-    /**
-     * Разрешить userId (идентификатор отправителя) из {@link Update}.
-     *
-     * @param update текущий update
-     * @return userId
-     * @throws IllegalArgumentException если userId нельзя получить
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private Long resolveUserId(Update update) {
-        if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
-            return update.getCallbackQuery().getFrom().getId();
-        } else if (update.hasMessage()) {
-            return update.getMessage().getFrom().getId();
-        } else {
-            throw new IllegalArgumentException("Cannot determine userId from update");
-        }
+    @Override
+    public void sendMessage(String text, String chatId) {
+        ApplicationHandler.super.sendMessage(text, chatId);
     }
 
-    /**
-     * Экранирует HTML-символы в тексте, чтобы избежать поломки парсинга HTML у Telegram.
-     *
-     * @param text исходный текст
-     * @return экранированный текст (если input == null — возвращается пустая строка)
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private String escape(String text) {
-        return text == null ? "" : text
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
+    @Override
+    public Long resolveUserId(Update update) {
+        return ApplicationHandler.super.resolveUserId(update);
     }
+
+    @Override
+    public Long resolveChatId(Update update) {
+        return ApplicationHandler.super.resolveChatId(update);
+    }
+
 }
