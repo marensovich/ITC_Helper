@@ -8,6 +8,8 @@ import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
@@ -45,6 +47,11 @@ public class StartCommand implements Command {
     @Override
     public String getName() {
         return "/start";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Начать работу с ботом";
     }
 
     /**
@@ -95,5 +102,10 @@ public class StartCommand implements Command {
             // Снимаем активную команду после отправки
             Bot.getInstance().getCommandManager().unsetActiveCommand(chatId);
         }
+    }
+
+    @Override
+    public BotCommandScope getScope() {
+        return BotCommandScopeAllPrivateChats.builder().build();
     }
 }

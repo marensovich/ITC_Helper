@@ -1,6 +1,8 @@
 package me.marensovich.itsKipfin.bot.manager.command.interfaces;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 
 /**
  * Интерфейс команды для Telegram бота.
@@ -23,6 +25,13 @@ public interface Command {
     String getName();
 
     /**
+     * Получить описания команды
+     * @return описание команды
+     * @since 0.0.1
+     */
+    String getDescription();
+
+    /**
      * Проверка, требуется ли права администратора для выполнения команды.
      *
      * @return true, если права администратора обязательны, иначе false
@@ -37,4 +46,13 @@ public interface Command {
      * @since 0.0.1
      */
     void execute(Update update);
+
+
+    /**
+     * Область видимости команды (по умолчанию — глобальная).
+     * @since 0.0.1
+     */
+    default BotCommandScope getScope() {
+        return BotCommandScopeDefault.builder().build();
+    }
 }

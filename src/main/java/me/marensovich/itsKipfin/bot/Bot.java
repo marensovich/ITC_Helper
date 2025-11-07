@@ -1,5 +1,6 @@
 package me.marensovich.itsKipfin.bot;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
@@ -8,8 +9,9 @@ import me.marensovich.itsKipfin.bot.manager.command.CommandManager;
 import me.marensovich.itsKipfin.bot.manager.update.UpdateManager;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.settings.SettingsManager;
-import me.marensovich.itsKipfin.settings.dto.BotSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
@@ -20,147 +22,70 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
  * Основной класс Telegram-бота.
- * <p>
- * Отвечает за получение обновлений, маршрутизацию команд, обработку callback-запросов
- * и отправку сообщений пользователям.
- * Использует менеджеры {@link CommandManager}, {@link CallbackManager}, {@link ButtonManager}
- * и {@link UpdateManager} для распределения логики.
- *
- * @author marensovich
- * @version 0.0.1
- * @since 0.0.1
+ * Обрабатывает обновления, команды, кнопки и колбэки.
  */
 @Slf4j
+@Component
 public class Bot extends TelegramLongPollingBot {
 
-    /** Менеджер команд Telegram-бота. */
-    @Autowired
-    @Getter
-    private CommandManager commandManager;
-
-    @Autowired private UserService userService;
-
-    /** Менеджер callback-запросов (обработка inline-кнопок). */
-    @Autowired
-    @Getter
-    private CallbackManager callbackManager;
-
-    /** Менеджер обычных кнопок (reply и inline). */
-    @Autowired
-    @Getter
-    private ButtonManager buttonManager;
-
-    @Autowired
-    @Getter
-    private SettingsManager settingsManager;
-
-    /** Глобальный экземпляр бота (Singleton). */
     @Getter
     private static Bot instance;
 
-    /** Токен Telegram-бота. */
-    private final String botToken;
-
-    /** Имя Telegram-бота (username). */
-    private final String botUsername;
-
-    /** Менеджер обработки обновлений. */
-    @Autowired
-    @Getter
-    private UpdateManager updateManager;
+    @Autowired @Getter private CommandManager commandManager;
+    @Autowired @Getter private CallbackManager callbackManager;
+    @Autowired @Getter private ButtonManager buttonManager;
+    @Autowired @Getter private UpdateManager updateManager;
+    @Autowired @Getter private SettingsManager settingsManager;
+    @Autowired @Getter private UserService userService;
 
     /**
-     * Конструктор Telegram-бота.
-     *
-     * @param botToken    токен Telegram-бота (из настроек)
-     * @param botUsername имя Telegram-бота (username)
-     * @author marensovich
+     * Токен Telegram-бота, задаётся в {@code application.properties}.
      * @since 0.0.1
      */
-    public Bot(String botToken, String botUsername) {
+    private final String botToken;
+
+    /**
+     * Имя пользователя (username) Telegram-бота.
+     * @since 0.0.1
+     */
+    private final String botUsername;
+
+    public Bot(
+            @Value("${telegram.bot.token}") String botToken,
+            @Value("${telegram.bot.username}") String botUsername
+    ) {
         this.botToken = botToken;
         this.botUsername = botUsername;
         instance = this;
     }
 
-    /**
-     * Главный обработчик обновлений.
-     * <p>
-     * Делегирует входящие сообщения и callback-и {@link UpdateManager}.
-     *
-     * @param update входящее обновление от Telegram API
-     * @author marensovich
-     * @since 0.0.1
-     */
+
+    @PostConstruct
+    public void postInit() {
+        instance = this;
+        log.info("🤖 Bot instance initialized: {}", botUsername);
+        try {
+            commandManager.registerCommands();
+            log.info("✅ Команды Telegram зарегистрированы успешно");
+        } catch (Exception e) {
+            log.error("❌ Ошибка при регистрации команд: {}", e.getMessage());
+        }
+    }
+
     @Override
     public void onUpdateReceived(Update update) {
         try {
             updateManager.updateHandler(update);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при обработке обновления Telegram", e);
+        } catch (Exception e) {
+            log.error("Ошибка обработки update: {}", e.getMessage(), e);
         }
     }
 
-    /**
-     * Отправляет простое текстовое сообщение пользователю.
-     *
-     * @param chatId идентификатор чата
-     * @param text   текст сообщения
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private void sendTextMessage(Long chatId, String text) {
-        try {
-            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
-            execute(new SendMessage(chatId.toString(), text));
-        } catch (TelegramApiException e) {
-            log.error("Ошибка отправки сообщения: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * Отправляет сообщение о недостатке прав пользователю.
-     *
-     * @param update объект обновления Telegram
-     * @author marensovich
-     * @since 0.0.1
-     */
-    public void sendNoAccessMessage(Update update) {
-        sendTextMessage(update.getMessage().getChatId(),
-                "⛔ У вас нет прав для выполнения этой команды!");
-    }
-
-    /**
-     * Отправляет сообщение о необходимости использования личных сообщений.
-     *
-     * @param update объект обновления Telegram
-     * @author marensovich
-     * @since 0.0.1
-     */
-    public void sendUserPrivateChat(Update update) {
-        sendTextMessage(update.getMessage().getChatId(),
-                "💬 Пожалуйста, используйте личные сообщения, чтобы использовать эту команду.");
-    }
-
-    /**
-     * Возвращает username Telegram-бота.
-     *
-     * @return имя пользователя (username)
-     * @author marensovich
-     * @since 0.0.1
-     */
     @Override
     public String getBotUsername() {
         return botUsername;
     }
 
-    /**
-     * Возвращает токен Telegram-бота.
-     *
-     * @return токен Telegram API
-     * @author marensovich
-     * @since 0.0.1
-     */
     @Override
     public String getBotToken() {
         return botToken;
@@ -168,65 +93,57 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onRegister() {
-        userService.getAllUsers().forEach(user -> {
-            updateManager.hashedUsers.put(String.valueOf(user.getUserId()), user);
-        });
+        userService.getAllUsers().forEach(user ->
+                updateManager.hashedUsers.put(String.valueOf(user.getUserId()), user)
+        );
         settingsManager.saveSettings();
+        log.info("📥 Бот зарегистрирован, пользователи и настройки загружены");
     }
 
-    /**
-     * Удаляет клавиатуру из чата.
-     *
-     * @return объект {@link ReplyKeyboardRemove} для удаления клавиатуры
-     * @author marensovich
-     * @since 0.0.1
-     */
-    public ReplyKeyboardRemove removeKeyboard() {
-        ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove();
-        keyboardRemove.setRemoveKeyboard(true);
-        keyboardRemove.setSelective(false);
-        return keyboardRemove;
+    // ========= Утилиты ========= //
+
+    public void sendText(Long chatId, String text) {
+        try {
+            showBotAction(chatId, ActionType.TYPING);
+            execute(new SendMessage(chatId.toString(), text));
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке сообщения: {}", e.getMessage());
+        }
     }
 
-    /**
-     * Отправляет сообщение об ошибке пользователю.
-     *
-     * @param chatId идентификатор чата
-     * @param text   текст ошибки
-     * @author marensovich
-     * @since 0.0.1
-     */
+    public void sendNoAccessMessage(Update update) {
+        sendText(update.getMessage().getChatId(), "⛔ У вас нет прав для выполнения этой команды!");
+    }
+
+    public void sendUserPrivateChat(Update update) {
+        sendText(update.getMessage().getChatId(),
+                "💬 Используйте личные сообщения, чтобы выполнить эту команду.");
+    }
+
     public void sendErrorMessage(Long chatId, String text) {
-        Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
         try {
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId.toString());
-            message.setText(text);
-            message.setReplyMarkup(null);
-            execute(message);
+            showBotAction(chatId, ActionType.TYPING);
+            execute(new SendMessage(chatId.toString(), "⚠ " + text));
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка отправки сообщения об ошибке", e);
+            log.error("Ошибка при отправке сообщения об ошибке: {}", e.getMessage());
         }
     }
 
-    /**
-     * Отображает текущее действие бота (например, "печатает...").
-     *
-     * @param chatId     идентификатор чата
-     * @param actionType тип действия ({@link ActionType})
-     * @author marensovich
-     * @since 0.0.1
-     */
     public void showBotAction(Long chatId, ActionType actionType) {
-        SendChatAction chatAction = new SendChatAction();
-        chatAction.setChatId(String.valueOf(chatId));
-        chatAction.setAction(actionType);
-
         try {
-            Bot.getInstance().execute(chatAction);
+            SendChatAction chatAction = new SendChatAction();
+            chatAction.setChatId(chatId);
+            chatAction.setAction(actionType);
+            execute(chatAction);
         } catch (TelegramApiException e) {
-            log.error("Ошибка отображения действия бота: {}", e.getMessage());
+            log.error("Ошибка при показе действия: {}", e.getMessage());
         }
     }
 
+    public ReplyKeyboardRemove removeKeyboard() {
+        ReplyKeyboardRemove remove = new ReplyKeyboardRemove();
+        remove.setRemoveKeyboard(true);
+        remove.setSelective(false);
+        return remove;
+    }
 }

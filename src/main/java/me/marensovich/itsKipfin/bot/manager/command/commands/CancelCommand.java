@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.stream.Stream;
@@ -41,6 +43,11 @@ public class CancelCommand implements Command {
     @Override
     public String getName() {
         return "/cancel";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Отменить работу любой команды";
     }
 
     /**
@@ -106,5 +113,10 @@ public class CancelCommand implements Command {
                     "⚠️ Ошибка при работе бота, обратитесь к администратору");
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public BotCommandScope getScope() {
+        return BotCommandScopeAllPrivateChats.builder().build();
     }
 }
