@@ -203,7 +203,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
                 "✅ Ваша заявка на вступление в ИТС одобрена! " +
-                        "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
+                        "Свяжитесь с руководителем направления «PR и Коммуникации» @" + update.getCallbackQuery().getFrom().getUserName() + " для получения дальнейшей информации.");
 
         // обновление сообщения в админ-чате
         updateAdminMessage(update, userData, true);
@@ -229,7 +229,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
                 "❌ Ваша заявка на вступление в ИТС отклонена! " +
-                        "Свяжитесь с руководителем @" + update.getCallbackQuery().getFrom().getUserName() +
+                        "Свяжитесь с руководителем направления «PR и Коммуникации» @" + update.getCallbackQuery().getFrom().getUserName() +
                         " для получения ответов на интересующие вопросы.");
 
         // обновление сообщения в админ-чате
