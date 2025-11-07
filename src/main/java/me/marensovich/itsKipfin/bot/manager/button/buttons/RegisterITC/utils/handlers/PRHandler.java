@@ -378,8 +378,9 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     private void handleReason(String input) {
         if (input.length() < 10){
-            sendMessage("❌ Ответ короткий.", chatId);
+            sendMessage("❌ Ответ слишком короткий. Пожалуйста, напишите развернутый ответ (минимум 10 символов). Почему именно PR-сектор интересует вас?", chatId);
             askReason();
+            return;
         }
         data.setReasonToJoin(input);
         askExperience();
@@ -392,8 +393,9 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     private void handleExperience(String input) {
         if (input.length() < 3){
-            sendMessage("❌ Ответ короткий.", chatId);
+            sendMessage("❌ Ответ слишком короткий. Пожалуйста, опишите ваш опыт подробнее (минимум 3 символа). Если опыта нет - так и напишите.", chatId);
             askExperience();
+            return;
         }
         data.setExperience(input);
         askInterests();
@@ -533,9 +535,8 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
         String confirmationText = String.format(
                 """
-                Проверьте введённые данные:
+                <b>Новая заявка от %s (%s):</b>
                 
-                <b>Упоминание:</b> %s
                 <b>ФИО:</b> %s
                 <b>Телефон:</b> %s
                 <b>Группа:</b> %s
@@ -546,7 +547,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
                 <b>Вопросы к руководителям:</b> %s
                 
                 Подтверждаете данные? (Да/Нет)""",
-                escape(data.getMention()),
+                data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
