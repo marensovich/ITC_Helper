@@ -43,6 +43,10 @@ public class CommandManager {
     private final List<Command> commandsList;
     private final UserService userService;
 
+    // Флаг, чтобы команды регистрировались только один раз
+    private boolean commandsRegistered = false;
+
+
 
     /**
      * Конструктор CommandManager.
@@ -64,7 +68,12 @@ public class CommandManager {
      * @since 0.0.1
      * @author marensovich
      */
-    public void registerCommands() {
+    public synchronized void registerCommands() {
+        if (commandsRegistered) {
+            log.info("ℹ Команды уже зарегистрированы, пропускаем повторный вызов");
+            return;
+        }
+
         if (commandsList == null || commandsList.isEmpty()) {
             log.warn("⚠ Список команд пуст — нечего регистрировать");
             return;
@@ -91,9 +100,7 @@ public class CommandManager {
             try {
                 // Получаем текущие команды для scope
                 List<BotCommand> currentCommands = Bot.getInstance().execute(
-                        GetMyCommands.builder()
-                                .scope(scope)
-                                .build()
+                        GetMyCommands.builder().scope(scope).build()
                 );
 
                 if (currentCommands != null && !currentCommands.isEmpty()) {
@@ -125,6 +132,9 @@ public class CommandManager {
                 log.error("❌ Ошибка при работе с командами для {}: {}", scope.getClass().getSimpleName(), e.getMessage());
             }
         }
+
+        // Отмечаем, что регистрация уже выполнена
+        commandsRegistered = true;
     }
 
     /**
