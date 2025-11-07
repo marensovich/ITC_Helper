@@ -2,10 +2,128 @@ package me.marensovich.itsKipfin.settings.dto;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * The type Bot settings.
+ * DTO класс в документацией
+ *
+ * @since 0.0.1
+ * @author marensovich
+ * @version 0.0.1
  */
 @Data
 public class BotSettings {
 
+    GeneralSettings generalSettings = new GeneralSettings();
+    Applications applications = new Applications();
+    Departaments departaments = new Departaments();
+
+    @Data
+    public static class GeneralSettings {
+        private String botName = "ИТС Помощник";
+        private String botDescription;
+        private String botShortDescription;
+    }
+
+    @Data
+    public static class Departaments {
+        ProjectTeam projectTeam = new ProjectTeam();
+        Media media = new Media();
+        PR pr = new PR();
+        Designer designer = new Designer();
+        Head head = new Head();
+
+        @Data
+        public static class Head {
+            public List<String> presidentOfITC = new ArrayList<>();
+            public List<String> curatorITC = new ArrayList<>();
+
+            private String mainChannelId;
+            private String mainChannelInviteLink;
+            private String adminChannelId;
+            private String adminChannelInviteLink;
+
+        }
+
+        @Data
+        public static class ProjectTeam {
+            private List<String> headsOfDepartment = new ArrayList<>();
+            private List<String> deputyHeadsOfDepartment = new ArrayList<>();
+            private String mainChannelId;
+            private String mainChannelInviteLink;
+            private String adminChannelId;
+            private String adminChannelInviteLink;
+
+        }
+
+        @Data
+        public static class Media {
+            private List<String> headsOfDepartment = new ArrayList<>();
+            private List<String> deputyHeadsOfDepartment = new ArrayList<>();
+            private String mainChannelId;
+            private String mainChannelInviteLink;
+            private String adminChannelId;
+            private String adminChannelInviteLink;
+
+        }
+
+        @Data
+        public static class PR {
+            private List<String> headsOfDepartment = new ArrayList<>();
+            private List<String> deputyHeadsOfDepartment = new ArrayList<>();
+            private String mainChannelId;
+            private String mainChannelInviteLink;
+            private String adminChannelId;
+            private String adminChannelInviteLink;
+
+        }
+
+        @Data
+        public static class Designer {
+            private List<String> headsOfDepartment = new ArrayList<>();
+            private List<String> deputyHeadsOfDepartment = new ArrayList<>();
+            private String mainChannelId;
+            private String mainChannelInviteLink;
+            private String adminChannelId;
+            private String adminChannelInviteLink;
+
+        }
+    }
+
+    @Data
+    public static class Applications {
+        ProjectTeamApplication projectTeamApplication = new ProjectTeamApplication();
+        MediaApplication mediaApplication = new MediaApplication();
+        PRApplication prApplication = new PRApplication();
+        DesignerApplication designerApplication = new DesignerApplication();
+
+        @Data
+        public static class ProjectTeamApplication {
+            private String newApplicationNotificationChannelId;
+            private String newApplicationNotificationThreadId;
+
+        }
+
+        @Data
+        public static class MediaApplication {
+            private String newApplicationNotificationChannelId;
+            private String newApplicationNotificationThreadId;
+
+        }
+
+        @Data
+        public static class PRApplication {
+            private String newApplicationNotificationChannelId;
+            private String newApplicationNotificationThreadId;
+
+        }
+
+        @Data
+        public static class DesignerApplication {
+            private String newApplicationNotificationChannelId;
+            private String newApplicationNotificationThreadId;
+
+        }
+    }
 }
