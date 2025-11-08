@@ -24,7 +24,9 @@ import java.nio.file.StandardCopyOption;
 @Component
 public class SettingsManager {
 
+    /* Имя файла с настройками */
     private static final String FILE_NAME = "bot_settings.json";
+    /* Расширение файла с бэкапом настроек */
     private static final String BACKUP_SUFFIX = ".bak";
 
     private final ObjectMapper objectMapper = new ObjectMapper()
@@ -38,6 +40,8 @@ public class SettingsManager {
     /**
      * Instantiates a new Settings manager.
      *
+     * @since 0.0.1
+     * @author marensovich
      */
     public SettingsManager() {
         loadOrCreateSettings();
@@ -45,6 +49,9 @@ public class SettingsManager {
 
     /**
      * Сохранение настроек в файл
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     public void saveSettings() {
         try {
@@ -70,6 +77,9 @@ public class SettingsManager {
 
     /**
      * Загружает или создаёт настройки
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     private void loadOrCreateSettings() {
         BotSettings defaultSettings = createDefaultSettings();
@@ -110,6 +120,9 @@ public class SettingsManager {
 
     /**
      * Сохраняет копию настроек в src/main/resources (режим разработки)
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     private void saveToResourcesForDevelopment() {
         try {
@@ -126,6 +139,9 @@ public class SettingsManager {
 
     /**
      * Проверяет, запущено ли приложение из JAR
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     private boolean isRunningFromJar() {
         try {
@@ -138,6 +154,9 @@ public class SettingsManager {
 
     /**
      * Создание резервной копии битого файла
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     private void createBackup(File file) {
         File backup = new File(file.getAbsolutePath() + BACKUP_SUFFIX);
@@ -152,6 +171,9 @@ public class SettingsManager {
     /**
      * Рекурсивно объединяет defaultNode и targetNode.
      * Если поле отсутствует или имеет некорректный тип — подставляет дефолтное значение.
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     private JsonNode mergeAndFixJson(JsonNode defaultNode, JsonNode targetNode) {
         if (defaultNode instanceof ObjectNode defaultObj && targetNode instanceof ObjectNode targetObj) {
@@ -175,6 +197,9 @@ public class SettingsManager {
 
     /**
      * Создаёт объект с дефолтными настройками
+     *
+     * @since 0.0.1
+     * @author marensovich
      */
     private BotSettings createDefaultSettings() {
         return new BotSettings();
