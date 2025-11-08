@@ -22,8 +22,9 @@ public class BotSettings {
     @Data
     public static class GeneralSettings {
         private String botName = "ИТС Помощник";
-        private String botDescription;
-        private String botShortDescription;
+        private String botDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы.";
+        private String botShortDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы. Для начала работы используйте команду /start";
+
     }
 
     @Data

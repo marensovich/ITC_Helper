@@ -1,5 +1,6 @@
 package me.marensovich.itsKipfin.settings;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -27,7 +28,9 @@ public class SettingsManager {
     private static final String BACKUP_SUFFIX = ".bak";
 
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT);
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+
 
     @Getter
     private static BotSettings settings;
