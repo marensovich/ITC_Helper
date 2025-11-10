@@ -7,6 +7,9 @@ package me.marensovich.itsKipfin.data;
  * @since 0.0.1
  */
 public enum Departament {
+
+    /** Руководящий состав ИТС. */
+    Head,
     /** Отдел разработки. */
     Development,
     /** Медиа-отдел. */
