@@ -143,28 +143,28 @@ public class Bot extends TelegramLongPollingBot {
         String name = SettingsManager.getSettings().getGeneralSettings().getBotName();
         String description = SettingsManager.getSettings().getGeneralSettings().getBotDescription();
         String shortDescription = SettingsManager.getSettings().getGeneralSettings().getBotShortDescription();
-        try {
-            if (!name.isBlank()){
-                Bot.getInstance().execute(
-                        SetMyName.builder().name(name).build()
-                );
-                log.info("📥 Имя бота установлено");
-            }
-            if (!description.isBlank()){
-                Bot.getInstance().execute(
-                        SetMyDescription.builder().description(description).build()
-                );
-                log.info("📥 Описание бота установлено");
-            }
-            if (!shortDescription.isBlank()){
-                Bot.getInstance().execute(
-                        SetMyShortDescription.builder().shortDescription(shortDescription).build()
-                );
-                log.info("📥 Краткое описание бота установлено");
-            }
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            if (!name.isBlank()){
+//                Bot.getInstance().execute(
+//                        SetMyName.builder().name(name).build()
+//                );
+//                log.info("📥 Имя бота установлено");
+//            }
+//            if (!description.isBlank()){
+//                Bot.getInstance().execute(
+//                        SetMyDescription.builder().description(description).build()
+//                );
+//                log.info("📥 Описание бота установлено");
+//            }
+//            if (!shortDescription.isBlank()){
+//                Bot.getInstance().execute(
+//                        SetMyShortDescription.builder().shortDescription(shortDescription).build()
+//                );
+//                log.info("📥 Краткое описание бота установлено");
+//            }
+//        } catch (TelegramApiException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     // ========= Утилиты ========= //

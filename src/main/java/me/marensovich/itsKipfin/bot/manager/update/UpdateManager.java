@@ -26,8 +26,8 @@ import java.util.Map;
  * Также инициирует обработку пошаговых заявок через:
  * <li>{@link ProjectTeamHandler}</li>
  * <li>{@link MediaHandler}</li>
- * <li>{@link RegisterITCButton.PRHandler}</li>
- * <li>{@link RegisterITCButton.DesignerHandler}</li>
+ * <li>{@link PRHandler}</li>
+ * <li>{@link DesignerHandler}</li>
  *
  * @author marensovich
  * @version 0.0.1

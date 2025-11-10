@@ -24,6 +24,9 @@ public class BotSettings {
         private String botName = "ИТС Помощник";
         private String botDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы.";
         private String botShortDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы. Для начала работы используйте команду /start";
+
+        private String adminChannelId = "3395394215";
+
     }
 
     @Data

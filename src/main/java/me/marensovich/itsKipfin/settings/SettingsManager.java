@@ -53,7 +53,7 @@ public class SettingsManager {
      * @since 0.0.1
      * @author marensovich
      */
-    public void saveSettings() {
+    public synchronized void saveSettings() {
         try {
             // Основное место сохранения — ./data/
             File dataDir = new File("./data");
@@ -81,7 +81,7 @@ public class SettingsManager {
      * @since 0.0.1
      * @author marensovich
      */
-    private void loadOrCreateSettings() {
+    private synchronized void loadOrCreateSettings() {
         BotSettings defaultSettings = createDefaultSettings();
 
         // 1️⃣ — Сначала пробуем из ./data/
@@ -124,7 +124,7 @@ public class SettingsManager {
      * @since 0.0.1
      * @author marensovich
      */
-    private void saveToResourcesForDevelopment() {
+    private synchronized void saveToResourcesForDevelopment() {
         try {
             File resourcesDir = new File("src/main/resources");
             if (resourcesDir.exists() && resourcesDir.isDirectory()) {
@@ -158,7 +158,7 @@ public class SettingsManager {
      * @since 0.0.1
      * @author marensovich
      */
-    private void createBackup(File file) {
+    private synchronized void createBackup(File file) {
         File backup = new File(file.getAbsolutePath() + BACKUP_SUFFIX);
         try {
             Files.copy(file.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);

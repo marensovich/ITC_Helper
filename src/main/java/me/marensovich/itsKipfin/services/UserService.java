@@ -108,4 +108,16 @@ public class UserService {
         return user != null && user.isAdmin();
     }
 
+    /**
+     * Возвращает пользователя по его ID.
+     *
+     * @param userId ID пользователя
+     * @return {@link User}, если пользователь существует, иначе {@code null}
+     * @since 0.0.1
+     * @author marensovich
+     */
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
 }
