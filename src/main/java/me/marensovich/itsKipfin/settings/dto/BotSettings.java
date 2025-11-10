@@ -24,7 +24,6 @@ public class BotSettings {
         private String botName = "ИТС Помощник";
         private String botDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы.";
         private String botShortDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы. Для начала работы используйте команду /start";
-
     }
 
     @Data
@@ -42,9 +41,6 @@ public class BotSettings {
 
             private String mainChannelId;
             private String mainChannelInviteLink;
-            private String adminChannelId;
-            private String adminChannelInviteLink;
-
         }
 
         @Data
@@ -53,9 +49,6 @@ public class BotSettings {
             private List<String> deputyHeadsOfDepartment = new ArrayList<>();
             private String mainChannelId;
             private String mainChannelInviteLink;
-            private String adminChannelId;
-            private String adminChannelInviteLink;
-
         }
 
         @Data
@@ -64,9 +57,6 @@ public class BotSettings {
             private List<String> deputyHeadsOfDepartment = new ArrayList<>();
             private String mainChannelId;
             private String mainChannelInviteLink;
-            private String adminChannelId;
-            private String adminChannelInviteLink;
-
         }
 
         @Data
@@ -75,9 +65,6 @@ public class BotSettings {
             private List<String> deputyHeadsOfDepartment = new ArrayList<>();
             private String mainChannelId;
             private String mainChannelInviteLink;
-            private String adminChannelId;
-            private String adminChannelInviteLink;
-
         }
 
         @Data
@@ -86,9 +73,6 @@ public class BotSettings {
             private List<String> deputyHeadsOfDepartment = new ArrayList<>();
             private String mainChannelId;
             private String mainChannelInviteLink;
-            private String adminChannelId;
-            private String adminChannelInviteLink;
-
         }
     }
 
@@ -99,32 +83,26 @@ public class BotSettings {
         PRApplication prApplication = new PRApplication();
         DesignerApplication designerApplication = new DesignerApplication();
 
+        private String newApplicationNotificationChannelId;
+
         @Data
         public static class ProjectTeamApplication {
-            private String newApplicationNotificationChannelId;
             private String newApplicationNotificationThreadId;
-
         }
 
         @Data
         public static class MediaApplication {
-            private String newApplicationNotificationChannelId;
             private String newApplicationNotificationThreadId;
-
         }
 
         @Data
         public static class PRApplication {
-            private String newApplicationNotificationChannelId;
             private String newApplicationNotificationThreadId;
-
         }
 
         @Data
         public static class DesignerApplication {
-            private String newApplicationNotificationChannelId;
             private String newApplicationNotificationThreadId;
-
         }
     }
 }
