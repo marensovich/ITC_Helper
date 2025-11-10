@@ -4,6 +4,7 @@ import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserMediaApplicationDTO;
+import me.marensovich.itsKipfin.data.Departament;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.services.ApplicationService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
@@ -532,7 +533,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
         sendMessage("✅ Спасибо! Ваша заявка сохранена.", chatId);
 
         Application application = applicationService.createApplication(
-                Application.Departament.Media,
+                Departament.Media,
                 data,
                 Long.valueOf(data.getTgId()),
                 null

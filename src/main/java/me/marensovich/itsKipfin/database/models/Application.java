@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import me.marensovich.itsKipfin.data.Departament;
 
 import java.time.LocalDateTime;
 
@@ -23,23 +24,6 @@ import java.time.LocalDateTime;
 @Slf4j
 @Table(name = "applications")
 public class Application {
-
-    /**
-     * Перечисление доступных отделов ИТС.
-     * @author marensovich
-     * @version 0.0.1
-     * @since 0.0.1
-     */
-    public enum Departament {
-        /** Отдел разработки. */
-        Development,
-        /** Медиа-отдел. */
-        Media,
-        /** Отдел коммуникаций. */
-        Communication,
-        /** Отдел дизайнеров. */
-        Designer
-    }
 
     /**
      * Перечисление возможных статусов заявки.
