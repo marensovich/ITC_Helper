@@ -1,13 +1,10 @@
 package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserDesignerApplicationDTO;
-import me.marensovich.itsKipfin.data.Departament;
+import me.marensovich.itsKipfin.data.Department;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.services.ApplicationService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
@@ -16,17 +13,14 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageCaption;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Comparator;
 @Component
 public class DesignerHandler implements ApplicationHandler<UserDesignerApplicationDTO> {
     private static ApplicationService applicationService;
@@ -535,7 +529,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         sendMessage("✅ Спасибо! Ваша заявка сохранена.", chatId);
 
         Application application = applicationService.createApplication(
-                Departament.Designer,
+                Department.Designer,
                 data,
                 Long.valueOf(data.getTgId()),
                 null

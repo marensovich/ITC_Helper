@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import me.marensovich.itsKipfin.data.Departament;
+import me.marensovich.itsKipfin.data.Department;
 
 import java.time.LocalDateTime;
 
@@ -66,7 +66,7 @@ public class Application {
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Departament departament;
+    private Department departament;
 
     /**
      * Текущий статус заявки.

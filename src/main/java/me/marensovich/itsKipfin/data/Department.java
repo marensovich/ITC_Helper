@@ -6,7 +6,7 @@ package me.marensovich.itsKipfin.data;
  * @version 0.0.1
  * @since 0.0.1
  */
-public enum Departament {
+public enum Department {
 
     /** Руководящий состав ИТС. */
     Head,

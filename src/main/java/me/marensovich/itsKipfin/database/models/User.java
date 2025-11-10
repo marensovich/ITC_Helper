@@ -1,9 +1,6 @@
 package me.marensovich.itsKipfin.database.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 /**
@@ -27,6 +24,13 @@ public class User {
     @Id
     @Column(name = "userId", unique = true)
     private Long userId;
+
+    /**
+     * Позиция пользователя в ИТС
+     * @since 0.0.1
+     */
+    @Embedded
+    private Position position;
 
     /**
      * Флаг, указывающий, является ли пользователь администратором.
