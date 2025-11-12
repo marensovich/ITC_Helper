@@ -49,6 +49,7 @@ public class HelpButton implements Button {
 
         try {
             Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
+            Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException ignored) {
         } finally {

@@ -3,6 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.BaseApplicationDTO;
 import me.marensovich.itsKipfin.database.models.Application;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -177,6 +178,7 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
         msg.setParseMode(ParseMode.HTML);
         msg.setText(text);
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке сообщения пользователю (внутренний sendMessage)", e);
@@ -198,6 +200,7 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
         notify.setText(text);
         notify.setChatId(userId);
         try {
+            Bot.getInstance().showBotAction(userId, ActionType.TYPING);
             Bot.getInstance().execute(notify);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке уведомления пользователю", e);
@@ -217,6 +220,7 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
         msg.setParseMode(ParseMode.HTML);
         msg.setText(text);
         try {
+            Bot.getInstance().showBotAction(Long.valueOf(chatId), ActionType.TYPING);
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке сообщения пользователю (внутренний sendMessage)", e);

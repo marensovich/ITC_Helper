@@ -107,6 +107,7 @@ public class CancelCommand implements Command {
         }
 
         try {
+            Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {
             Bot.getInstance().sendErrorMessage(chatId,
