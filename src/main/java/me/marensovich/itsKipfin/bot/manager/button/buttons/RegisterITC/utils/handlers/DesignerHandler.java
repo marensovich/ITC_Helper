@@ -7,6 +7,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto
 import me.marensovich.itsKipfin.data.Department;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.services.ApplicationService;
+import me.marensovich.itsKipfin.settings.SettingsManager;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -621,8 +622,8 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         } else {
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
-            notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-            notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+            notify.setChatId(SettingsManager.getSettings().getGeneralSettings().getAdminChannelId());
+            notify.setMessageThreadId(Integer.parseInt(SettingsManager.getSettings().getApplications().getDesignerApplication().getNewApplicationNotificationThreadId()));
             notify.setText(adminNotificationText);
             notify.setReplyMarkup(keyboardFactory.create()
                     .addInlineButton("Принять заявку",
@@ -654,8 +655,8 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      */
     private Message sendPhotoWidthCaption(String photoFileId, String caption, Application application) {
         SendPhoto photo = new SendPhoto();
-        photo.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-        photo.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+        photo.setChatId(SettingsManager.getSettings().getGeneralSettings().getAdminChannelId());
+        photo.setMessageThreadId(Integer.parseInt(SettingsManager.getSettings().getApplications().getDesignerApplication().getNewApplicationNotificationThreadId()));
         photo.setPhoto(new InputFile(photoFileId));
         photo.setCaption(caption);
         photo.setParseMode(ParseMode.HTML);
