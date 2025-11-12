@@ -26,6 +26,8 @@ public class BotSettings {
         private String botShortDescription = "Помощник ИТС — твой наставник в Информационно-Техническом Сообществе: новости, заявки и полезные ресурсы. Для начала работы используйте команду /start";
 
         private String adminChannelId = "3395394215";
+        private String adminLogChannelThreadId = "11";
+        private String adminBotErrorMessageThreadId = "13";
 
     }
 
@@ -41,7 +43,6 @@ public class BotSettings {
         public static class Head {
             public List<String> presidentOfITC = new ArrayList<>();
             public List<String> curatorITC = new ArrayList<>();
-
             private String mainChannelId;
             private String mainChannelInviteLink;
         }

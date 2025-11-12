@@ -3,7 +3,6 @@ package me.marensovich.itsKipfin.bot.manager.command;
 import lombok.extern.slf4j.Slf4j;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.command.commands.CancelCommand;
-import me.marensovich.itsKipfin.bot.manager.command.commands.SettingsCommand;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
 import me.marensovich.itsKipfin.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,9 +161,7 @@ public class CommandManager {
                 new CancelCommand().execute(update);
                 return true;
             }
-            if (text.startsWith("/settings")){
-                new SettingsCommand().execute(update);
-            }
+
             sendActiveCommandMessage(update.getMessage().getChatId(), active.getName());
             return true;
         }
