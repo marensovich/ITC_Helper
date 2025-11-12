@@ -10,8 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * Обработчик нажатия кнопки регистрации ИТС.
  * <p>
  * Используется для точного совпадения callbackData с кнопкой регистрации.
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component

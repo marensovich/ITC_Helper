@@ -27,8 +27,8 @@ import java.util.Map;
  * Обработчик процесса подачи заявки для направления "Медиа и контент".
  *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
 @Component
 public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO> {
@@ -48,12 +48,14 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      * key = chatId пользователя, value = {@link UserMediaApplicationDTO}
      *
      * <p>Данные удаляются из map после создания/сброса заявки.</p>
+     *
      * @since 0.0.1
      */
     public static final Map<Long, UserMediaApplicationDTO> userApplicationDataMap = new HashMap<>();
 
     /**
      * Экземплярные поля
+     *
      * @since 0.0.1
      */
     private Long chatId;
@@ -77,7 +79,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
     /**
      * Конструктор для runtime-использования: создаём handler для конкретного {@code update}.
      *
-     * @param update текущий {@link Update} (сообщение/коллбэк)
+     * @param update          текущий {@link Update} (сообщение/коллбэк)
      * @param keyboardFactory фабрика клавиатур (используется при подтверждении)
      * @throws IllegalArgumentException если невозможно разрешить chatId из update
      * @author marensovich
@@ -92,42 +94,49 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Шаги процесса многошаговой формы.
+     *
      * @author marensovich
      * @since 0.0.1
      */
     public enum Step {
         /**
          * Ввод ФИО
+         *
          * @since 0.0.1
          */
         FULL_NAME,
 
         /**
          * Ввод номера телефона
+         *
          * @since 0.0.1
          */
         PHONE_NUMBER,
 
         /**
          * Ввод номера группы
+         *
          * @since 0.0.1
          */
         GROUP_NUMBER,
 
         /**
          * Описание опыта
+         *
          * @since 0.0.1
          */
         EXPERIENCE,
 
         /**
          * Наличие фотоаппарата
+         *
          * @since 0.0.1
          */
         PHOTO,
 
         /**
          * Подтверждение данных
+         *
          * @since 0.0.1
          */
         CONFIRMATION
@@ -158,12 +167,12 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
             return;
         }
 
-        if (update.hasMessage()){
-            if (update.getMessage().hasText()){
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
                 processUserInput(update.getMessage().getText().trim());
                 return;
             }
-            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
+            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)) {
                 processUserInput(update.getMessage().getContact().getPhoneNumber());
             }
         } else {
@@ -184,7 +193,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      * </ol>
      *
      * @param applicationId ID заявки (строка, парсится в Long)
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -210,7 +219,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      * <p>Аналогична {@link #handleResultYes(String, Update)} но ставит статус REJECTED и отправляет другой текст.</p>
      *
      * @param applicationId ID заявки
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -256,6 +265,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -290,6 +300,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Запросить номер телефона и переключить шаг на {@link Step#PHONE_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -331,6 +342,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -373,6 +385,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Запросить текст об опыте и переключить шаг на {@link Step#EXPERIENCE}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -401,6 +414,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Уточнить на наличие фотоаппарата и переключить шаг на {@link Step#PHOTO}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -448,24 +462,22 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
     /**
      * Парсер для перевода текстового значения в {@link Boolean}
+     *
      * @param input Поступивший текст ("Да", "Нет")
-     * @since 0.0.1
-     * @author marensovich
      * @return {@code true} если "да", {@code false} если "нет"
+     * @author marensovich
+     * @since 0.0.1
      */
     private Boolean parseYesNo(String input) {
         if (input == null) return null;
         String normalized = input.trim().toLowerCase();
-        if (normalized.equals("да") || normalized.equals("yes")) {
-            return true;
-        } else {
-            return false;
-        }
+        return normalized.equals("да") || normalized.equals("yes");
     }
 
 
     /**
      * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -473,15 +485,15 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
     public void askConfirmation() {
         String confirmationText = String.format(
                 """
-                Проверьте введённые данные:
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>Наличие фотоаппарата:</b> %s
-        
-                Подтверждаете данные? (Да/Нет)""",
+                        Проверьте введённые данные:
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>Наличие фотоаппарата:</b> %s
+                        
+                        Подтверждаете данные? (Да/Нет)""",
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
@@ -543,6 +555,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      *     <li>Сохранить messageId админ-сообщения в заявке (через applicationService.updateApplicationMessageId).</li>
      *     <li>Очистить временные данные и снять активную кнопку у пользователя.</li>
      * </ol>
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -583,13 +596,13 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
     public Message sendAdminNotification(Application application) {
         String adminNotificationText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>Наличие фотоаппарата:</b> %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>Наличие фотоаппарата:</b> %s""",
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
@@ -629,7 +642,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
-     * @param update Update с callbackQuery от администратора
+     * @param update   Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
@@ -645,15 +658,15 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
 
         String messageText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>Наличие фотоаппарата:</b> %s
-                
-                %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>Наличие фотоаппарата:</b> %s
+                        
+                        %s""",
                 userData.getMention(), userData.getTgId(),
                 escape(userData.getFullName()),
                 escape(userData.getPhoneNumber()),

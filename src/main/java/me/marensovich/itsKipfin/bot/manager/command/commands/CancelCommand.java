@@ -25,14 +25,16 @@ import java.util.stream.Stream;
  * Если у пользователя активна команда или активна кнопка,
  * она будет очищена, а пользователь получит уведомление.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component
 public class CancelCommand implements Command {
 
-    @Autowired private KeyboardFactory keyboardFactory;
+    @Autowired
+    private KeyboardFactory keyboardFactory;
 
     /**
      * Получить имя команды.

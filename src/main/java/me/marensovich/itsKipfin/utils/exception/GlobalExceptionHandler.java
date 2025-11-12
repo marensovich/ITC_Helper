@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
  * Обрабатывает исключения, возникающие при обработке команд и апдейтов,
  * собирает информацию об ошибке и отправляет её в административный канал.
  * </p>
+ *
  * @author marensovich
  * @version 0.0.1
  */
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
      * Инициализирует обработчик глобальных исключений.
      *
      * @param objectMapper the Jackson object mapper
-     * @param userService the user service
+     * @param userService  the user service
      * @author marensovich
      * @since 0.0.1
      */
@@ -47,7 +48,7 @@ public class GlobalExceptionHandler {
     /**
      * Обрабатывает исключения, возникающие при обработке команд или апдейтов.
      *
-     * @param e исключение
+     * @param e      исключение
      * @param update объект Update из Telegram
      * @author marensovich
      * @since 0.0.1
@@ -134,6 +135,7 @@ public class GlobalExceptionHandler {
     /**
      * Обрабатывает {@link BotException}.
      *
+     * @param e the e
      * @author marensovich
      * @since 0.0.1
      */
@@ -145,6 +147,8 @@ public class GlobalExceptionHandler {
     /**
      * Обрабатывает {@link Exception}.
      *
+     * @param e      the e
+     * @param update the update
      * @author marensovich
      * @since 0.0.1
      */

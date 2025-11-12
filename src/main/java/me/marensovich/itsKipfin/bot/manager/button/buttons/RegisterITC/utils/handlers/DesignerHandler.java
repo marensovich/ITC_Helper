@@ -23,6 +23,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+/**
+ * The type Designer handler.
+ */
 @Component
 public class DesignerHandler implements ApplicationHandler<UserDesignerApplicationDTO> {
     private static ApplicationService applicationService;
@@ -32,6 +36,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      * key = chatId пользователя, value = {@link UserDesignerApplicationDTO}
      *
      * <p>Данные удаляются из map после создания/сброса заявки.</p>
+     *
      * @since 0.0.1
      */
     public static final Map<Long, UserDesignerApplicationDTO> userApplicationDataMap = new HashMap<>();
@@ -39,6 +44,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Экземплярные поля
+     *
      * @since 0.0.1
      */
     private Long chatId;
@@ -62,7 +68,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
     /**
      * Конструктор для runtime-использования: создаём handler для конкретного {@code update}.
      *
-     * @param update текущий {@link Update} (сообщение/коллбэк)
+     * @param update          текущий {@link Update} (сообщение/коллбэк)
      * @param keyboardFactory фабрика клавиатур (используется при подтверждении)
      * @throws IllegalArgumentException если невозможно разрешить chatId из update
      * @author marensovich
@@ -77,42 +83,49 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Шаги процесса многошаговой формы.
+     *
      * @author marensovich
      * @since 0.0.1
      */
     public enum Step {
         /**
          * Ввод ФИО
+         *
          * @since 0.0.1
          */
         FULL_NAME,
 
         /**
          * Ввод номера телефона
+         *
          * @since 0.0.1
          */
         PHONE_NUMBER,
 
         /**
          * Ввод номера группы
+         *
          * @since 0.0.1
          */
         GROUP_NUMBER,
 
         /**
          * Основные приложения для работы
+         *
          * @since 0.0.1
          */
         MAIN_APPS,
 
         /**
          * Примеры работ
+         *
          * @since 0.0.1
          */
         EXAMPLES,
 
         /**
          * Подтверждение данных
+         *
          * @since 0.0.1
          */
         CONFIRMATION
@@ -142,17 +155,16 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             return;
         }
 
-        if (update.hasMessage()){
-            if (update.getMessage().hasText()){
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
                 processUserInput(update.getMessage().getText().trim());
                 return;
             }
-            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
+            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)) {
                 processUserInput(update.getMessage().getContact().getPhoneNumber());
             }
-            if (update.getMessage().hasPhoto() && data.getCurrentStep().equals(Step.EXAMPLES)){
+            if (update.getMessage().hasPhoto() && data.getCurrentStep().equals(Step.EXAMPLES)) {
                 processPhoto(update.getMessage().getPhoto());
-                return;
             }
         } else {
             askFullName();
@@ -172,7 +184,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      * </ol>
      *
      * @param applicationId ID заявки (строка, парсится в Long)
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -198,7 +210,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      * <p>Аналогична {@link #handleResultYes(String, Update)} но ставит статус REJECTED и отправляет другой текст.</p>
      *
      * @param applicationId ID заявки
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -241,8 +253,10 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             case CONFIRMATION -> handleConfirmation(input);
         }
     }
+
     /**
      * Обработать прикреплённые фотографии на шаге примеров работ.
+     *
      * @author yanchev01
      * @since 0.0.1
      */
@@ -260,8 +274,10 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             sendMessage(message, chatId);
         }
     }
+
     /**
      * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -296,6 +312,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Запросить номер телефона и переключить шаг на {@link Step#PHONE_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -337,6 +354,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -379,6 +397,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Запросить текст об основных используемых программах и переключить шаг на {@link Step#MAIN_APPS}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -406,6 +425,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Запросить информацию о примерах и переключить шаг на {@link Step#EXAMPLES}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -437,9 +457,8 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      * @since 0.0.1
      */
     private void handleExamples(String input) {
-        if (input.equals("Продолжить")){
-            if (data.getPhotoFileIds().isEmpty())
-            {
+        if (input.equals("Продолжить")) {
+            if (data.getPhotoFileIds().isEmpty()) {
                 sendMessage("❌ Добавьте хотя бы одну фотографию перед продолжением", chatId);
                 return;
             }
@@ -458,6 +477,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
     /**
      * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -465,16 +485,16 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
     public void askConfirmation() {
         String confirmationText = String.format(
                 """
-                Проверьте введённые данные:
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Основные программы:</b> %s
-                <b>Примеры работ:</b> %s
-                <b>Фотографии:</b> %s
-        
-                Подтверждаете данные? (Да/Нет)""",
+                        Проверьте введённые данные:
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Основные программы:</b> %s
+                        <b>Примеры работ:</b> %s
+                        <b>Фотографии:</b> %s
+                        
+                        Подтверждаете данные? (Да/Нет)""",
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
@@ -528,7 +548,6 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
     }
 
 
-
     /**
      * Заключительный шаг: сохранение заявки в БД и уведомление админов.
      *
@@ -539,6 +558,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
      *     <li>Сохранить messageId админ-сообщения в заявке (через applicationService.updateApplicationMessageId).</li>
      *     <li>Очистить временные данные и снять активную кнопку у пользователя.</li>
      * </ol>
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -579,14 +599,14 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
     public Message sendAdminNotification(Application application) {
         String adminNotificationText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Основные программы:</b> %s
-                <b>Примеры работ:</b> %s
-                <b>Фотографии:</b> %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Основные программы:</b> %s
+                        <b>Примеры работ:</b> %s
+                        <b>Фотографии:</b> %s""",
 
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
@@ -598,7 +618,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         );
         if (!data.getPhotoFileIds().isEmpty()) {
             return sendPhotoWidthCaption(data.getPhotoFileIds().get(0), adminNotificationText, application);
-        }else{
+        } else {
             SendMessage notify = new SendMessage();
             notify.setParseMode(ParseMode.HTML);
             notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
@@ -636,8 +656,8 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         SendPhoto photo = new SendPhoto();
         photo.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
         photo.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
-            photo.setPhoto(new InputFile(photoFileId));
-            photo.setCaption(caption);
+        photo.setPhoto(new InputFile(photoFileId));
+        photo.setCaption(caption);
         photo.setParseMode(ParseMode.HTML);
         photo.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
@@ -659,10 +679,11 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             throw new RuntimeException(e);
         }
     }
+
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
-     * @param update Update с callbackQuery от администратора
+     * @param update   Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
@@ -678,16 +699,16 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
         String messageText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Основные программы:</b> %s
-                <b>Примеры работ:</b> %s
-                <b>Фотографии:</b> %s
-                
-                %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Основные программы:</b> %s
+                        <b>Примеры работ:</b> %s
+                        <b>Фотографии:</b> %s
+                        
+                        %s""",
                 userData.getMention(), userData.getTgId(),
                 escape(userData.getFullName()),
                 escape(userData.getPhoneNumber()),
@@ -701,13 +722,11 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         MaybeInaccessibleMessage maybeMessage = update.getCallbackQuery().getMessage();
 
         // Проверяем, доступно ли сообщение для редактирования
-        if (!(maybeMessage instanceof Message)) {
+        if (!(maybeMessage instanceof Message originalMessage)) {
             // Если сообщение недоступно (например, слишком старое), отправляем новое сообщение
             sendMessage(messageText, maybeMessage.getChatId().toString());
             return;
         }
-
-        Message originalMessage = (Message) maybeMessage;
 
         // Проверяем, было ли оригинальное сообщение с фото или текстом
         if (originalMessage.hasPhoto()) {

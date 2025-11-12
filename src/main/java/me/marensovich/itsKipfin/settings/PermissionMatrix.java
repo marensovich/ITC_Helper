@@ -7,9 +7,15 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * The type Permission matrix.
+ */
 public class PermissionMatrix {
     private final EnumMap<Role, Set<Permission>> rolePermissions = new EnumMap<>(Role.class);
 
+    /**
+     * Instantiates a new Permission matrix.
+     */
     public PermissionMatrix() {
         rolePermissions.put(Role.PRESIDENT, EnumSet.of(Permission.EDIT_ALL, Permission.VIEW_ALL));
         rolePermissions.put(Role.CURATOR, EnumSet.of(Permission.EDIT_ALL, Permission.VIEW_ALL));
@@ -18,6 +24,13 @@ public class PermissionMatrix {
         rolePermissions.put(Role.MEMBER, EnumSet.of(Permission.VIEW_DEPARTMENT));
     }
 
+    /**
+     * Can boolean.
+     *
+     * @param role       the role
+     * @param permission the permission
+     * @return the boolean
+     */
     public boolean can(Role role, Permission permission) {
         return rolePermissions.getOrDefault(role, EnumSet.noneOf(Permission.class)).contains(permission);
     }

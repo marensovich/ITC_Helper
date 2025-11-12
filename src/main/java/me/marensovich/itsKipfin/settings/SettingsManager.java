@@ -40,8 +40,8 @@ public class SettingsManager {
     /**
      * Instantiates a new Settings manager.
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public SettingsManager() {
         loadOrCreateSettings();
@@ -50,8 +50,8 @@ public class SettingsManager {
     /**
      * Сохранение настроек в файл
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public synchronized void saveSettings() {
         try {
@@ -78,8 +78,8 @@ public class SettingsManager {
     /**
      * Загружает или создаёт настройки
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     private synchronized void loadOrCreateSettings() {
         BotSettings defaultSettings = createDefaultSettings();
@@ -121,8 +121,8 @@ public class SettingsManager {
     /**
      * Сохраняет копию настроек в src/main/resources (режим разработки)
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     private synchronized void saveToResourcesForDevelopment() {
         try {
@@ -140,8 +140,8 @@ public class SettingsManager {
     /**
      * Проверяет, запущено ли приложение из JAR
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     private boolean isRunningFromJar() {
         try {
@@ -155,8 +155,8 @@ public class SettingsManager {
     /**
      * Создание резервной копии битого файла
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     private synchronized void createBackup(File file) {
         File backup = new File(file.getAbsolutePath() + BACKUP_SUFFIX);
@@ -172,8 +172,8 @@ public class SettingsManager {
      * Рекурсивно объединяет defaultNode и targetNode.
      * Если поле отсутствует или имеет некорректный тип — подставляет дефолтное значение.
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     private JsonNode mergeAndFixJson(JsonNode defaultNode, JsonNode targetNode) {
         if (defaultNode instanceof ObjectNode defaultObj && targetNode instanceof ObjectNode targetObj) {
@@ -198,8 +198,8 @@ public class SettingsManager {
     /**
      * Создаёт объект с дефолтными настройками
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     private BotSettings createDefaultSettings() {
         return new BotSettings();

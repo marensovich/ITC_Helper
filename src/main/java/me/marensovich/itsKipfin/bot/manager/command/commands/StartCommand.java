@@ -19,8 +19,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * <p>
  * Приветствует пользователя и выводит главное меню с кнопками.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component

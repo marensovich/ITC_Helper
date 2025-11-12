@@ -14,8 +14,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * <p>
  * При нажатии на кнопку отправляет пользователю сообщение с инструкцией по получению поддержки.
  * Активирует кнопку как текущую для пользователя на время обработки.
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component

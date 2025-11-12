@@ -19,6 +19,7 @@ public class User {
 
     /**
      * Уникальный идентификатор пользователя (Telegram ID).
+     *
      * @since 0.0.1
      */
     @Id
@@ -27,6 +28,7 @@ public class User {
 
     /**
      * Позиция пользователя в ИТС
+     *
      * @since 0.0.1
      */
     @Embedded
@@ -34,6 +36,7 @@ public class User {
 
     /**
      * Флаг, указывающий, является ли пользователь администратором.
+     *
      * @since 0.0.1
      */
     @Column(name = "isAdmin")

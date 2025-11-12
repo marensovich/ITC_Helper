@@ -2,7 +2,6 @@ package me.marensovich.itsKipfin.bot.manager.update;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
@@ -36,6 +35,9 @@ import java.util.Map;
 @Component
 public class UpdateManager {
 
+    /**
+     * The Hashed users.
+     */
     public final Map<String, User> hashedUsers = new HashMap<>();
 
     private final UserService userService;

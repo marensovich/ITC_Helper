@@ -10,27 +10,32 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
  *
  * <p>Поле {@code currentStep} помечено {@link JsonIgnore} чтобы при сериализации DTO
  * в базу (если потребуется) шаг не сохранялся автоматически.</p>
+ *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
-@Getter @Setter
+@Getter
+@Setter
 public class UserMediaApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Описание опыта
+     *
      * @since 0.0.1
      */
     private String experience;
 
     /**
      * Наличие фотоаппарата
+     *
      * @since 0.0.1
      */
     private Boolean hasPhoto;
 
     /**
      * Текущий шаг
+     *
      * @since 0.0.1
      */
     @JsonIgnore
@@ -38,8 +43,9 @@ public class UserMediaApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Сброс всех полей в начальное состояние.
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     public void reset() {
         super.reset();

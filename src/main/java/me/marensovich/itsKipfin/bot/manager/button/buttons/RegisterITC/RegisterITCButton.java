@@ -14,22 +14,23 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 /**
  * Кнопка "Вступление в ИТС".
  *
- * @version 0.0.1
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
- *
  */
 @Component
 public class RegisterITCButton implements Button {
 
     /**
      * Callback data для начальной inline-кнопки "Вступить в ИТС".
+     *
      * @since 0.0.1
      */
     public static final String ITC_REGISTRATION_CALLBACK = "itc_reg_button_callback";
 
     /**
      * Префикс callback data для выбора направления: "itc_reg:{department}".
+     *
      * @since 0.0.1
      */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PREFIX = "itc_reg:";
@@ -37,25 +38,43 @@ public class RegisterITCButton implements Button {
     /**
      * Префикс callback data для административных действий с заявками:
      * "itc_admin_reg:{department}:{YES|NO}:{applicationId}".
+     *
      * @since 0.0.1
      */
     public static final String ITC_ADMIN_REG_DEFARAMENT_PREFIX = "itc_admin_reg:";
 
     /**
-    * Идентификаторы направлений (строки используются в callbackData)
-    * @since 0.0.1
-    */
+     * Идентификаторы направлений (строки используются в callbackData)
+     *
+     * @since 0.0.1
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM = "project_team";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT = "video_content";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_PR.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
+    /**
+     * The constant ITC_REGISTRATION_DEPARTAMENT_DESIGNER.
+     */
     public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
 
     /**
      * Регулярные выражения для валидации полей
+     *
      * @since 0.0.1
      */
     public static final String FIO_REGEX = "^[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(\\s[А-ЯЁ][а-яё]+)?$";
+    /**
+     * The constant GITHUB_REGEX.
+     */
     public static final String GITHUB_REGEX = "^(https?://)?(www\\.)?(github)\\.com/[A-Za-z0-9_-]+/?$";
+    /**
+     * The constant GROUP_REGEX.
+     */
     public static final String GROUP_REGEX = "^[1-4](ОИБАС|ИСИП|ИИС)-\\d{3,4}$";
 
 
@@ -65,8 +84,8 @@ public class RegisterITCButton implements Button {
      * Конструктор кнопки.
      *
      * @param keyboardFactory фабрика клавиатур (внедряется Spring)
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public RegisterITCButton(KeyboardFactory keyboardFactory) {
         this.keyboardFactory = keyboardFactory;
@@ -103,11 +122,11 @@ public class RegisterITCButton implements Button {
         message.setChatId(update.getMessage().getChatId().toString());
         message.setText(
                 """
-                <b>Вступление в ИТС.</b>
-                
-                Для вступления в ИТС вам необходимо подать заявку на вступление.
-                Подать заявку можно используя кнопку ниже.
-                """
+                        <b>Вступление в ИТС.</b>
+                        
+                        Для вступления в ИТС вам необходимо подать заявку на вступление.
+                        Подать заявку можно используя кнопку ниже.
+                        """
         );
         message.setParseMode(ParseMode.HTML);
         message.setReplyMarkup(keyboardFactory.create()
@@ -148,13 +167,13 @@ public class RegisterITCButton implements Button {
         infoMessage.setChatId(update.getCallbackQuery().getFrom().getId());
         infoMessage.setText(
                 """
-                <b>Краткая информация о направлениях:</b>
-                
-                <b>1. Проектная команда</b> — создание цифровых продуктов.
-                <b>2. Медиа и контент</b> — видео, фото, социальные сети.
-                <b>3. PR и коммуникации</b> — продвижение проектов.
-                <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
-                """
+                        <b>Краткая информация о направлениях:</b>
+                        
+                        <b>1. Проектная команда</b> — создание цифровых продуктов.
+                        <b>2. Медиа и контент</b> — видео, фото, социальные сети.
+                        <b>3. PR и коммуникации</b> — продвижение проектов.
+                        <b>4. Дизайнеры</b> — визуальный стиль, макеты, графика.
+                        """
         );
         infoMessage.setParseMode(ParseMode.HTML);
 
@@ -163,13 +182,13 @@ public class RegisterITCButton implements Button {
         directionMessage.setChatId(update.getCallbackQuery().getFrom().getId());
         directionMessage.setText(
                 """
-                <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
-                
-                Для завершения регистрации:
-                1. Выберите направление ниже.
-                2. Заполните форму после выбора.
-                3. Дождитесь подтверждения от руководителя.
-                """
+                        <b>Вы практически в ИТС!</b> Остался один шаг — выберите направление:
+                        
+                        Для завершения регистрации:
+                        1. Выберите направление ниже.
+                        2. Заполните форму после выбора.
+                        3. Дождитесь подтверждения от руководителя.
+                        """
         );
         directionMessage.setParseMode(ParseMode.HTML);
         directionMessage.setReplyMarkup(keyboardFactory.create()

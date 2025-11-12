@@ -2,7 +2,6 @@ package me.marensovich.itsKipfin.bot.manager.button;
 
 import lombok.extern.slf4j.Slf4j;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
-import me.marensovich.itsKipfin.settings.SettingsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,8 +15,9 @@ import java.util.Map;
  * <p>
  * Управляет всеми кнопками бота, их регистрацией, поиском по тексту,
  * а также хранит активные кнопки, закрепленные за пользователями.
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Service

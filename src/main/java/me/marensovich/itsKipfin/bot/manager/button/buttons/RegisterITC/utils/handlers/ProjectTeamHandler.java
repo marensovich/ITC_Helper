@@ -26,8 +26,8 @@ import java.util.Map;
  * Обработчик процесса подачи заявки для направления "Проектная команда".
  *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
 @Component
 public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApplicationDTO> {
@@ -48,12 +48,14 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * key = chatId пользователя, value = {@link UserProjectTeamApplicationDTO}
      *
      * <p>Данные удаляются из map после создания/сброса заявки.</p>
+     *
      * @since 0.0.1
      */
     public static final Map<Long, UserProjectTeamApplicationDTO> userApplicationDataMap = new HashMap<>();
 
     /**
      * Экземплярные поля
+     *
      * @since 0.0.1
      */
     private Long chatId;
@@ -77,7 +79,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     /**
      * Конструктор для runtime-использования: создаём handler для конкретного {@code update}.
      *
-     * @param update текущий {@link Update} (сообщение/коллбэк)
+     * @param update          текущий {@link Update} (сообщение/коллбэк)
      * @param keyboardFactory фабрика клавиатур (используется при подтверждении)
      * @throws IllegalArgumentException если невозможно разрешить chatId из update
      * @author marensovich
@@ -93,48 +95,56 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Шаги процесса многошаговой формы.
+     *
      * @author marensovich
      * @since 0.0.1
      */
     public enum Step {
         /**
          * Ввод ФИО
+         *
          * @since 0.0.1
          */
         FULL_NAME,
 
         /**
          * Ввод номера телефона
+         *
          * @since 0.0.1
          */
         PHONE_NUMBER,
 
         /**
          * Ввод номера группы
+         *
          * @since 0.0.1
          */
         GROUP_NUMBER,
 
         /**
          * Описание опыта
+         *
          * @since 0.0.1
          */
         EXPERIENCE,
 
         /**
          * Ссылка на GitHub
+         *
          * @since 0.0.1
          */
         GITHUB,
 
         /**
          * Ввод стека технологий
+         *
          * @since 0.0.1
          */
         STACK,
 
         /**
          * Подтверждение данных
+         *
          * @since 0.0.1
          */
         CONFIRMATION
@@ -163,12 +173,12 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
             return;
         }
 
-        if (update.hasMessage()){
-            if (update.getMessage().hasText()){
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
                 processUserInput(update.getMessage().getText().trim());
                 return;
             }
-            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
+            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)) {
                 processUserInput(update.getMessage().getContact().getPhoneNumber());
             }
         } else {
@@ -189,7 +199,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * </ol>
      *
      * @param applicationId ID заявки (строка, парсится в Long)
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -215,7 +225,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * <p>Аналогична {@link #handleResultYes(String, Update)} но ставит статус REJECTED и отправляет другой текст.</p>
      *
      * @param applicationId ID заявки
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -262,6 +272,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -296,6 +307,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить номер телефона и переключить шаг на {@link Step#PHONE_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -337,6 +349,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -379,6 +392,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить текст об опыте и переключить шаг на {@link Step#EXPERIENCE}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -407,6 +421,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить ссылку на репозиторий и переключить шаг на {@link Step#GITHUB}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -434,6 +449,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить стек технологий и переключить шаг на {@link Step#STACK}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -461,6 +477,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -468,16 +485,16 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     public void askConfirmation() {
         String confirmationText = String.format(
                 """
-                Проверьте введённые данные:
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>GitHub:</b> %s
-                <b>Стек:</b> %s
-                
-                Подтверждаете данные? (Да/Нет)""",
+                        Проверьте введённые данные:
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>GitHub:</b> %s
+                        <b>Стек:</b> %s
+                        
+                        Подтверждаете данные? (Да/Нет)""",
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
@@ -540,6 +557,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      *     <li>Сохранить messageId админ-сообщения в заявке (через applicationService.updateApplicationMessageId).</li>
      *     <li>Очистить временные данные и снять активную кнопку у пользователя.</li>
      * </ol>
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -580,14 +598,14 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     public Message sendAdminNotification(Application application) {
         String adminNotificationText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>GitHub:</b> %s
-                <b>Стек:</b> %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>GitHub:</b> %s
+                        <b>Стек:</b> %s""",
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
@@ -648,7 +666,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
-     * @param update Update с callbackQuery от администратора
+     * @param update   Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
@@ -664,16 +682,16 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
         String messageText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>GitHub:</b> %s
-                <b>Стек:</b> %s
-                
-                %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>GitHub:</b> %s
+                        <b>Стек:</b> %s
+                        
+                        %s""",
                 userData.getMention(), userData.getTgId(),
                 escape(userData.getFullName()),
                 escape(userData.getPhoneNumber()),

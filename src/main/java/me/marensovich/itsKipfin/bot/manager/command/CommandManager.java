@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * Отвечает за регистрацию команд, проверку прав пользователей,
  * выполнение команд и управление активными пошаговыми командами.
  * <p>
+ *
  * @author marensovich
  * @version 0.0.1
  * @since 0.0.1
@@ -33,10 +34,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CommandManager {
-    /** Список всех зарегистрированных команд по ключу имени команды. */
+    /**
+     * Список всех зарегистрированных команд по ключу имени команды.
+     */
     private final Map<String, Command> commands = new HashMap<>();
 
-    /** Активные пошаговые команды пользователей (userId -> Command). */
+    /**
+     * Активные пошаговые команды пользователей (userId -> Command).
+     */
     private final Map<Long, Command> activeCommands = new HashMap<>();
 
     private final List<Command> commandsList;
@@ -46,12 +51,12 @@ public class CommandManager {
     private boolean commandsRegistered = false;
 
 
-
     /**
      * Конструктор CommandManager.
      * Регистрирует все переданные команды.
      *
      * @param commandList список команд
+     * @param userService the user service
      * @author marensovich
      * @since 0.0.1
      */
@@ -64,8 +69,9 @@ public class CommandManager {
     /**
      * Регистрирует все команды по их scope.
      * Сначала выводит текущие команды бота, потом регистрирует новые.
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     public synchronized void registerCommands() {
         if (commandsRegistered) {
@@ -181,7 +187,7 @@ public class CommandManager {
     /**
      * Устанавливает активную команду для пользователя.
      *
-     * @param userId id пользователя
+     * @param userId  id пользователя
      * @param command активная команда
      * @author marensovich
      * @since 0.0.1
@@ -230,7 +236,7 @@ public class CommandManager {
     /**
      * Отправляет пользователю сообщение о текущей активной команде.
      *
-     * @param chatId id чата
+     * @param chatId      id чата
      * @param commandName название команды
      * @author marensovich
      * @since 0.0.1

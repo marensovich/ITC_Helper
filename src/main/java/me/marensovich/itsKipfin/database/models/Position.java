@@ -10,6 +10,7 @@ import me.marensovich.itsKipfin.data.Role;
 
 /**
  * Таблица позиций пользователей.
+ *
  * @author marensovich
  * @version 0.0.1
  * @since 0.0.1
@@ -20,6 +21,7 @@ public class Position {
 
     /**
      * Отдел пользователя.
+     *
      * @since 0.0.1
      */
     @Enumerated(EnumType.STRING)
@@ -27,16 +29,26 @@ public class Position {
 
     /**
      * Роль пользователя в отделе.
+     *
      * @since 0.0.1
      */
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    /**
+     * Instantiates a new Position.
+     *
+     * @param department the department
+     * @param role       the role
+     */
     public Position(Department department, Role role) {
         this.department = department;
         this.role = role;
     }
 
+    /**
+     * Instantiates a new Position.
+     */
     public Position() {
 
     }

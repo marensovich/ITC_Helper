@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 /**
  * Исключение бота.
+ *
  * @author marensovich
  * @version 0.0.1
  * @since 0.0.1

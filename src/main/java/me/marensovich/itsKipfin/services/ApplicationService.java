@@ -33,9 +33,9 @@ public class ApplicationService {
      * Создаёт новую заявку.
      *
      * @param department отдел, в который подаётся заявка
-     * @param dto         объект данных заявки (DTO)
-     * @param userId      ID пользователя, отправившего заявку
-     * @param messageId   ID сообщения в Telegram, связанного с заявкой
+     * @param dto        объект данных заявки (DTO)
+     * @param userId     ID пользователя, отправившего заявку
+     * @param messageId  ID сообщения в Telegram, связанного с заявкой
      * @return созданный объект {@link Application}
      * @author marensovich
      * @since 0.0.1

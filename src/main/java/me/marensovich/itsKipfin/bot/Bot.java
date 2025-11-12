@@ -32,21 +32,35 @@ public class Bot extends TelegramLongPollingBot {
     @Getter
     private static Bot instance;
 
-    @Autowired @Getter private CommandManager commandManager;
-    @Autowired @Getter private CallbackManager callbackManager;
-    @Autowired @Getter private ButtonManager buttonManager;
-    @Autowired @Getter private UpdateManager updateManager;
-    @Autowired @Getter private SettingsManager settingsManager;
-    @Autowired @Getter private UserService userService;
+    @Autowired
+    @Getter
+    private CommandManager commandManager;
+    @Autowired
+    @Getter
+    private CallbackManager callbackManager;
+    @Autowired
+    @Getter
+    private ButtonManager buttonManager;
+    @Autowired
+    @Getter
+    private UpdateManager updateManager;
+    @Autowired
+    @Getter
+    private SettingsManager settingsManager;
+    @Autowired
+    @Getter
+    private UserService userService;
 
     /**
      * Токен Telegram-бота, задаётся в {@code application.properties}.
+     *
      * @since 0.0.1
      */
     private final String botToken;
 
     /**
      * Имя пользователя (username) Telegram-бота.
+     *
      * @since 0.0.1
      */
     private final String botUsername;
@@ -54,10 +68,10 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Инициализирует класс бота
      *
-     * @since 0.0.1
-     * @author marensovich
-     * @param botToken токен бота
+     * @param botToken    токен бота
      * @param botUsername username бота
+     * @author marensovich
+     * @since 0.0.1
      */
     public Bot(
             @Value("${telegram.bot.token}") String botToken,
@@ -72,8 +86,8 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод выполняющийся после инициализации класса бота
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     @PostConstruct
     public void postInit() {
@@ -90,9 +104,9 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод принимающий обновления и передающий обработчику
      *
-     * @since 0.0.1
-     * @author marensovich
      * @param update обьект {@link Update}
+     * @author marensovich
+     * @since 0.0.1
      */
     @Override
     public void onUpdateReceived(Update update) {
@@ -116,8 +130,8 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод, выполняющийся при регистрации бота
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     @Override
     public void onRegister() {
@@ -139,10 +153,10 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод для загрузки глобальных настроек бота
      *
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
-    private void applyBasicSettings(){
+    private void applyBasicSettings() {
         String name = SettingsManager.getSettings().getGeneralSettings().getBotName();
         String description = SettingsManager.getSettings().getGeneralSettings().getBotDescription();
         String shortDescription = SettingsManager.getSettings().getGeneralSettings().getBotShortDescription();
@@ -176,7 +190,7 @@ public class Bot extends TelegramLongPollingBot {
      * Метод отправки текста
      *
      * @param chatId ID чата
-     * @param text текст
+     * @param text   текст
      * @author marensovich
      * @since 0.0.1
      */
@@ -217,7 +231,7 @@ public class Bot extends TelegramLongPollingBot {
      * Метод отправки уведомления об ошибке во время работы бота
      *
      * @param chatId ID чата
-     * @param text текст
+     * @param text   текст
      * @author marensovich
      * @since 0.0.1
      */
@@ -234,7 +248,7 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод установки статуса бота "печатает..."
      *
-     * @param chatId ID чата
+     * @param chatId     ID чата
      * @param actionType тип активности {@link ActionType}
      * @author marensovich
      * @since 0.0.1

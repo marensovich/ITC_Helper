@@ -15,8 +15,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * Обработчик callback-запросов с префиксом регистрации ИТС.
  * <p>
  * Используется для выбора подразделения при регистрации пользователя.
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component

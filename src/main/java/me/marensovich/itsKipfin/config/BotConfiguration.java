@@ -23,6 +23,7 @@ public class BotConfiguration {
 
     /**
      * Токен Telegram-бота, задаётся в {@code application.properties}.
+     *
      * @since 0.0.1
      */
     @Value("${telegram.bot.token}")
@@ -30,6 +31,7 @@ public class BotConfiguration {
 
     /**
      * Имя пользователя (username) Telegram-бота.
+     *
      * @since 0.0.1
      */
     @Value("${telegram.bot.username}")
