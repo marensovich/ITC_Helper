@@ -5,7 +5,9 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.HelpButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
@@ -78,6 +80,7 @@ public class StartCommand implements Command {
     @Override
     public void execute(Update update) {
         Long chatId = update.getMessage().getChatId();
+        Bot.getInstance().getCommandManager().setActiveCommand(chatId, this);
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId.toString());
@@ -91,10 +94,14 @@ public class StartCommand implements Command {
         );
 
         try {
-            Bot.getInstance().getCommandManager().setActiveCommand(chatId, this);
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
             Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            Bot.getInstance().getCommandManager().unsetActiveCommand(chatId);
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             Bot.getInstance().getCommandManager().unsetActiveCommand(chatId);
         }

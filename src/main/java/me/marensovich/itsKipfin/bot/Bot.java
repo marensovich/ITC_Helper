@@ -100,7 +100,6 @@ public class Bot extends TelegramLongPollingBot {
             updateManager.updateHandler(update);
         } catch (Exception e) {
             log.error("Ошибка обработки update: {}", e.getMessage(), e);
-            throw new RuntimeException(e);
         }
     }
 

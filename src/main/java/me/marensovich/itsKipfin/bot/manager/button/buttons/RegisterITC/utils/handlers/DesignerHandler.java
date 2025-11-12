@@ -8,8 +8,10 @@ import me.marensovich.itsKipfin.data.Department;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.services.ApplicationService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -309,9 +311,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                         .buildReplyKeyboard()
         );
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException();
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.PHONE_NUMBER);
     }
@@ -342,8 +348,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         message.setText("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
         message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
-        } catch (TelegramApiException ignored) {
+        } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.GROUP_NUMBER);
     }
@@ -407,9 +418,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                         .buildReplyKeyboard()
         );
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.EXAMPLES);
     }
@@ -480,9 +495,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         );
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения подтверждения", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.CONFIRMATION);
     }
@@ -597,9 +616,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             );
 
             try {
+                Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
                 return Bot.getInstance().execute(notify);
             } catch (TelegramApiException e) {
-                throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
+                Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -627,9 +650,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
                 .buildInlineKeyboard()
         );
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.UPLOADPHOTO);
             return Bot.getInstance().execute(photo);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке фотографии: ", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
     /**
@@ -692,9 +719,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             editCaption.setParseMode(ParseMode.HTML);
 
             try {
+                Bot.getInstance().showBotAction(chatId, ActionType.UPLOADPHOTO);
                 Bot.getInstance().execute(editCaption);
             } catch (TelegramApiException e) {
-                throw new RuntimeException("Ошибка при редактировании подписи к фото: ", e);
+                Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         } else {
             // Если было текстовое сообщение - редактируем текст
@@ -705,9 +736,13 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             editMessage.setText(messageText);
 
             try {
+                Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
                 Bot.getInstance().execute(editMessage);
             } catch (TelegramApiException e) {
-                throw new RuntimeException("Ошибка при редактировании админского сообщения: ", e);
+                Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }

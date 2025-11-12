@@ -3,7 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
-import me.marensovich.itsKipfin.utils.exception.BotException;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -116,11 +116,13 @@ public class RegisterITCButton implements Button {
         );
 
         try {
-            Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
-            Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+            Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(message);
-        } catch (TelegramApiException ignored) {
-            throw new BotException("Ошибка при отправке сообщения с кнопкой вступления в ИТС", update);
+        } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(update.getMessage().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }
@@ -139,7 +141,7 @@ public class RegisterITCButton implements Button {
      * @since 0.0.1
      */
     public void handleRegButton(Update update) {
-        Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+        Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
 
         // Информационное сообщение (общая справка)
         SendMessage infoMessage = new SendMessage();
@@ -182,13 +184,15 @@ public class RegisterITCButton implements Button {
         );
 
         try {
-            Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
             Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(infoMessage);
             Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(directionMessage);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщений со списком направлений ИТС", e);
+            Bot.getInstance().sendErrorMessage(update.getMessage().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }

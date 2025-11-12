@@ -6,6 +6,7 @@ import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.settings.SettingsManager;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;

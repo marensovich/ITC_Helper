@@ -1,4 +1,4 @@
-package me.marensovich.itsKipfin.utils.exception;
+package me.marensovich.itsKipfin.utils.exception.exceptions;
 
 import lombok.Getter;
 import org.telegram.telegrambots.meta.api.objects.Update;
