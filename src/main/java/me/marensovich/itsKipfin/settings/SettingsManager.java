@@ -20,6 +20,10 @@ import java.nio.file.StandardCopyOption;
 
 /**
  * The type Settings manager.
+ *
+ * @since 0.0.1
+ * @author marensovich
+ * @version 0.0.1
  */
 @Component
 public class SettingsManager {

@@ -24,6 +24,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 /**
  * Основной класс Telegram-бота.
  * Обрабатывает обновления, команды, кнопки и колбэки.
+ *
+ * @since 0.0.1
+ * @author marensovich
+ * @version 0.0.1
  */
 @Slf4j
 @Component
@@ -267,7 +271,7 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод убирающий {@link ReplyKeyboardMarkup} клавиатуру
      *
-     * @return обьект {@link ReplyKeyboardRemove}
+     * @return объект {@link ReplyKeyboardRemove}
      */
     public ReplyKeyboardRemove removeKeyboard() {
         ReplyKeyboardRemove remove = new ReplyKeyboardRemove();
