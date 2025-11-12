@@ -111,7 +111,6 @@ public class CancelCommand implements Command {
         } catch (TelegramApiException e) {
             Bot.getInstance().sendErrorMessage(chatId,
                     "⚠️ Ошибка при работе бота, обратитесь к администратору");
-            throw new RuntimeException(e);
         }
     }
 

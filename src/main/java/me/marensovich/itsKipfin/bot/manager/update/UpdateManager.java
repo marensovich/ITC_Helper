@@ -36,7 +36,7 @@ import java.util.Map;
 @Component
 public class UpdateManager {
 
-    public Map<String, User> hashedUsers = new HashMap<>();
+    public final Map<String, User> hashedUsers = new HashMap<>();
 
     private final UserService userService;
     private final ButtonManager buttonManager;
@@ -73,6 +73,7 @@ public class UpdateManager {
         if (!update.hasMessage() && !update.hasCallbackQuery()) return;
 
         if (update.hasMessage()) {
+
             long userId = update.getMessage().getFrom().getId();
 
             // Проверяем наличие пользователя в списке

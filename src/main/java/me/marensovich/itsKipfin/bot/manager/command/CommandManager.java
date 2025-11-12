@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.commands.GetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
@@ -242,26 +241,7 @@ public class CommandManager {
                 
                 В случае если вы хотите прекратить выполнение команды — отправьте /cancel
                 """;
-        sendMessage(chatId, reply.replace("%command%", commandName));
+        Bot.getInstance().sendText(chatId, reply.replace("%command%", commandName));
     }
 
-    /**
-     * Отправляет сообщение в чат.
-     *
-     * @param chatId id чата
-     * @param text текст сообщения
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private void sendMessage(Long chatId, String text) {
-        SendMessage msg = new SendMessage();
-        msg.setChatId(chatId.toString());
-        msg.setText(text);
-        msg.setParseMode("Markdown");
-        try {
-            Bot.getInstance().execute(msg);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

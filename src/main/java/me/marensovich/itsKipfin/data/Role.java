@@ -10,6 +10,8 @@ public enum Role {
     /** Заместитель руководителя отдела. */
     DEPUTY_HEAD,
     /** Участник. */
-    MEMBER
+    MEMBER,
+    /** Гость. */
+    GUEST
 }
 

@@ -343,8 +343,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         try {
             Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+        } catch (TelegramApiException ignored) {
         }
         data.setCurrentStep(Step.GROUP_NUMBER);
     }

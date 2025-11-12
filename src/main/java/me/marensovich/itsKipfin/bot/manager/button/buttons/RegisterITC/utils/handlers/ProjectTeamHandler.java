@@ -343,8 +343,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         try {
             Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+        } catch (TelegramApiException ignored) {
         }
         data.setCurrentStep(Step.GROUP_NUMBER);
     }

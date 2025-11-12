@@ -50,8 +50,7 @@ public class HelpButton implements Button {
 
         try {
             Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+        } catch (TelegramApiException ignored) {
         }
 
         Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());

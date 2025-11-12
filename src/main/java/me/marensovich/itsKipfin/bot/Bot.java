@@ -14,9 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
-import org.telegram.telegrambots.meta.api.methods.description.SetMyDescription;
-import org.telegram.telegrambots.meta.api.methods.description.SetMyShortDescription;
-import org.telegram.telegrambots.meta.api.methods.name.SetMyName;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -103,6 +100,7 @@ public class Bot extends TelegramLongPollingBot {
             updateManager.updateHandler(update);
         } catch (Exception e) {
             log.error("Ошибка обработки update: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -124,17 +122,23 @@ public class Bot extends TelegramLongPollingBot {
      */
     @Override
     public void onRegister() {
+        if (updateManager == null || updateManager.hashedUsers == null) {
+            log.error("❌ UpdateManager или его hashedUsers не инициализированы!");
+            return;
+        }
+
         userService.getAllUsers().forEach(user ->
                 updateManager.hashedUsers.put(String.valueOf(user.getUserId()), user)
         );
+
         settingsManager.saveSettings();
         this.applyBasicSettings();
         log.info("📥 Бот зарегистрирован, пользователи и настройки загружены");
-
     }
 
+
     /**
-     * Метод для загрузки глобадьных настроек бота
+     * Метод для загрузки глобальных настроек бота
      *
      * @since 0.0.1
      * @author marensovich

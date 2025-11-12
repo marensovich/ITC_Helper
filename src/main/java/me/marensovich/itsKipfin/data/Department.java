@@ -17,5 +17,7 @@ public enum Department {
     /** Отдел коммуникаций. */
     Communication,
     /** Отдел дизайнеров. */
-    Designer
+    Designer,
+    /** Общий отдел. */
+    General
 }

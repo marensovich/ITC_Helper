@@ -78,7 +78,6 @@ public class StartCommand implements Command {
     @Override
     public void execute(Update update) {
         Long chatId = update.getMessage().getChatId();
-
         // Помечаем команду как активную
         Bot.getInstance().getCommandManager().setActiveCommand(chatId, this);
 
@@ -97,7 +96,6 @@ public class StartCommand implements Command {
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
             Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
-            throw new RuntimeException(e);
         } finally {
             // Снимаем активную команду после отправки
             Bot.getInstance().getCommandManager().unsetActiveCommand(chatId);

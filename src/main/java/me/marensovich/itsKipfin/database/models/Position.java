@@ -32,4 +32,12 @@ public class Position {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public Position(Department department, Role role) {
+        this.department = department;
+        this.role = role;
+    }
+
+    public Position() {
+
+    }
 }

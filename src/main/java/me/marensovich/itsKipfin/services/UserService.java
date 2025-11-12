@@ -1,5 +1,8 @@
 package me.marensovich.itsKipfin.services;
 
+import me.marensovich.itsKipfin.data.Department;
+import me.marensovich.itsKipfin.data.Role;
+import me.marensovich.itsKipfin.database.models.Position;
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.database.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,7 @@ public class UserService {
         User user = new User();
         user.setUserId(userId);
         user.setAdmin(false);
+        user.setPosition(new Position(Department.General, Role.GUEST));
         return userRepository.save(user);
     }
 
@@ -58,6 +62,7 @@ public class UserService {
         User user = new User();
         user.setUserId(Long.valueOf(userId));
         user.setAdmin(false);
+        user.setPosition(new Position(Department.General, Role.GUEST));
         return userRepository.save(user);
     }
 
