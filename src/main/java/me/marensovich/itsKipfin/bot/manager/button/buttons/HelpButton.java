@@ -41,7 +41,6 @@ public class HelpButton implements Button {
      */
     @Override
     public void handle(Update update) {
-        Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
 
         SendMessage message = new SendMessage();
@@ -49,10 +48,12 @@ public class HelpButton implements Button {
         message.setText("Если вам нужна помощь, пожалуйста, свяжитесь с нашим отделом поддержки по адресу");
 
         try {
+            Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException ignored) {
+        } finally {
+            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }
 
-        Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
     }
 }

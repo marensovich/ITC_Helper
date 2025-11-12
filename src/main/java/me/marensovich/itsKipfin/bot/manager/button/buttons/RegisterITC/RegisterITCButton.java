@@ -109,7 +109,6 @@ public class RegisterITCButton implements Button {
             return;
         }
 
-        Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
         Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
 
         SendMessage message = new SendMessage();
@@ -129,10 +128,11 @@ public class RegisterITCButton implements Button {
         );
 
         try {
+            Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
             Bot.getInstance().execute(message);
-        } catch (TelegramApiException e) {
-            // выбрасываем runtime-exception: вызывающий код ожидает, что бот не "заглотит" ошибку silently
-            throw new RuntimeException("Ошибка при отправке сообщения о вступлении в ИТС", e);
+        } catch (TelegramApiException ignored) {
+        } finally {
+            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }
     }
 
@@ -192,10 +192,13 @@ public class RegisterITCButton implements Button {
         );
 
         try {
+            Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
             Bot.getInstance().execute(infoMessage);
             Bot.getInstance().execute(directionMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке сообщений со списком направлений ИТС", e);
+        } finally {
+            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }
     }
 }
