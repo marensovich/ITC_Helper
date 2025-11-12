@@ -3,17 +3,20 @@ package me.marensovich.itsKipfin.utils.exception;
 import java.time.LocalDateTime;
 
 /**
- * Represents a structured API error response.
- *
- * <p>Returned by {@link GlobalExceptionHandler}
- * when exceptions are thrown in the application.</p>
- *
- * @param error     error name (e.g. "Not Found", "Unauthorized")
- * @param message   error message
- * @param timestamp time of error occurrence
+ * API ошибка.
+ * @param username username пользователя в тг
+ * @param userId id пользователя в тг
+ * @param chatId id чата в тг
+ * @param userRole должность пользователя (e.g. "Admin", "User")
+ * @param userDepartment отдел пользователя (e.g. "IT", "HR")
+ * @param activeCommand текущая активная команда
+ * @param activeButton текущая активная кнопка
+ * @param error имя исключения
+ * @param message текст исключения
+ * @param timestamp время срабатывания исключения
  * @author marensovich
- * @version v.0.1
- * @since v.0.1
+ * @version 0.0.1
+ * @since 0.0.1
  */
 public record ApiError(
         String username,

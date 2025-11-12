@@ -1,25 +1,15 @@
 package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
-import me.marensovich.itsKipfin.database.models.Application;
-import me.marensovich.itsKipfin.services.ApplicationService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import me.marensovich.itsKipfin.utils.exception.BotException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Кнопка "Вступление в ИТС".
@@ -130,6 +120,7 @@ public class RegisterITCButton implements Button {
             Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException ignored) {
+            throw new BotException("Ошибка при отправке сообщения с кнопкой вступления в ИТС", update);
         } finally {
             Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }

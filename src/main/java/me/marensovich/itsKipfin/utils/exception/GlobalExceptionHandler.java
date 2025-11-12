@@ -16,12 +16,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDateTime;
 
 /**
- * Global exception handler for Telegram bot.
- *
- * <p>Intercepts all exceptions in bot command and update processing,
- * builds structured {@link ApiError} objects and sends detailed
- * diagnostics to the developer's Telegram.</p>
- *
+ * Глобальный обработчик исключений для Telegram-бота.
+ * <p>
+ * Обрабатывает исключения, возникающие при обработке команд и апдейтов,
+ * собирает информацию об ошибке и отправляет её в административный канал.
+ * </p>
  * @author marensovich
  * @version 0.0.1
  */
@@ -32,10 +31,12 @@ public class GlobalExceptionHandler {
     private final UserService userService;
 
     /**
-     * Instantiates a new Global exception handler.
+     * Инициализирует обработчик глобальных исключений.
      *
-     * @param objectMapper the object mapper
-     * @param userService  the user service
+     * @param objectMapper the Jackson object mapper
+     * @param userService the user service
+     * @author marensovich
+     * @since 0.0.1
      */
     public GlobalExceptionHandler(ObjectMapper objectMapper, UserService userService) {
         this.objectMapper = objectMapper;
@@ -45,13 +46,12 @@ public class GlobalExceptionHandler {
     /**
      * Обрабатывает исключения, возникающие при обработке команд или апдейтов.
      *
-     * @param e      само исключение
-     * @param update the update
+     * @param e исключение
+     * @param update объект Update из Telegram
+     * @author marensovich
+     * @since 0.0.1
      */
-    public void handle(
-            Exception e,
-            Update update
-    ) {
+    public void handle(Exception e, Update update) {
         String username = null;
         String userId = null;
         String chatId = null;
@@ -113,12 +113,12 @@ public class GlobalExceptionHandler {
             String threadId = SettingsManager.getSettings().getGeneralSettings().getAdminBotErrorMessageThreadId();
 
             SendMessage message = new SendMessage();
-            message.setChatId("6737078498");
+            message.setChatId(channelId);
             message.setText(msg);
             message.setParseMode(ParseMode.MARKDOWN);
-//            if (threadId != null && !threadId.isBlank()) {
-//                message.setMessageThreadId(Integer.parseInt(threadId));
-//            }
+            if (threadId != null && !threadId.isBlank()) {
+                message.setMessageThreadId(Integer.parseInt(threadId));
+            }
 
             Bot.getInstance().executeAsync(message);
 
@@ -131,15 +131,24 @@ public class GlobalExceptionHandler {
 
 
     /**
-     * Handles all unhandled exceptions.
+     * Обрабатывает {@link BotException}.
      *
-     * @since v.0.1
+     * @author marensovich
+     * @since 0.0.1
+     */
+    @ExceptionHandler(BotException.class)
+    public void handleBotException(BotException e) {
+        handle(e, e.getUpdate());
+    }
+
+    /**
+     * Обрабатывает {@link Exception}.
+     *
+     * @author marensovich
+     * @since 0.0.1
      */
     @ExceptionHandler(Exception.class)
-    public void handleGeneral(
-            Exception e,
-            Update update
-    ) {
+    public void handleGeneral(Exception e, Update update) {
         handle(e, update);
     }
 }
