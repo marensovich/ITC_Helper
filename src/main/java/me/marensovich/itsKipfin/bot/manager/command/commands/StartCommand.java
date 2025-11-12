@@ -89,8 +89,8 @@ public class StartCommand implements Command {
 
         // Формируем клавиатуру
         message.setReplyMarkup(keyboardFactory.create()
-                .addButton(HelpButton.class)
-                .addButton(RegisterITCButton.class)
+                .addButton("Помощь")
+                .addButton("Вступление в ИТС")
                 .buildReplyKeyboard()
         );
 

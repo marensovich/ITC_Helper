@@ -564,7 +564,20 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      */
     @Override
     public void processApplicationConfirmation() {
-        sendMessage("✅ Спасибо! Ваша заявка сохранена.", chatId);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("✅ Спасибо! Ваша заявка сохранена.");
+        sendMessage.setReplyMarkup(Bot.getInstance().removeKeyboard());
+
+        try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
+            Bot.getInstance().execute(sendMessage);
+        } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Application application = applicationService.createApplication(
                 Department.Development,
@@ -618,7 +631,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
         SendMessage notify = new SendMessage();
         notify.setParseMode(ParseMode.HTML);
-        notify.setChatId(SettingsManager.getSettings().getGeneralSettings().getAdminChannelId());
+        notify.setChatId(SettingsManager.getSettings().getApplications().getNewApplicationNotificationChannelId());
         notify.setMessageThreadId(Integer.parseInt(SettingsManager.getSettings().getApplications().getProjectTeamApplication().getNewApplicationNotificationThreadId()));
         notify.setText(adminNotificationText);
         notify.setReplyMarkup(keyboardFactory.create()

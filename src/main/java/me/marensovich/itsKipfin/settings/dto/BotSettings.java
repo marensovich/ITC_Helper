@@ -80,7 +80,7 @@ public class BotSettings {
         PRApplication prApplication = new PRApplication();
         DesignerApplication designerApplication = new DesignerApplication();
 
-        private String newApplicationNotificationChannelId;
+        private String newApplicationNotificationChannelId = "-1003395394215";
 
         @Data
         public static class ProjectTeamApplication {

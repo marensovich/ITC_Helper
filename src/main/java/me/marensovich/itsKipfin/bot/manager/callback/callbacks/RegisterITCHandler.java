@@ -47,9 +47,11 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
         String[] parts = callbackData.split(":");
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-        RegisterITCButton command = (RegisterITCButton) Bot.getInstance()
-                .getButtonManager()
-                .getActiveCommand(chatId);
+//        RegisterITCButton command = (RegisterITCButton) Bot.getInstance()
+//                .getButtonManager()
+//                .getActiveCommand(chatId);
+        RegisterITCButton command = new RegisterITCButton(keyboardFactory);
+
 
         if (command != null && parts.length > 1) {
             switch (parts[1]) {
