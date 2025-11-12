@@ -623,11 +623,11 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         notify.setText(adminNotificationText);
         notify.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM +
                                 ":YES:" + application.getId())
                 .nextInlineRow()
                 .addInlineButton("Отклонить заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM +
                                 ":NO:" + application.getId())
                 .buildInlineKeyboard()
         );

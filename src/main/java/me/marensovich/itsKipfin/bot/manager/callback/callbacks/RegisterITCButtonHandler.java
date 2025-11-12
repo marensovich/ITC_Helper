@@ -3,6 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.callback.callbacks;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.CallbackHandler;
+import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -18,6 +19,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Component
 public class RegisterITCButtonHandler implements CallbackHandler {
 
+    private final KeyboardFactory keyboardFactory;
+
+    public RegisterITCButtonHandler(KeyboardFactory keyboardFactory) {
+        this.keyboardFactory = keyboardFactory;
+    }
+
     @Override
     public String getCallbackData() {
         return RegisterITCButton.ITC_REGISTRATION_CALLBACK;
@@ -26,12 +33,8 @@ public class RegisterITCButtonHandler implements CallbackHandler {
     @Override
     public void handle(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
-        RegisterITCButton command = (RegisterITCButton) Bot.getInstance()
-                .getButtonManager()
-                .getActiveCommand(userId);
+        RegisterITCButton command = new RegisterITCButton(keyboardFactory);
 
-        if (command != null) {
-            command.handleRegButton(update);
-        }
+        command.handleRegButton(update);
     }
 }

@@ -619,11 +619,11 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
         notify.setText(adminNotificationText);
         notify.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT +
                                 ":YES:" + application.getId())
                 .nextInlineRow()
                 .addInlineButton("Отклонить заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT +
                                 ":NO:" + application.getId())
                 .buildInlineKeyboard()
         );

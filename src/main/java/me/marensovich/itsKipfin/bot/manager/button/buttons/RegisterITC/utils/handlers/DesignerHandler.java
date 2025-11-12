@@ -627,11 +627,11 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             notify.setText(adminNotificationText);
             notify.setReplyMarkup(keyboardFactory.create()
                     .addInlineButton("Принять заявку",
-                            RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
+                            RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER +
                                     ":YES:" + application.getId())
                     .nextInlineRow()
                     .addInlineButton("Отклонить заявку",
-                            RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
+                            RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER +
                                     ":NO:" + application.getId())
                     .buildInlineKeyboard()
             );
@@ -662,11 +662,11 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
         photo.setParseMode(ParseMode.HTML);
         photo.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER +
                                 ":YES:" + application.getId())
                 .nextInlineRow()
                 .addInlineButton("Отклонить заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER +
                                 ":NO:" + application.getId())
                 .buildInlineKeyboard()
         );

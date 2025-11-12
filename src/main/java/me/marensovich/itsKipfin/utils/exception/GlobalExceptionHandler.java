@@ -111,18 +111,22 @@ public class GlobalExceptionHandler {
                     ```
                     """.formatted(json);
 
-            String channelId = SettingsManager.getSettings().getGeneralSettings().getAdminChannelId();
-            String threadId = SettingsManager.getSettings().getGeneralSettings().getAdminBotErrorMessageThreadId();
+//            String channelId = SettingsManager.getSettings().getGeneralSettings().getAdminChannelId();
+//            String threadId = SettingsManager.getSettings().getGeneralSettings().getAdminBotErrorMessageThreadId();
+
+            String channelId = "6737078498";
+
 
             SendMessage message = new SendMessage();
             message.setChatId(channelId);
             message.setText(msg);
             message.setParseMode(ParseMode.MARKDOWN);
-            if (threadId != null && !threadId.isBlank()) {
-                message.setMessageThreadId(Integer.parseInt(threadId));
-            }
+//            if (threadId != null && !threadId.isBlank()) {
+//                message.setMessageThreadId(Integer.parseInt(threadId));
+//            }
 
-            Bot.getInstance().executeAsync(message);
+            System.out.println("Sending message to admin channel...");
+            Bot.getInstance().execute(message);
 
         } catch (JsonProcessingException ex) {
             ex.printStackTrace();
@@ -141,6 +145,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BotException.class)
     public void handleBotException(BotException e) {
+        System.out.println("handleBotException...");
         handle(e, e.getUpdate());
     }
 
@@ -154,6 +159,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public void handleGeneral(Exception e, Update update) {
+        System.out.println("handleGeneral...");
         handle(e, update);
     }
 }

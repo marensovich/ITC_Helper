@@ -33,7 +33,7 @@ public class RegisterITCButton implements Button {
      *
      * @since 0.0.1
      */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_PREFIX = "itc_reg:";
+    public static final String ITC_REGISTRATION_DEPARTMENT_PREFIX = "itc_reg:";
 
     /**
      * Префикс callback data для административных действий с заявками:
@@ -41,26 +41,26 @@ public class RegisterITCButton implements Button {
      *
      * @since 0.0.1
      */
-    public static final String ITC_ADMIN_REG_DEFARAMENT_PREFIX = "itc_admin_reg:";
+    public static final String ITC_ADMIN_REG_DEPARTMENT_PREFIX = "itc_admin_reg:";
 
     /**
      * Идентификаторы направлений (строки используются в callbackData)
      *
      * @since 0.0.1
      */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM = "project_team";
+    public static final String ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM = "project_team";
     /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT.
+     * The constant ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT.
      */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT = "video_content";
+    public static final String ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT = "video_content";
     /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_PR.
+     * The constant ITC_REGISTRATION_DEPARTMENT_PR.
      */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_PR = "pr";
+    public static final String ITC_REGISTRATION_DEPARTMENT_PR = "pr";
     /**
-     * The constant ITC_REGISTRATION_DEPARTAMENT_DESIGNER.
+     * The constant ITC_REGISTRATION_DEPARTMENT_DESIGNER.
      */
-    public static final String ITC_REGISTRATION_DEPARTAMENT_DESIGNER = "designer";
+    public static final String ITC_REGISTRATION_DEPARTMENT_DESIGNER = "designer";
 
     /**
      * Регулярные выражения для валидации полей
@@ -160,7 +160,7 @@ public class RegisterITCButton implements Button {
      * @since 0.0.1
      */
     public void handleRegButton(Update update) {
-        Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
+        Bot.getInstance().getButtonManager().setActiveCommand(update.getCallbackQuery().getFrom().getId(), this);
 
         // Информационное сообщение (общая справка)
         SendMessage infoMessage = new SendMessage();
@@ -192,13 +192,13 @@ public class RegisterITCButton implements Button {
         );
         directionMessage.setParseMode(ParseMode.HTML);
         directionMessage.setReplyMarkup(keyboardFactory.create()
-                .addInlineButton("Проектная команда", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM)
+                .addInlineButton("Проектная команда", ITC_REGISTRATION_DEPARTMENT_PREFIX + ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM)
                 .nextInlineRow()
-                .addInlineButton("Медиа и контент", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT)
+                .addInlineButton("Медиа и контент", ITC_REGISTRATION_DEPARTMENT_PREFIX + ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT)
                 .nextInlineRow()
-                .addInlineButton("PR и Коммуникации", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_PR)
+                .addInlineButton("PR и Коммуникации", ITC_REGISTRATION_DEPARTMENT_PREFIX + ITC_REGISTRATION_DEPARTMENT_PR)
                 .nextInlineRow()
-                .addInlineButton("Дизайнеры", ITC_REGISTRATION_DEPARTAMENT_PREFIX + ITC_REGISTRATION_DEPARTAMENT_DESIGNER)
+                .addInlineButton("Дизайнеры", ITC_REGISTRATION_DEPARTMENT_PREFIX + ITC_REGISTRATION_DEPARTMENT_DESIGNER)
                 .buildInlineKeyboard()
         );
 
@@ -213,7 +213,7 @@ public class RegisterITCButton implements Button {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
+            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getCallbackQuery().getFrom().getId());
         }
     }
 }

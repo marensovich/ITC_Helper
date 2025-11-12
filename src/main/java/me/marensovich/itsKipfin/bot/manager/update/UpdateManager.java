@@ -9,6 +9,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -70,7 +71,7 @@ public class UpdateManager {
      * @author marensovich
      * @since 0.0.1
      */
-    public void updateHandler(Update update) throws TelegramApiException {
+    public void updateHandler(Update update) {
 
         if (!update.hasMessage() && !update.hasCallbackQuery()) return;
 
@@ -101,7 +102,13 @@ public class UpdateManager {
                                 "Команда не распознана, проверьте правильность написания команды. \n\n" +
                                         "Команды с доп. параметрами указаны отдельной графой в информации. Подробнее в /help."
                         );
-                        Bot.getInstance().execute(message);
+                        try {
+                            Bot.getInstance().execute(message);
+                        } catch (TelegramApiException e) {
+                            throw new RuntimeException("Ошибка при отправке сообщения: " + e.getMessage());
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         return;
                     }
                 }
@@ -160,7 +167,13 @@ public class UpdateManager {
                 SendMessage errorMsg = new SendMessage();
                 errorMsg.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
                 errorMsg.setText("Действие не распознано, попробуйте ещё раз");
-                Bot.getInstance().execute(errorMsg);
+                try {
+                    Bot.getInstance().execute(errorMsg);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException("Ошибка при отправке сообщения: " + e.getMessage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

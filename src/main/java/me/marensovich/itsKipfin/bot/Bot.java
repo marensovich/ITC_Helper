@@ -114,11 +114,7 @@ public class Bot extends TelegramLongPollingBot {
      */
     @Override
     public void onUpdateReceived(Update update) {
-        try {
-            updateManager.updateHandler(update);
-        } catch (Exception e) {
-            log.error("Ошибка обработки update: {}", e.getMessage(), e);
-        }
+        updateManager.updateHandler(update);
     }
 
     @Override

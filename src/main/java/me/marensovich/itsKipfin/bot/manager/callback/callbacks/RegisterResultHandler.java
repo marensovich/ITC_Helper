@@ -37,7 +37,7 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
 
     @Override
     public String getPrefixCallbackData() {
-        return RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX;
+        return RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX;
     }
 
     @Override
@@ -48,28 +48,28 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
         String id = parts[3];
 
         switch (department) {
-            case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM -> {
+            case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM -> {
                 ProjectTeamHandler handler = new ProjectTeamHandler(applicationService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
-            case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR -> {
+            case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR -> {
                 PRHandler handler = new PRHandler(applicationService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
-            case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER -> {
+            case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER -> {
                 DesignerHandler handler = new DesignerHandler(applicationService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
-            case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT -> {
+            case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT -> {
                 MediaHandler handler = new MediaHandler(applicationService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);

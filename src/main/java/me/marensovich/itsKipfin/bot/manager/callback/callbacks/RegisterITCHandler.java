@@ -38,7 +38,7 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
 
     @Override
     public String getPrefixCallbackData() {
-        return RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PREFIX;
+        return RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PREFIX;
     }
 
     @Override
@@ -53,16 +53,16 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
 
         if (command != null && parts.length > 1) {
             switch (parts[1]) {
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM ->
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM ->
                         new ProjectTeamHandler(update, keyboardFactory).handle();
 
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER ->
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER ->
                         new DesignerHandler(update, keyboardFactory).handle();
 
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR ->
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR ->
                         new PRHandler(update, keyboardFactory).handle();
 
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT ->
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT ->
                         new MediaHandler(update, keyboardFactory).handle();
 
                 default -> Bot.getInstance()
