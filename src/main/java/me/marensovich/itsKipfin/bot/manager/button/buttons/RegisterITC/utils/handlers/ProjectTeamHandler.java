@@ -3,13 +3,19 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ha
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.BaseApplicationDTO;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserProjectTeamApplicationDTO;
+import me.marensovich.itsKipfin.data.Department;
+import me.marensovich.itsKipfin.data.Role;
 import me.marensovich.itsKipfin.database.models.Application;
+import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.ApplicationService;
+import me.marensovich.itsKipfin.services.UserService;
+import me.marensovich.itsKipfin.settings.SettingsManager;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -17,6 +23,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +31,8 @@ import java.util.Map;
  * Обработчик процесса подачи заявки для направления "Проектная команда".
  *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
 @Component
 public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApplicationDTO> {
@@ -46,18 +53,21 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * key = chatId пользователя, value = {@link UserProjectTeamApplicationDTO}
      *
      * <p>Данные удаляются из map после создания/сброса заявки.</p>
+     *
      * @since 0.0.1
      */
     public static final Map<Long, UserProjectTeamApplicationDTO> userApplicationDataMap = new HashMap<>();
 
     /**
      * Экземплярные поля
+     *
      * @since 0.0.1
      */
     private Long chatId;
     private Update update;
     private KeyboardFactory keyboardFactory;
     private UserProjectTeamApplicationDTO data;
+    private final UserService userService;
 
     /**
      * Конструктор, используемый Spring для внедрения {@link ApplicationService}.
@@ -68,71 +78,81 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * @since 0.0.1
      */
     @Autowired
-    public ProjectTeamHandler(ApplicationService applicationService) {
+    public ProjectTeamHandler(ApplicationService applicationService, UserService userService) {
         ProjectTeamHandler.applicationService = applicationService;
+        this.userService = userService;
     }
 
     /**
      * Конструктор для runtime-использования: создаём handler для конкретного {@code update}.
      *
-     * @param update текущий {@link Update} (сообщение/коллбэк)
+     * @param update          текущий {@link Update} (сообщение/коллбэк)
      * @param keyboardFactory фабрика клавиатур (используется при подтверждении)
      * @throws IllegalArgumentException если невозможно разрешить chatId из update
      * @author marensovich
      * @since 0.0.1
      */
-    public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory) {
+    public ProjectTeamHandler(Update update, KeyboardFactory keyboardFactory, UserService userService) {
         this.update = update;
         this.keyboardFactory = keyboardFactory;
         this.chatId = resolveChatId(update);
+        this.userService = userService;
         this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserProjectTeamApplicationDTO());
     }
 
 
     /**
      * Шаги процесса многошаговой формы.
+     *
      * @author marensovich
      * @since 0.0.1
      */
     public enum Step {
         /**
          * Ввод ФИО
+         *
          * @since 0.0.1
          */
         FULL_NAME,
 
         /**
          * Ввод номера телефона
+         *
          * @since 0.0.1
          */
         PHONE_NUMBER,
 
         /**
          * Ввод номера группы
+         *
          * @since 0.0.1
          */
         GROUP_NUMBER,
 
         /**
          * Описание опыта
+         *
          * @since 0.0.1
          */
         EXPERIENCE,
 
         /**
          * Ссылка на GitHub
+         *
          * @since 0.0.1
          */
         GITHUB,
 
         /**
          * Ввод стека технологий
+         *
          * @since 0.0.1
          */
         STACK,
 
         /**
          * Подтверждение данных
+         *
          * @since 0.0.1
          */
         CONFIRMATION
@@ -161,12 +181,12 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
             return;
         }
 
-        if (update.hasMessage()){
-            if (update.getMessage().hasText()){
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
                 processUserInput(update.getMessage().getText().trim());
                 return;
             }
-            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
+            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)) {
                 processUserInput(update.getMessage().getContact().getPhoneNumber());
             }
         } else {
@@ -187,7 +207,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * </ol>
      *
      * @param applicationId ID заявки (строка, парсится в Long)
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -196,6 +216,25 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     public void handleResultYes(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserProjectTeamApplicationDTO userData = application.getDataObject(UserProjectTeamApplicationDTO.class);
+
+        User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
+
+        if (admin.getPosition().getDepartment() != Department.Development && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getCallbackQuery().getFrom().getId());
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText("❌ У вас нету доступа к принятию заявок!");
+            try {
+                Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getCallbackQuery().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
@@ -213,7 +252,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      * <p>Аналогична {@link #handleResultYes(String, Update)} но ставит статус REJECTED и отправляет другой текст.</p>
      *
      * @param applicationId ID заявки
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -222,6 +261,25 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     public void handleResultNo(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserProjectTeamApplicationDTO userData = application.getDataObject(UserProjectTeamApplicationDTO.class);
+
+        User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
+
+        if (admin.getPosition().getDepartment() != Department.Development && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getCallbackQuery().getFrom().getId());
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText("❌ У вас нету доступа к принятию заявок!");
+            try {
+                Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getCallbackQuery().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
@@ -260,6 +318,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -294,6 +353,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить номер телефона и переключить шаг на {@link Step#PHONE_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -309,9 +369,13 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
                         .buildReplyKeyboard()
         );
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException();
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.PHONE_NUMBER);
     }
@@ -331,6 +395,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -342,8 +407,12 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         message.setText("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
         message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.GROUP_NUMBER);
@@ -369,6 +438,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить текст об опыте и переключить шаг на {@link Step#EXPERIENCE}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -397,6 +467,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить ссылку на репозиторий и переключить шаг на {@link Step#GITHUB}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -424,6 +495,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запросить стек технологий и переключить шаг на {@link Step#STACK}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -451,6 +523,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
     /**
      * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -458,16 +531,16 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     public void askConfirmation() {
         String confirmationText = String.format(
                 """
-                Проверьте введённые данные:
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>GitHub:</b> %s
-                <b>Стек:</b> %s
-                
-                Подтверждаете данные? (Да/Нет)""",
+                        Проверьте введённые данные:
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>GitHub:</b> %s
+                        <b>Стек:</b> %s
+                        
+                        Подтверждаете данные? (Да/Нет)""",
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
                 escape(data.getGroupNumber()),
@@ -488,9 +561,13 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         );
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения подтверждения", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.CONFIRMATION);
     }
@@ -526,15 +603,29 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      *     <li>Сохранить messageId админ-сообщения в заявке (через applicationService.updateApplicationMessageId).</li>
      *     <li>Очистить временные данные и снять активную кнопку у пользователя.</li>
      * </ol>
+     *
      * @author marensovich
      * @since 0.0.1
      */
     @Override
     public void processApplicationConfirmation() {
-        sendMessage("✅ Спасибо! Ваша заявка сохранена.", chatId);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("✅ Спасибо! Ваша заявка сохранена.");
+        sendMessage.setReplyMarkup(Bot.getInstance().removeKeyboard());
+
+        try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
+            Bot.getInstance().execute(sendMessage);
+        } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Application application = applicationService.createApplication(
-                Application.Departament.Development,
+                Department.Development,
                 data,
                 Long.valueOf(data.getTgId()),
                 null
@@ -566,14 +657,14 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     public Message sendAdminNotification(Application application) {
         String adminNotificationText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>GitHub:</b> %s
-                <b>Стек:</b> %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>GitHub:</b> %s
+                        <b>Стек:</b> %s""",
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
@@ -585,24 +676,28 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
         SendMessage notify = new SendMessage();
         notify.setParseMode(ParseMode.HTML);
-        notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-        notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+        notify.setChatId(SettingsManager.getSettings().getApplications().getNewApplicationNotificationChannelId());
+        notify.setMessageThreadId(Integer.parseInt(SettingsManager.getSettings().getApplications().getProjectTeamApplication().getNewApplicationNotificationThreadId()));
         notify.setText(adminNotificationText);
         notify.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM +
                                 ":YES:" + application.getId())
                 .nextInlineRow()
                 .addInlineButton("Отклонить заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM +
                                 ":NO:" + application.getId())
                 .buildInlineKeyboard()
         );
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             return Bot.getInstance().execute(notify);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -630,7 +725,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
-     * @param update Update с callbackQuery от администратора
+     * @param update   Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
@@ -646,16 +741,16 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
         String messageText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                <b>Опыт:</b> %s
-                <b>GitHub:</b> %s
-                <b>Стек:</b> %s
-                
-                %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>GitHub:</b> %s
+                        <b>Стек:</b> %s
+                        
+                        %s""",
                 userData.getMention(), userData.getTgId(),
                 escape(userData.getFullName()),
                 escape(userData.getPhoneNumber()),
@@ -673,9 +768,13 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         editMessage.setText(messageText);
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(editMessage);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при редактировании админского сообщения", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

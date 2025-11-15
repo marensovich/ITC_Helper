@@ -7,6 +7,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
+import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,14 +16,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * Обработчик callback-запросов с префиксом регистрации ИТС.
  * <p>
  * Используется для выбора подразделения при регистрации пользователя.
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component
 public class RegisterITCHandler implements PrefixCallbackHandler {
 
     private final KeyboardFactory keyboardFactory;
+    private final UserService userService;
 
     /**
      * Конструктор обработчика.
@@ -31,13 +34,14 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    public RegisterITCHandler(KeyboardFactory keyboardFactory) {
+    public RegisterITCHandler(KeyboardFactory keyboardFactory, UserService userService) {
         this.keyboardFactory = keyboardFactory;
+        this.userService = userService;
     }
 
     @Override
     public String getPrefixCallbackData() {
-        return RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PREFIX;
+        return RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PREFIX;
     }
 
     @Override
@@ -46,23 +50,25 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
         String[] parts = callbackData.split(":");
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-        RegisterITCButton command = (RegisterITCButton) Bot.getInstance()
-                .getButtonManager()
-                .getActiveCommand(chatId);
+//        RegisterITCButton command = (RegisterITCButton) Bot.getInstance()
+//                .getButtonManager()
+//                .getActiveCommand(chatId);
+        RegisterITCButton command = new RegisterITCButton(keyboardFactory);
+
 
         if (command != null && parts.length > 1) {
             switch (parts[1]) {
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PROJECT_TEAM ->
-                        new ProjectTeamHandler(update, keyboardFactory).handle();
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM ->
+                        new ProjectTeamHandler(update, keyboardFactory, userService).handle();
 
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_DESIGNER ->
-                        new DesignerHandler(update, keyboardFactory).handle();
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER ->
+                        new DesignerHandler(update, keyboardFactory, userService).handle();
 
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR ->
-                        new PRHandler(update, keyboardFactory).handle();
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR ->
+                        new PRHandler(update, keyboardFactory, userService).handle();
 
-                case RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_VIDEO_CONTENT ->
-                        new MediaHandler(update, keyboardFactory).handle();
+                case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT ->
+                        new MediaHandler(update, keyboardFactory, userService).handle();
 
                 default -> Bot.getInstance()
                         .sendErrorMessage(chatId, "Неверные данные callback: " + callbackData);

@@ -16,8 +16,9 @@ import java.util.Map;
  * Хранит обычные callback handlers и префиксные handlers, чтобы
  * вызывать соответствующую логику при нажатии inline-кнопок.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Service

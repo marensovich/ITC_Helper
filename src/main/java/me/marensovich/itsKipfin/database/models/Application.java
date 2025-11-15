@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import me.marensovich.itsKipfin.data.Department;
 
 import java.time.LocalDateTime;
 
@@ -25,39 +26,30 @@ import java.time.LocalDateTime;
 public class Application {
 
     /**
-     * Перечисление доступных отделов ИТС.
-     * @author marensovich
-     * @version 0.0.1
-     * @since 0.0.1
-     */
-    public enum Departament {
-        /** Отдел разработки. */
-        Development,
-        /** Медиа-отдел. */
-        Media,
-        /** Отдел коммуникаций. */
-        Communication,
-        /** Отдел дизайнеров. */
-        Designer
-    }
-
-    /**
      * Перечисление возможных статусов заявки.
+     *
      * @author marensovich
      * @version 0.0.1
      * @since 0.0.1
      */
     public enum Status {
-        /** Заявка ожидает рассмотрения. */
+        /**
+         * Заявка ожидает рассмотрения.
+         */
         PENDING,
-        /** Заявка одобрена. */
+        /**
+         * Заявка одобрена.
+         */
         APPROVED,
-        /** Заявка отклонена. */
+        /**
+         * Заявка отклонена.
+         */
         REJECTED
     }
 
     /**
      * Уникальный идентификатор заявки.
+     *
      * @since 0.0.1
      */
     @Id
@@ -66,26 +58,30 @@ public class Application {
 
     /**
      * Идентификатор пользователя Telegram, подавшего заявку.
+     *
      * @since 0.0.1
      */
     private Long userId;
 
     /**
      * Идентификатор Telegram-сообщения, связанного с заявкой (для обновлений/редактирования).
+     *
      * @since 0.0.1
      */
     private Long messageId;
 
     /**
      * Отдел, в который подана заявка.
+     *
      * @since 0.0.1
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Departament departament;
+    private Department departament;
 
     /**
      * Текущий статус заявки.
+     *
      * @since 0.0.1
      */
     @Enumerated(EnumType.STRING)
@@ -94,6 +90,7 @@ public class Application {
 
     /**
      * Дата и время создания заявки.
+     *
      * @since 0.0.1
      */
     @Column(nullable = false)
@@ -101,6 +98,7 @@ public class Application {
 
     /**
      * Сериализованные данные анкеты пользователя (в формате JSON).
+     *
      * @since 0.0.1
      */
     @Column(columnDefinition = "TEXT", nullable = false)

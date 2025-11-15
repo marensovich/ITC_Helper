@@ -3,9 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dt
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,27 +14,32 @@ import java.util.List;
  *
  * <p>Поле {@code currentStep} помечено {@link JsonIgnore} чтобы при сериализации DTO
  * в базу (если потребуется) шаг не сохранялся автоматически.</p>
+ *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
-@Getter @Setter
+@Getter
+@Setter
 public class UserPRApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Причина желания вступить в PR
+     *
      * @since 0.0.1
      */
     private String reasonToJoin;
 
     /**
      * Опыт ведения соц. сетей
+     *
      * @since 0.0.1
      */
     private String experience;
 
     /**
      * Список интересов
+     *
      * @since 0.0.1
      */
     private List<String> interests = new ArrayList<>();
@@ -50,12 +53,14 @@ public class UserPRApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Вопросы к руководителям направления
+     *
      * @since 0.0.1
      */
     private String questions;
 
     /**
      * Текущий шаг
+     *
      * @since 0.0.1
      */
     @JsonIgnore
@@ -63,8 +68,9 @@ public class UserPRApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Сброс всех полей в начальное состояние.
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     public void reset() {
         super.reset();
@@ -77,20 +83,41 @@ public class UserPRApplicationDTO extends BaseApplicationDTO {
     }
 
 
+    /**
+     * Add interest.
+     *
+     * @param choice the choice
+     */
     public void addInterest(String choice) {
         if (!interests.contains(choice) && interests.size() < interestsLimit) {
             interests.add(choice);
         }
     }
 
+    /**
+     * Remove interest.
+     *
+     * @param choice the choice
+     */
     public void removeInterest(String choice) {
         interests.remove(choice);
     }
 
+    /**
+     * Is interest selected boolean.
+     *
+     * @param choice the choice
+     * @return the boolean
+     */
     public boolean isInterestSelected(String choice) {
         return interests.contains(choice);
     }
 
+    /**
+     * Remaining interests int.
+     *
+     * @return the int
+     */
     public int remainingInterests() {
         return Math.max(0, interestsLimit - interests.size());
     }
@@ -98,6 +125,8 @@ public class UserPRApplicationDTO extends BaseApplicationDTO {
     /**
      * Увеличить лимит на delta (delta > 0) — верхнего предела нет.
      * Если delta отрицательное — уменьшаем лимит, но не ниже 2.
+     *
+     * @param delta the delta
      */
     public void changeInterestsLimit(int delta) {
         this.interestsLimit += delta;

@@ -5,9 +5,13 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.HelpButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
@@ -15,8 +19,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * <p>
  * Приветствует пользователя и выводит главное меню с кнопками.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component
@@ -47,6 +52,11 @@ public class StartCommand implements Command {
         return "/start";
     }
 
+    @Override
+    public String getDescription() {
+        return "Начать работу с ботом";
+    }
+
     /**
      * Требуется ли админский доступ.
      *
@@ -71,8 +81,6 @@ public class StartCommand implements Command {
     @Override
     public void execute(Update update) {
         Long chatId = update.getMessage().getChatId();
-
-        // Помечаем команду как активную
         Bot.getInstance().getCommandManager().setActiveCommand(chatId, this);
 
         SendMessage message = new SendMessage();
@@ -81,19 +89,27 @@ public class StartCommand implements Command {
 
         // Формируем клавиатуру
         message.setReplyMarkup(keyboardFactory.create()
-                .addButton(HelpButton.class)
-                .addButton(RegisterITCButton.class)
+                .addButton("Помощь")
+                .addButton("Вступление в ИТС")
                 .buildReplyKeyboard()
         );
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
             Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            Bot.getInstance().getCommandManager().unsetActiveCommand(chatId);
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            // Снимаем активную команду после отправки
             Bot.getInstance().getCommandManager().unsetActiveCommand(chatId);
         }
+    }
+
+    @Override
+    public BotCommandScope getScope() {
+        return BotCommandScopeAllPrivateChats.builder().build();
     }
 }

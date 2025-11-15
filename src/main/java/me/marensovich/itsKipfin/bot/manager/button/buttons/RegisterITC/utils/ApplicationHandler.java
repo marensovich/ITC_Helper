@@ -3,6 +3,7 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils;
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.BaseApplicationDTO;
 import me.marensovich.itsKipfin.database.models.Application;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,15 +14,17 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 /**
  * Интерфейс для обработчиков анкет заявок на направления
  *
+ * @param <T> the type parameter
  * @author marensovich
  * @version 0.0.1
  * @since 0.0.1
  */
-public interface ApplicationHandler <T extends BaseApplicationDTO> {
+public interface ApplicationHandler<T extends BaseApplicationDTO> {
     /**
      * Начало обработки события
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     void handle();
 
@@ -29,9 +32,9 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработчик принятия заявки администратором
      *
      * @param applicationId ID заявки
-     * @param update текущий {@link Update}
-     * @since 0.0.1
+     * @param update        текущий {@link Update}
      * @author marensovich
+     * @since 0.0.1
      */
     void handleResultYes(String applicationId, Update update);
 
@@ -39,9 +42,9 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработчик отказа заявки администратором
      *
      * @param applicationId ID заявки
-     * @param update текущий {@link Update}
-     * @since 0.0.1
+     * @param update        текущий {@link Update}
      * @author marensovich
+     * @since 0.0.1
      */
     void handleResultNo(String applicationId, Update update);
 
@@ -49,15 +52,16 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработка ввода данных
      *
      * @param input the input
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     void processUserInput(String input);
 
     /**
      * Запрос ФИО
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     void askFullName();
 
@@ -65,15 +69,16 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработка ФИО
      *
      * @param input введенный текст
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     void handleFullName(String input);
 
     /**
      * Запрос номера телефона
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     void askPhoneNumber();
 
@@ -81,15 +86,16 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработка номера телефона
      *
      * @param number номер телефона
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     void handlePhoneNumber(String number);
 
     /**
      * Запрос номера группы
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     void askGroupNumber();
 
@@ -97,16 +103,17 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработка номера группы
      *
      * @param number номер группы
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     void handleGroupNumber(String number);
 
 
     /**
      * Запрос подтверждения
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     void askConfirmation();
 
@@ -114,15 +121,16 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Обработка подтверждения
      *
      * @param input вводимый результат подтверждения
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     void handleConfirmation(String input);
 
     /**
      * Обработка подтверждения заявки
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     void processApplicationConfirmation();
 
@@ -131,15 +139,15 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      *
      * @param application заполненная заявка
      * @return обьект {@link Message} с отправленным сообщением
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     Message sendAdminNotification(Application application);
 
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
-     * @param update Update с callbackQuery от администратора
+     * @param update   Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
@@ -177,9 +185,13 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
         msg.setParseMode(ParseMode.HTML);
         msg.setText(text);
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения пользователю (внутренний sendMessage)", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -188,7 +200,7 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
      * Отправить приватное уведомление пользователю.
      *
      * @param userId id пользователя (chat id в личных сообщениях)
-     * @param text текст уведомления (может содержать HTML, экранируется при необходимости)
+     * @param text   текст уведомления (может содержать HTML, экранируется при необходимости)
      * @author marensovich
      * @since 0.0.1
      */
@@ -198,16 +210,21 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
         notify.setText(text);
         notify.setChatId(userId);
         try {
+            Bot.getInstance().showBotAction(userId, ActionType.TYPING);
             Bot.getInstance().execute(notify);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке уведомления пользователю", e);
+            Bot.getInstance().sendErrorMessage(userId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * Утилитный метод быстрой отправки текстового сообщения в текущий chatId (используется внутри handler).
      *
-     * @param text текст сообщения (HTML-неэкранированный)
+     * @param text   текст сообщения (HTML-неэкранированный)
+     * @param chatId the chat id
      * @author marensovich
      * @since 0.0.1
      */
@@ -217,9 +234,13 @@ public interface ApplicationHandler <T extends BaseApplicationDTO> {
         msg.setParseMode(ParseMode.HTML);
         msg.setText(text);
         try {
+            Bot.getInstance().showBotAction(Long.valueOf(chatId), ActionType.TYPING);
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения пользователю (внутренний sendMessage)", e);
+            Bot.getInstance().sendErrorMessage(Long.valueOf(chatId), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

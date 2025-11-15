@@ -3,13 +3,19 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ha
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserMediaApplicationDTO;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserPRApplicationDTO;
+import me.marensovich.itsKipfin.data.Department;
+import me.marensovich.itsKipfin.data.Role;
 import me.marensovich.itsKipfin.database.models.Application;
+import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.ApplicationService;
+import me.marensovich.itsKipfin.services.UserService;
+import me.marensovich.itsKipfin.settings.SettingsManager;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -17,9 +23,13 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The type Pr handler.
+ */
 @Component
 public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     /**
@@ -38,6 +48,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      * key = chatId пользователя, value = {@link UserPRApplicationDTO}
      *
      * <p>Данные удаляются из map после создания/сброса заявки.</p>
+     *
      * @since 0.0.1
      */
     public static final Map<Long, UserPRApplicationDTO> userApplicationDataMap = new HashMap<>();
@@ -47,12 +58,14 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     /**
      * Экземплярные поля
+     *
      * @since 0.0.1
      */
     private Long chatId;
     private Update update;
     private KeyboardFactory keyboardFactory;
     private UserPRApplicationDTO data;
+    private final UserService userService;
 
     /**
      * Конструктор, используемый Spring для внедрения {@link ApplicationService}.
@@ -63,76 +76,87 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      * @since 0.0.1
      */
     @Autowired
-    public PRHandler(ApplicationService applicationService) {
+    public PRHandler(ApplicationService applicationService, UserService userService) {
         PRHandler.applicationService = applicationService;
+        this.userService = userService;
     }
 
     /**
      * Конструктор для runtime-использования: создаём handler для конкретного {@code update}.
      *
-     * @param update текущий {@link Update} (сообщение/коллбэк)
+     * @param update          текущий {@link Update} (сообщение/коллбэк)
      * @param keyboardFactory фабрика клавиатур (используется при подтверждении)
      * @throws IllegalArgumentException если невозможно разрешить chatId из update
      * @author marensovich
      * @since 0.0.1
      */
-    public PRHandler(Update update, KeyboardFactory keyboardFactory) {
+    public PRHandler(Update update, KeyboardFactory keyboardFactory, UserService userService) {
         this.update = update;
         this.keyboardFactory = keyboardFactory;
         this.chatId = resolveChatId(update);
+        this.userService = userService;
         this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserPRApplicationDTO());
     }
 
     /**
      * Шаги процесса многошаговой формы.
+     *
      * @author marensovich
      * @since 0.0.1
      */
     public enum Step {
         /**
          * Ввод ФИО
+         *
          * @since 0.0.1
          */
         FULL_NAME,
 
         /**
          * Ввод номера телефона
+         *
          * @since 0.0.1
          */
         PHONE_NUMBER,
 
         /**
          * Ввод номера группы
+         *
          * @since 0.0.1
          */
         GROUP_NUMBER,
 
         /**
          * Причина желания вступить в PR
+         *
          * @since 0.0.1
          */
         REASON,
 
         /**
          * Опыт ведения соц. сетей
+         *
          * @since 0.0.1
          */
         EXPERIENCE,
 
         /**
          * Список интересов
+         *
          * @since 0.0.1
          */
         INTERESTS,
 
         /**
          * Вопросы к руководителям направления
+         *
          * @since 0.0.1
          */
         QUESTIONS,
 
         /**
          * Подтверждение данных
+         *
          * @since 0.0.1
          */
         CONFIRMATION
@@ -164,12 +188,12 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
             return;
         }
 
-        if (update.hasMessage()){
-            if (update.getMessage().hasText()){
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
                 processUserInput(update.getMessage().getText().trim());
                 return;
             }
-            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)){
+            if (update.getMessage().hasContact() && data.getCurrentStep().equals(Step.PHONE_NUMBER)) {
                 processUserInput(update.getMessage().getContact().getPhoneNumber());
             }
         } else {
@@ -190,7 +214,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      * </ol>
      *
      * @param applicationId ID заявки (строка, парсится в Long)
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -199,6 +223,25 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     public void handleResultYes(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserPRApplicationDTO userData = application.getDataObject(UserPRApplicationDTO.class);
+
+        User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
+
+        if (admin.getPosition().getDepartment() != Department.Communication && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getCallbackQuery().getFrom().getId());
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText("❌ У вас нету доступа к принятию заявок!");
+            try {
+                Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getCallbackQuery().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
@@ -216,7 +259,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      * <p>Аналогична {@link #handleResultYes(String, Update)} но ставит статус REJECTED и отправляет другой текст.</p>
      *
      * @param applicationId ID заявки
-     * @param update Update с callbackQuery от администратора
+     * @param update        Update с callbackQuery от администратора
      * @throws RuntimeException при ошибках отправки сообщений в Telegram
      * @author marensovich
      * @since 0.0.1
@@ -225,6 +268,25 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     public void handleResultNo(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserPRApplicationDTO userData = application.getDataObject(UserPRApplicationDTO.class);
+
+        User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
+
+        if (admin.getPosition().getDepartment() != Department.Communication && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getCallbackQuery().getFrom().getId());
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText("❌ У вас нету доступа к принятию заявок!");
+            try {
+                Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getCallbackQuery().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
@@ -262,8 +324,9 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         }
     }
 
-   /**
+    /**
      * Запросить у пользователя ФИО и переключить шаг на {@link Step#FULL_NAME}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -298,6 +361,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     /**
      * Запросить номер телефона и переключить шаг на {@link Step#PHONE_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -313,9 +377,13 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
                         .buildReplyKeyboard()
         );
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException();
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.PHONE_NUMBER);
     }
@@ -335,6 +403,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     /**
      * Запросить номер группы и переключить шаг на {@link Step#GROUP_NUMBER}.
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -346,8 +415,12 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         message.setText("Введите номер группы (например: 2ИСИП-1224 или 3ОИБАС-1024):");
         message.setReplyMarkup(Bot.getInstance().removeKeyboard());
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.GROUP_NUMBER);
@@ -377,7 +450,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     }
 
     private void handleReason(String input) {
-        if (input.length() < 10){
+        if (input.length() < 10) {
             sendMessage("❌ Ответ слишком короткий. Пожалуйста, напишите развернутый ответ (минимум 10 символов). Почему именно PR-сектор интересует вас?", chatId);
             askReason();
             return;
@@ -392,7 +465,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     }
 
     private void handleExperience(String input) {
-        if (input.length() < 3){
+        if (input.length() < 3) {
             sendMessage("❌ Ответ слишком короткий. Пожалуйста, опишите ваш опыт подробнее (минимум 3 символа). Если опыта нет - так и напишите.", chatId);
             askExperience();
             return;
@@ -456,9 +529,13 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
                 .build();
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке клавиатуры интересов", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -524,6 +601,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
     /**
      * Запрос подтверждения у пользователя — показывает все введённые поля и предлагает "Да"/"Нет".
+     *
      * @author marensovich
      * @since 0.0.1
      */
@@ -535,18 +613,18 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
         String confirmationText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                
-                <b>Почему хочете в PR:</b> %s
-                <b>Опыт:</b> %s
-                <b>Интересы:</b> %s
-                <b>Вопросы к руководителям:</b> %s
-                
-                Подтверждаете данные? (Да/Нет)""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        
+                        <b>Почему хочете в PR:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>Интересы:</b> %s
+                        <b>Вопросы к руководителям:</b> %s
+                        
+                        Подтверждаете данные? (Да/Нет)""",
                 data.getMention(), data.getTgId(),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
@@ -569,9 +647,13 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         );
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения подтверждения", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         data.setCurrentStep(Step.CONFIRMATION);
     }
@@ -608,15 +690,29 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      *     <li>Сохранить messageId админ-сообщения в заявке (через applicationService.updateApplicationMessageId).</li>
      *     <li>Очистить временные данные и снять активную кнопку у пользователя.</li>
      * </ol>
+     *
      * @author marensovich
      * @since 0.0.1
      */
     @Override
     public void processApplicationConfirmation() {
-        sendMessage("✅ Спасибо! Ваша заявка сохранена.", chatId);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("✅ Спасибо! Ваша заявка сохранена.");
+        sendMessage.setReplyMarkup(Bot.getInstance().removeKeyboard());
+
+        try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
+            Bot.getInstance().execute(sendMessage);
+        } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Application application = applicationService.createApplication(
-                Application.Departament.Communication,
+                Department.Communication,
                 data,
                 Long.valueOf(data.getTgId()),
                 null
@@ -637,19 +733,19 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
         String confirmationText = String.format(
                 """
-                Проверьте введённые данные:
-                
-                <b>Упоминание:</b> %s
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                
-                <b>Почему хочет в PR:</b> %s
-                <b>Опыт:</b> %s
-                <b>Интересы:</b> %s
-                <b>Вопросы к руководителям:</b> %s
-                
-                Подтверждаете данные? (Да/Нет)""",
+                        Проверьте введённые данные:
+                        
+                        <b>Упоминание:</b> %s
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        
+                        <b>Почему хочет в PR:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>Интересы:</b> %s
+                        <b>Вопросы к руководителям:</b> %s
+                        
+                        Подтверждаете данные? (Да/Нет)""",
                 escape(data.getMention()),
                 escape(data.getFullName()),
                 escape(data.getPhoneNumber()),
@@ -662,31 +758,35 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
         SendMessage notify = new SendMessage();
         notify.setParseMode(ParseMode.HTML);
-        notify.setChatId(System.getenv("TELEGRAM_NOTIFICATION_ID"));
-        notify.setMessageThreadId(Integer.parseInt(System.getenv("TG_TOPIC")));
+        notify.setChatId(SettingsManager.getSettings().getApplications().getNewApplicationNotificationChannelId());
+        notify.setMessageThreadId(Integer.parseInt(SettingsManager.getSettings().getApplications().getPrApplication().getNewApplicationNotificationThreadId()));
         notify.setText(confirmationText);
         notify.setReplyMarkup(keyboardFactory.create()
                 .addInlineButton("Принять заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR +
                                 ":YES:" + application.getId())
                 .nextInlineRow()
                 .addInlineButton("Отклонить заявку",
-                        RegisterITCButton.ITC_ADMIN_REG_DEFARAMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTAMENT_PR +
+                        RegisterITCButton.ITC_ADMIN_REG_DEPARTMENT_PREFIX + RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR +
                                 ":NO:" + application.getId())
                 .buildInlineKeyboard()
         );
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             return Bot.getInstance().execute(notify);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке уведомления администраторам", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * Обновить админское сообщение (edit), пометив заявку как одобренную/отклонённую.
      *
-     * @param update Update с callbackQuery от администратора
+     * @param update   Update с callbackQuery от администратора
      * @param userData данные пользователя (десериализованные из application.data)
      * @param approved true — одобрена, false — отклонена
      * @author marensovich
@@ -705,18 +805,18 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
         String messageText = String.format(
                 """
-                <b>Новая заявка от %s (%s):</b>
-                
-                <b>ФИО:</b> %s
-                <b>Телефон:</b> %s
-                <b>Группа:</b> %s
-                
-                <b>Почему в PR:</b> %s
-                <b>Опыт:</b> %s
-                <b>Интересы:</b> %s
-                <b>Вопросы к руководителям:</b> %s
-                
-                %s""",
+                        <b>Новая заявка от %s (%s):</b>
+                        
+                        <b>ФИО:</b> %s
+                        <b>Телефон:</b> %s
+                        <b>Группа:</b> %s
+                        
+                        <b>Почему в PR:</b> %s
+                        <b>Опыт:</b> %s
+                        <b>Интересы:</b> %s
+                        <b>Вопросы к руководителям:</b> %s
+                        
+                        %s""",
                 userData.getMention(), userData.getTgId(),
                 escape(userData.getFullName()),
                 escape(userData.getPhoneNumber()),
@@ -735,9 +835,13 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         editMessage.setText(messageText);
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(editMessage);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при редактировании админского сообщения", e);
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

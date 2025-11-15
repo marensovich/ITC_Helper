@@ -2,6 +2,7 @@ package me.marensovich.itsKipfin.bot.manager.button.buttons;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.interfaces.Button;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -13,8 +14,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * <p>
  * При нажатии на кнопку отправляет пользователю сообщение с инструкцией по получению поддержки.
  * Активирует кнопку как текущую для пользователя на время обработки.
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component
@@ -42,18 +44,21 @@ public class HelpButton implements Button {
     @Override
     public void handle(Update update) {
         Bot.getInstance().getButtonManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
-        Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
-
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
         message.setText("Если вам нужна помощь, пожалуйста, свяжитесь с нашим отделом поддержки по адресу");
 
         try {
+            Bot.getInstance().showBotAction(update.getMessage().getFrom().getId(), ActionType.TYPING);
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
+            Bot.getInstance().sendErrorMessage(update.getMessage().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
         }
 
-        Bot.getInstance().getButtonManager().unsetActiveCommand(update.getMessage().getFrom().getId());
     }
 }

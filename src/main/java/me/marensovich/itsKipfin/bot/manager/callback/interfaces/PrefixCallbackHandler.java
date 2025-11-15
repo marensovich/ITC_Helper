@@ -7,8 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * <p>
  * Используется для кнопок, у которых callbackData начинается с определённого префикса.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 public interface PrefixCallbackHandler {

@@ -1,9 +1,6 @@
 package me.marensovich.itsKipfin.database.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 /**
@@ -22,6 +19,7 @@ public class User {
 
     /**
      * Уникальный идентификатор пользователя (Telegram ID).
+     *
      * @since 0.0.1
      */
     @Id
@@ -29,7 +27,16 @@ public class User {
     private Long userId;
 
     /**
+     * Позиция пользователя в ИТС
+     *
+     * @since 0.0.1
+     */
+    @Embedded
+    private Position position;
+
+    /**
      * Флаг, указывающий, является ли пользователь администратором.
+     *
      * @since 0.0.1
      */
     @Column(name = "isAdmin")

@@ -1,5 +1,8 @@
 package me.marensovich.itsKipfin.services;
 
+import me.marensovich.itsKipfin.data.Department;
+import me.marensovich.itsKipfin.data.Role;
+import me.marensovich.itsKipfin.database.models.Position;
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.database.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -36,13 +39,14 @@ public class UserService {
      *
      * @param userId ID пользователя
      * @return созданный объект {@link User}
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public User createUser(Long userId) {
         User user = new User();
         user.setUserId(userId);
         user.setAdmin(false);
+        user.setPosition(new Position(Department.General, Role.GUEST));
         return userRepository.save(user);
     }
 
@@ -51,13 +55,14 @@ public class UserService {
      *
      * @param userId строковый идентификатор пользователя
      * @return созданный объект {@link User}
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public User createUser(String userId) {
         User user = new User();
         user.setUserId(Long.valueOf(userId));
         user.setAdmin(false);
+        user.setPosition(new Position(Department.General, Role.GUEST));
         return userRepository.save(user);
     }
 
@@ -66,8 +71,8 @@ public class UserService {
      *
      * @param userId ID пользователя
      * @return {@code true}, если пользователь существует, иначе {@code false}
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public boolean isUserExists(Long userId) {
         return userRepository.existsById(userId);
@@ -75,9 +80,10 @@ public class UserService {
 
     /**
      * Возвращает всех пользователей
-     * @since 0.0.1
-     * @author marensovich
+     *
      * @return Список всех пользователей
+     * @author marensovich
+     * @since 0.0.1
      */
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -88,8 +94,8 @@ public class UserService {
      *
      * @param user объект пользователя
      * @return {@code true}, если пользователь — администратор, иначе {@code false}
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public boolean isUserAdmin(User user) {
         return user != null && user.isAdmin();
@@ -100,12 +106,24 @@ public class UserService {
      *
      * @param userId ID пользователя
      * @return {@code true}, если пользователь — администратор, иначе {@code false}
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     public boolean isUserAdmin(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         return user != null && user.isAdmin();
+    }
+
+    /**
+     * Возвращает пользователя по его ID.
+     *
+     * @param userId ID пользователя
+     * @return {@link User}, если пользователь существует, иначе {@code null}
+     * @author marensovich
+     * @since 0.0.1
+     */
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
     }
 
 }

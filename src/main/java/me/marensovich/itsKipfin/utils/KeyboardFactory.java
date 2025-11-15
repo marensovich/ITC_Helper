@@ -33,10 +33,9 @@ public class KeyboardFactory {
     /**
      * Конструктор фабрики клавиатур.
      *
+     * @param buttonManager менеджер кнопок, предоставляющий информацию                      о зарегистрированных кнопках и их текстах
      * @author marensovich
      * @since 0.0.1
-     * @param buttonManager менеджер кнопок, предоставляющий информацию
-     *                      о зарегистрированных кнопках и их текстах
      */
     public KeyboardFactory(@Lazy ButtonManager buttonManager) {
         this.buttonManager = buttonManager;
@@ -59,9 +58,10 @@ public class KeyboardFactory {
      * Вложенный класс, реализующий шаблон проектирования "Билдер"
      * для создания клавиатур Telegram (Reply и Inline).
      * <p>Не требует экземпляра внешнего класса {@link KeyboardFactory}.
-     * @since 0.0.1
-     * @version 0.0.2
+     *
      * @author marensovich
+     * @version 0.0.2
+     * @since 0.0.1
      */
     public static class UniversalKeyboardBuilder {
 
@@ -70,10 +70,9 @@ public class KeyboardFactory {
         /**
          * Конструктор билдера клавиатур.
          *
+         * @param buttonManager менеджер кнопок, предоставляющий тексты кнопок                      и их callback-данные
          * @author marensovich
          * @since 0.0.1
-         * @param buttonManager менеджер кнопок, предоставляющий тексты кнопок
-         *                      и их callback-данные
          */
         public UniversalKeyboardBuilder(@Lazy ButtonManager buttonManager) {
             this.buttonManager = buttonManager;
@@ -149,7 +148,9 @@ public class KeyboardFactory {
 
         /**
          * Добавляет кнопку, запрашивающую местоположение пользователя.
+         *
          * @param text текст кнопки
+         * @return the universal keyboard builder
          */
         public UniversalKeyboardBuilder addLocationButton(String text) {
             KeyboardButton button = new KeyboardButton(text);
@@ -161,10 +162,11 @@ public class KeyboardFactory {
         /**
          * Добавляет кнопку, которая предлагает пользователю выбрать конкретного пользователя Telegram.
          *
-         * @param text текст кнопки
-         * @param requestId уникальный ID запроса (любое число, например 1)
-         * @param userIsBot если true — выбирает только ботов
+         * @param text          текст кнопки
+         * @param requestId     уникальный ID запроса (любое число, например 1)
+         * @param userIsBot     если true — выбирает только ботов
          * @param userIsPremium если true — выбирает только Premium-пользователей
+         * @return the universal keyboard builder
          */
         public UniversalKeyboardBuilder addRequestUserButton(String text, int requestId, boolean userIsBot, boolean userIsPremium) {
             KeyboardButton button = new KeyboardButton(text);
@@ -182,11 +184,12 @@ public class KeyboardFactory {
         /**
          * Добавляет кнопку, которая предлагает выбрать несколько пользователей (Bot API 7.0+).
          *
-         * @param text текст кнопки
-         * @param requestId уникальный ID запроса
-         * @param allowBots разрешить ли выбор ботов
+         * @param text         текст кнопки
+         * @param requestId    уникальный ID запроса
+         * @param allowBots    разрешить ли выбор ботов
          * @param allowPremium разрешить ли выбор Premium-пользователей
-         * @param maxUsers максимальное количество пользователей, которых можно выбрать
+         * @param maxUsers     максимальное количество пользователей, которых можно выбрать
+         * @return the universal keyboard builder
          */
         public UniversalKeyboardBuilder addRequestUsersButton(String text,
                                                               int requestId,
@@ -209,12 +212,13 @@ public class KeyboardFactory {
         /**
          * Добавляет кнопку, которая предлагает пользователю выбрать чат (группу, супергруппу или канал).
          *
-         * @param text текст кнопки
-         * @param requestId уникальный ID запроса
+         * @param text          текст кнопки
+         * @param requestId     уникальный ID запроса
          * @param chatIsChannel true — запросить только каналы, false — обычные чаты
-         * @param botIsMember true — бот должен быть участником чата
-         * @param hasUsername true — чат должен иметь username
-         * @param chatIsForum true — чат должен быть форумом
+         * @param botIsMember   true — бот должен быть участником чата
+         * @param hasUsername   true — чат должен иметь username
+         * @param chatIsForum   true — чат должен быть форумом
+         * @return the universal keyboard builder
          */
         public UniversalKeyboardBuilder addRequestChatButton(String text,
                                                              int requestId,
@@ -240,8 +244,9 @@ public class KeyboardFactory {
         /**
          * Добавляет кнопку, которая предлагает создать опрос.
          *
-         * @param text текст кнопки
+         * @param text     текст кнопки
          * @param pollType тип опроса: "quiz" или "regular" (null = любой)
+         * @return the universal keyboard builder
          */
         public UniversalKeyboardBuilder addPollButton(String text, String pollType) {
             KeyboardButton button = new KeyboardButton(text);
@@ -256,7 +261,8 @@ public class KeyboardFactory {
          * Добавляет кнопку, открывающую WebApp.
          *
          * @param text текст кнопки
-         * @param url URL веб-приложения
+         * @param url  URL веб-приложения
+         * @return the universal keyboard builder
          */
         public UniversalKeyboardBuilder addWebAppButton(String text, String url) {
             KeyboardButton button = new KeyboardButton(text);

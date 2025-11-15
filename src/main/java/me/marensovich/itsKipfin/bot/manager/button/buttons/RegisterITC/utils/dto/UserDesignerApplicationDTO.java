@@ -10,9 +10,10 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
  *
  * <p>Поле {@code currentStep} помечено {@link JsonIgnore} чтобы при сериализации DTO
  * в базу (если потребуется) шаг не сохранялся автоматически.</p>
+ *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
 @Getter
 @Setter
@@ -20,18 +21,21 @@ public class UserDesignerApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Основные приложения
+     *
      * @since 0.0.1
      */
     private String mainApps;
 
     /**
      * Примеры работ
+     *
      * @since 0.0.1
      */
     private String examples;
 
     /**
      * Текущий шаг
+     *
      * @since 0.0.1
      */
     @JsonIgnore
@@ -39,8 +43,9 @@ public class UserDesignerApplicationDTO extends BaseApplicationDTO {
 
     /**
      * Сброс всех полей в начальное состояние.
-     * @since 0.0.1
+     *
      * @author marensovich
+     * @since 0.0.1
      */
     @Override
     public void reset() {

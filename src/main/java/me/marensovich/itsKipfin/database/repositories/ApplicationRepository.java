@@ -19,11 +19,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     /**
      * Проверяет, существует ли заявка с указанным ID и статусом.
      *
-     * @param userId     идентификатор заявки
+     * @param userId идентификатор заявки
      * @param status статус заявки {@link Application.Status}
      * @return {@code true}, если такая заявка существует, иначе {@code false}
-     * @since 0.0.1
      * @author marensovich
+     * @since 0.0.1
      */
     boolean existsApplicationByUserIdAndStatus(Long userId, Application.Status status);
 }

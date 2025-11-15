@@ -7,8 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * <p>
  * Используется для точного совпадения callbackData с кнопкой.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 public interface CallbackHandler {

@@ -2,7 +2,6 @@ package me.marensovich.itsKipfin.bot.manager.update;
 
 import me.marensovich.itsKipfin.bot.Bot;
 import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
-import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterITCButton;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.DesignerHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.MediaHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
@@ -10,6 +9,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
 import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -26,8 +26,8 @@ import java.util.Map;
  * Также инициирует обработку пошаговых заявок через:
  * <li>{@link ProjectTeamHandler}</li>
  * <li>{@link MediaHandler}</li>
- * <li>{@link RegisterITCButton.PRHandler}</li>
- * <li>{@link RegisterITCButton.DesignerHandler}</li>
+ * <li>{@link PRHandler}</li>
+ * <li>{@link DesignerHandler}</li>
  *
  * @author marensovich
  * @version 0.0.1
@@ -36,7 +36,10 @@ import java.util.Map;
 @Component
 public class UpdateManager {
 
-    public Map<String, User> hashedUsers = new HashMap<>();
+    /**
+     * The Hashed users.
+     */
+    public final Map<String, User> hashedUsers = new HashMap<>();
 
     private final UserService userService;
     private final ButtonManager buttonManager;
@@ -68,11 +71,12 @@ public class UpdateManager {
      * @author marensovich
      * @since 0.0.1
      */
-    public void updateHandler(Update update) throws TelegramApiException {
+    public void updateHandler(Update update) {
 
         if (!update.hasMessage() && !update.hasCallbackQuery()) return;
 
         if (update.hasMessage()) {
+
             long userId = update.getMessage().getFrom().getId();
 
             // Проверяем наличие пользователя в списке
@@ -98,32 +102,38 @@ public class UpdateManager {
                                 "Команда не распознана, проверьте правильность написания команды. \n\n" +
                                         "Команды с доп. параметрами указаны отдельной графой в информации. Подробнее в /help."
                         );
-                        Bot.getInstance().execute(message);
+                        try {
+                            Bot.getInstance().execute(message);
+                        } catch (TelegramApiException e) {
+                            throw new RuntimeException("Ошибка при отправке сообщения: " + e.getMessage());
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         return;
                     }
                 }
 
                 // Обработка пошаговых заявок на вступление
                 if (ProjectTeamHandler.userApplicationDataMap.containsKey(userId)) {
-                    ProjectTeamHandler handler = new ProjectTeamHandler(update, keyboardFactory);
+                    ProjectTeamHandler handler = new ProjectTeamHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
 
                 if (MediaHandler.userApplicationDataMap.containsKey(userId)) {
-                    MediaHandler handler = new MediaHandler(update, keyboardFactory);
+                    MediaHandler handler = new MediaHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
 
                 if (DesignerHandler.userApplicationDataMap.containsKey(userId)) {
-                    DesignerHandler handler = new DesignerHandler(update, keyboardFactory);
+                    DesignerHandler handler = new DesignerHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
 
                 if (PRHandler.userApplicationDataMap.containsKey(userId)) {
-                    PRHandler handler = new PRHandler(update, keyboardFactory);
+                    PRHandler handler = new PRHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
@@ -157,7 +167,13 @@ public class UpdateManager {
                 SendMessage errorMsg = new SendMessage();
                 errorMsg.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
                 errorMsg.setText("Действие не распознано, попробуйте ещё раз");
-                Bot.getInstance().execute(errorMsg);
+                try {
+                    Bot.getInstance().execute(errorMsg);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException("Ошибка при отправке сообщения: " + e.getMessage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package me.marensovich.itsKipfin.services;
 
+import me.marensovich.itsKipfin.data.Department;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.database.repositories.ApplicationRepository;
 import org.springframework.stereotype.Service;
@@ -31,17 +32,17 @@ public class ApplicationService {
     /**
      * Создаёт новую заявку.
      *
-     * @param departament отдел, в который подаётся заявка
-     * @param dto         объект данных заявки (DTO)
-     * @param userId      ID пользователя, отправившего заявку
-     * @param messageId   ID сообщения в Telegram, связанного с заявкой
+     * @param department отдел, в который подаётся заявка
+     * @param dto        объект данных заявки (DTO)
+     * @param userId     ID пользователя, отправившего заявку
+     * @param messageId  ID сообщения в Telegram, связанного с заявкой
      * @return созданный объект {@link Application}
      * @author marensovich
      * @since 0.0.1
      */
-    public Application createApplication(Application.Departament departament, Object dto, Long userId, Long messageId) {
+    public Application createApplication(Department department, Object dto, Long userId, Long messageId) {
         Application application = new Application();
-        application.setDepartament(departament);
+        application.setDepartament(department);
         application.setStatus(Application.Status.PENDING);
         application.setDataObject(dto);
         application.setUserId(userId);

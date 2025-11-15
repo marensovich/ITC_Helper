@@ -7,11 +7,14 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.command.interfaces.Command;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
+import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.stream.Stream;
@@ -22,14 +25,16 @@ import java.util.stream.Stream;
  * Если у пользователя активна команда или активна кнопка,
  * она будет очищена, а пользователь получит уведомление.
  * <p>
- * @version 0.0.1
+ *
  * @author marensovich
+ * @version 0.0.1
  * @since 0.0.1
  */
 @Component
 public class CancelCommand implements Command {
 
-    @Autowired private KeyboardFactory keyboardFactory;
+    @Autowired
+    private KeyboardFactory keyboardFactory;
 
     /**
      * Получить имя команды.
@@ -41,6 +46,11 @@ public class CancelCommand implements Command {
     @Override
     public String getName() {
         return "/cancel";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Отменить работу любой команды";
     }
 
     /**
@@ -87,8 +97,6 @@ public class CancelCommand implements Command {
                 PRHandler.userApplicationDataMap
         ).forEach(map -> map.remove(userId));
 
-        Bot.getInstance().showBotAction(userId, ActionType.TYPING);
-
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId.toString());
         msg.setReplyMarkup(Bot.getInstance().removeKeyboard());
@@ -100,11 +108,18 @@ public class CancelCommand implements Command {
         }
 
         try {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(msg);
         } catch (TelegramApiException e) {
-            Bot.getInstance().sendErrorMessage(chatId,
-                    "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");
+            throw new BotException("Ошибка при отправке сообщения: " + e.getMessage(), update);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public BotCommandScope getScope() {
+        return BotCommandScopeAllPrivateChats.builder().build();
     }
 }

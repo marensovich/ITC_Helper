@@ -7,14 +7,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Главный класс приложения
  *
  * @author marensovich
- * @since 0.0.1
  * @version 0.0.1
+ * @since 0.0.1
  */
 @SpringBootApplication
 public class ItcKipifinApplication {
 
     /**
      * Метод запуска приложения
+     *
+     * @param args the input arguments
      * @author marensovich
      * @since 0.0.1
      */
