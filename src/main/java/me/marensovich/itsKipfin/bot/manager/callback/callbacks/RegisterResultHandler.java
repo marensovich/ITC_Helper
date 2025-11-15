@@ -7,6 +7,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
 import me.marensovich.itsKipfin.services.ApplicationService;
+import me.marensovich.itsKipfin.services.UserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -23,6 +24,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class RegisterResultHandler implements PrefixCallbackHandler {
 
     private final ApplicationService applicationService;
+    private final UserService userService;
 
     /**
      * Конструктор обработчика.
@@ -31,8 +33,9 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    public RegisterResultHandler(ApplicationService applicationService) {
+    public RegisterResultHandler(ApplicationService applicationService, UserService userService) {
         this.applicationService = applicationService;
+        this.userService = userService;
     }
 
     @Override
@@ -49,28 +52,28 @@ public class RegisterResultHandler implements PrefixCallbackHandler {
 
         switch (department) {
             case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM -> {
-                ProjectTeamHandler handler = new ProjectTeamHandler(applicationService);
+                ProjectTeamHandler handler = new ProjectTeamHandler(applicationService, userService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR -> {
-                PRHandler handler = new PRHandler(applicationService);
+                PRHandler handler = new PRHandler(applicationService, userService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER -> {
-                DesignerHandler handler = new DesignerHandler(applicationService);
+                DesignerHandler handler = new DesignerHandler(applicationService, userService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);
                 }
             }
             case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT -> {
-                MediaHandler handler = new MediaHandler(applicationService);
+                MediaHandler handler = new MediaHandler(applicationService, userService);
                 switch (result) {
                     case "YES" -> handler.handleResultYes(id, update);
                     case "NO" -> handler.handleResultNo(id, update);

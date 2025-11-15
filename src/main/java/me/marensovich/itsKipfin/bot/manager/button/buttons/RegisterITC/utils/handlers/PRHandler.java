@@ -5,8 +5,11 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.RegisterI
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.ApplicationHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.dto.UserPRApplicationDTO;
 import me.marensovich.itsKipfin.data.Department;
+import me.marensovich.itsKipfin.data.Role;
 import me.marensovich.itsKipfin.database.models.Application;
+import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.ApplicationService;
+import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.settings.SettingsManager;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import me.marensovich.itsKipfin.utils.exception.exceptions.BotException;
@@ -20,6 +23,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +65,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     private Update update;
     private KeyboardFactory keyboardFactory;
     private UserPRApplicationDTO data;
+    private final UserService userService;
 
     /**
      * Конструктор, используемый Spring для внедрения {@link ApplicationService}.
@@ -71,8 +76,9 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      * @since 0.0.1
      */
     @Autowired
-    public PRHandler(ApplicationService applicationService) {
+    public PRHandler(ApplicationService applicationService, UserService userService) {
         PRHandler.applicationService = applicationService;
+        this.userService = userService;
     }
 
     /**
@@ -84,10 +90,11 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
      * @author marensovich
      * @since 0.0.1
      */
-    public PRHandler(Update update, KeyboardFactory keyboardFactory) {
+    public PRHandler(Update update, KeyboardFactory keyboardFactory, UserService userService) {
         this.update = update;
         this.keyboardFactory = keyboardFactory;
         this.chatId = resolveChatId(update);
+        this.userService = userService;
         this.data = userApplicationDataMap.computeIfAbsent(chatId, k -> new UserPRApplicationDTO());
     }
 
@@ -217,6 +224,25 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserPRApplicationDTO userData = application.getDataObject(UserPRApplicationDTO.class);
 
+        User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
+
+        if (admin.getPosition().getDepartment() != Department.Communication && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getCallbackQuery().getFrom().getId());
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText("❌ У вас нету доступа к принятию заявок!");
+            try {
+                Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getCallbackQuery().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
+
         // уведомление пользователю
         sendUserNotification(application.getUserId(),
                 "✅ Ваша заявка на вступление в ИТС одобрена! " +
@@ -242,6 +268,25 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
     public void handleResultNo(String applicationId, Update update) {
         Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
         UserPRApplicationDTO userData = application.getDataObject(UserPRApplicationDTO.class);
+
+        User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
+
+        if (admin.getPosition().getDepartment() != Department.Communication && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+            SendMessage msg = new SendMessage();
+            msg.setChatId(update.getCallbackQuery().getFrom().getId());
+            msg.setParseMode(ParseMode.HTML);
+            msg.setText("❌ У вас нету доступа к принятию заявок!");
+            try {
+                Bot.getInstance().showBotAction(update.getCallbackQuery().getFrom().getId(), ActionType.TYPING);
+                Bot.getInstance().execute(msg);
+            } catch (TelegramApiException e) {
+                Bot.getInstance().sendErrorMessage(update.getCallbackQuery().getFrom().getId(), "⚠️ Ошибка при работе бота, обратитесь к администратору");
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         // уведомление пользователю
         sendUserNotification(application.getUserId(),

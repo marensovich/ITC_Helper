@@ -115,25 +115,25 @@ public class UpdateManager {
 
                 // Обработка пошаговых заявок на вступление
                 if (ProjectTeamHandler.userApplicationDataMap.containsKey(userId)) {
-                    ProjectTeamHandler handler = new ProjectTeamHandler(update, keyboardFactory);
+                    ProjectTeamHandler handler = new ProjectTeamHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
 
                 if (MediaHandler.userApplicationDataMap.containsKey(userId)) {
-                    MediaHandler handler = new MediaHandler(update, keyboardFactory);
+                    MediaHandler handler = new MediaHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
 
                 if (DesignerHandler.userApplicationDataMap.containsKey(userId)) {
-                    DesignerHandler handler = new DesignerHandler(update, keyboardFactory);
+                    DesignerHandler handler = new DesignerHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }
 
                 if (PRHandler.userApplicationDataMap.containsKey(userId)) {
-                    PRHandler handler = new PRHandler(update, keyboardFactory);
+                    PRHandler handler = new PRHandler(update, keyboardFactory, userService);
                     handler.handle();
                     return;
                 }

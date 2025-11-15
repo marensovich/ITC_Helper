@@ -7,6 +7,7 @@ import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.han
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.PRHandler;
 import me.marensovich.itsKipfin.bot.manager.button.buttons.RegisterITC.utils.handlers.ProjectTeamHandler;
 import me.marensovich.itsKipfin.bot.manager.callback.interfaces.PrefixCallbackHandler;
+import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.utils.KeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -24,6 +25,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class RegisterITCHandler implements PrefixCallbackHandler {
 
     private final KeyboardFactory keyboardFactory;
+    private final UserService userService;
 
     /**
      * Конструктор обработчика.
@@ -32,8 +34,9 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
      * @author marensovich
      * @since 0.0.1
      */
-    public RegisterITCHandler(KeyboardFactory keyboardFactory) {
+    public RegisterITCHandler(KeyboardFactory keyboardFactory, UserService userService) {
         this.keyboardFactory = keyboardFactory;
+        this.userService = userService;
     }
 
     @Override
@@ -56,16 +59,16 @@ public class RegisterITCHandler implements PrefixCallbackHandler {
         if (command != null && parts.length > 1) {
             switch (parts[1]) {
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PROJECT_TEAM ->
-                        new ProjectTeamHandler(update, keyboardFactory).handle();
+                        new ProjectTeamHandler(update, keyboardFactory, userService).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_DESIGNER ->
-                        new DesignerHandler(update, keyboardFactory).handle();
+                        new DesignerHandler(update, keyboardFactory, userService).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_PR ->
-                        new PRHandler(update, keyboardFactory).handle();
+                        new PRHandler(update, keyboardFactory, userService).handle();
 
                 case RegisterITCButton.ITC_REGISTRATION_DEPARTMENT_VIDEO_CONTENT ->
-                        new MediaHandler(update, keyboardFactory).handle();
+                        new MediaHandler(update, keyboardFactory, userService).handle();
 
                 default -> Bot.getInstance()
                         .sendErrorMessage(chatId, "Неверные данные callback: " + callbackData);
