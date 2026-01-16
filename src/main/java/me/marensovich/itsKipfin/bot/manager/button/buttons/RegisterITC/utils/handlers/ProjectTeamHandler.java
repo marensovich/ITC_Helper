@@ -768,7 +768,6 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         editMessage.setText(messageText);
 
         try {
-            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             Bot.getInstance().execute(editMessage);
         } catch (TelegramApiException e) {
             Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");

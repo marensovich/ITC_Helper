@@ -589,7 +589,7 @@ public class PRHandler implements ApplicationHandler<UserPRApplicationDTO> {
 
 
     private void askQuestions() {
-        sendMessage("Есть ли у тебя вопросы к руководителям сектора", chatId);
+        sendMessage("Есть ли у тебя вопросы к руководителям сектора?", chatId);
         data.setCurrentStep(Step.QUESTIONS);
     }
 
