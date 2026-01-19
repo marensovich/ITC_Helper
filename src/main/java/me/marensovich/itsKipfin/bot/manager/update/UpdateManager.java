@@ -36,10 +36,6 @@ import java.util.Map;
 @Component
 public class UpdateManager {
 
-    /**
-     * The Hashed users.
-     */
-    public final Map<String, User> hashedUsers = new HashMap<>();
 
     private final UserService userService;
     private final ButtonManager buttonManager;
@@ -80,12 +76,12 @@ public class UpdateManager {
             long userId = update.getMessage().getFrom().getId();
 
             // Проверяем наличие пользователя в списке
-            if (!hashedUsers.containsKey(String.valueOf(userId))) {
+            if (Bot.getInstance().hashedUsers.containsKey(String.valueOf(userId))) {
                 // Создаём нового пользователя, если его нет в базе
                 // Добавляем в список
-                if (!userService.isUserExists(userId)) {
+                if (userService.isUserExists(userId)) {
                     User user = userService.createUser(userId);
-                    hashedUsers.put(String.valueOf(userId), user);
+                    Bot.getInstance().hashedUsers.put(String.valueOf(userId), user);
                 }
             }
 
@@ -152,12 +148,12 @@ public class UpdateManager {
             long userId = update.getCallbackQuery().getFrom().getId();
 
             // Проверяем наличие пользователя в списке
-            if (!hashedUsers.containsKey(String.valueOf(userId))) {
+            if (!Bot.getInstance().hashedUsers.containsKey(String.valueOf(userId))) {
                 // Создаём нового пользователя, если его нет в базе
                 // Добавляем в список
                 if (!userService.isUserExists(userId)) {
                     User user = userService.createUser(userId);
-                    hashedUsers.put(String.valueOf(userId), user);
+                    Bot.getInstance().hashedUsers.put(String.valueOf(userId), user);
                 }
             }
 

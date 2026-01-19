@@ -219,7 +219,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
 
-        if (admin.getPosition().getDepartment() != Department.Development && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+        if ((admin.getPosition().getDepartment() != Department.Development || admin.getPosition().getDepartment() != Department.Head) && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
             SendMessage msg = new SendMessage();
             msg.setChatId(update.getCallbackQuery().getFrom().getId());
             msg.setParseMode(ParseMode.HTML);
@@ -264,7 +264,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
 
-        if (admin.getPosition().getDepartment() != Department.Development && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+        if ((admin.getPosition().getDepartment() != Department.Development || admin.getPosition().getDepartment() != Department.Head) && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
             SendMessage msg = new SendMessage();
             msg.setChatId(update.getCallbackQuery().getFrom().getId());
             msg.setParseMode(ParseMode.HTML);

@@ -7,6 +7,7 @@ import me.marensovich.itsKipfin.bot.manager.button.ButtonManager;
 import me.marensovich.itsKipfin.bot.manager.callback.CallbackManager;
 import me.marensovich.itsKipfin.bot.manager.command.CommandManager;
 import me.marensovich.itsKipfin.bot.manager.update.UpdateManager;
+import me.marensovich.itsKipfin.database.models.User;
 import me.marensovich.itsKipfin.services.UserService;
 import me.marensovich.itsKipfin.settings.SettingsManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Основной класс Telegram-бота.
@@ -35,6 +39,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Getter
     private static Bot instance;
+
+    /**
+     * The Hashed users.
+     */
+    public final Map<String, User> hashedUsers = new HashMap<>();
+
 
     @Autowired
     @Getter
@@ -135,54 +145,18 @@ public class Bot extends TelegramLongPollingBot {
      */
     @Override
     public void onRegister() {
-        if (updateManager == null || updateManager.hashedUsers == null) {
-            log.error("❌ UpdateManager или его hashedUsers не инициализированы!");
-            return;
-        }
-
-        userService.getAllUsers().forEach(user ->
-                updateManager.hashedUsers.put(String.valueOf(user.getUserId()), user)
+        userService.getAllUsers().forEach(user -> {
+                this.hashedUsers.put(String.valueOf(user.getUserId()), user);
+                log.info("user with id{}", user.getUserId());
+            }
         );
 
+
         settingsManager.saveSettings();
-        this.applyBasicSettings();
         log.info("📥 Бот зарегистрирован, пользователи и настройки загружены");
     }
 
 
-    /**
-     * Метод для загрузки глобальных настроек бота
-     *
-     * @author marensovich
-     * @since 0.0.1
-     */
-    private void applyBasicSettings() {
-        String name = SettingsManager.getSettings().getGeneralSettings().getBotName();
-        String description = SettingsManager.getSettings().getGeneralSettings().getBotDescription();
-        String shortDescription = SettingsManager.getSettings().getGeneralSettings().getBotShortDescription();
-//        try {
-//            if (!name.isBlank()){
-//                Bot.getInstance().execute(
-//                        SetMyName.builder().name(name).build()
-//                );
-//                log.info("📥 Имя бота установлено");
-//            }
-//            if (!description.isBlank()){
-//                Bot.getInstance().execute(
-//                        SetMyDescription.builder().description(description).build()
-//                );
-//                log.info("📥 Описание бота установлено");
-//            }
-//            if (!shortDescription.isBlank()){
-//                Bot.getInstance().execute(
-//                        SetMyShortDescription.builder().shortDescription(shortDescription).build()
-//                );
-//                log.info("📥 Краткое описание бота установлено");
-//            }
-//        } catch (TelegramApiException e) {
-//            throw new RuntimeException(e);
-//        }
-    }
 
     // ========= Утилиты ========= //
 

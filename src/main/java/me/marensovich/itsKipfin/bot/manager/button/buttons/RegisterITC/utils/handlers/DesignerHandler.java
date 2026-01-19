@@ -204,7 +204,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
 
-        if (admin.getPosition().getDepartment() != Department.Designer && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+        if ((admin.getPosition().getDepartment() != Department.Designer || admin.getPosition().getDepartment() != Department.Head) && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
             SendMessage msg = new SendMessage();
             msg.setChatId(update.getCallbackQuery().getFrom().getId());
             msg.setParseMode(ParseMode.HTML);
@@ -250,7 +250,7 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
 
-        if (admin.getPosition().getDepartment() != Department.Designer && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
+        if ((admin.getPosition().getDepartment() != Department.Designer || admin.getPosition().getDepartment() != Department.Head) && !EnumSet.of(Role.PRESIDENT, Role.HEAD, Role.DEPUTY_HEAD, Role.CURATOR).contains(admin.getPosition().getRole())){
             SendMessage msg = new SendMessage();
             msg.setChatId(update.getCallbackQuery().getFrom().getId());
             msg.setParseMode(ParseMode.HTML);
@@ -798,7 +798,6 @@ public class DesignerHandler implements ApplicationHandler<UserDesignerApplicati
             editCaption.setParseMode(ParseMode.HTML);
 
             try {
-                Bot.getInstance().showBotAction(chatId, ActionType.UPLOADPHOTO);
                 Bot.getInstance().execute(editCaption);
             } catch (TelegramApiException e) {
                 Bot.getInstance().sendErrorMessage(chatId, "⚠️ Ошибка при работе бота, обратитесь к администратору");

@@ -100,7 +100,9 @@ public class CancelCommand implements Command {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId.toString());
         msg.setReplyMarkup(Bot.getInstance().removeKeyboard());
-
+        if (update.getMessage().isTopicMessage()){
+            msg.setMessageThreadId(update.getMessage().getMessageThreadId());
+        }
         if (commandCleared) {
             msg.setText("✅ Активная команда была успешно удалена.");
         } else {

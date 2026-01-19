@@ -157,7 +157,12 @@ public class CommandManager {
 
         long userId = update.getMessage().getFrom().getId();
         String text = update.getMessage().getText().trim();
-        String commandKey = text.split(" ")[0].toLowerCase();
+        String commandKey;
+        if (text.contains("@")) {
+            commandKey = text.split("@")[0].toLowerCase();
+        } else {
+            commandKey = text.split(" ")[0].toLowerCase();
+        }
 
         // Обработка активной команды
         if (hasActiveCommand(userId)) {
