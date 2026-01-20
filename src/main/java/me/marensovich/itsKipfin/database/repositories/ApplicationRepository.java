@@ -26,4 +26,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
      * @since 0.0.1
      */
     boolean existsApplicationByUserIdAndStatus(Long userId, Application.Status status);
+
+    void deleteApplicationByUserId(Long userId);
+
+    Application findApplicationByUserId(Long userId);
 }

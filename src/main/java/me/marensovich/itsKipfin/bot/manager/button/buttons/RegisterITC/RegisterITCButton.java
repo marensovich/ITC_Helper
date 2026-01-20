@@ -61,7 +61,7 @@ public class RegisterITCButton implements Button {
      * The constant ITC_REGISTRATION_DEPARTMENT_DESIGNER.
      */
     public static final String ITC_REGISTRATION_DEPARTMENT_DESIGNER = "designer";
-
+    public static final String ITC_CALLBACK_CANCEL_REGISTRATION = "itc_cancel_registration";
     /**
      * Регулярные выражения для валидации полей
      *

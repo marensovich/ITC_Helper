@@ -176,7 +176,18 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
         Long userId = resolveUserId(update);
 
         if (applicationService.isActiveApplicationExists(userId)) {
-            sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.", chatId);
+            SendMessage message = new SendMessage();
+            message.setText("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
+            message.setChatId(chatId);
+            message.setReplyMarkup(keyboardFactory.create()
+                    .addInlineButton("Отменить заявку", RegisterITCButton.ITC_CALLBACK_CANCEL_REGISTRATION)
+                    .buildInlineKeyboard()
+            );
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
             userApplicationDataMap.remove(chatId);
             return;
         }
@@ -214,7 +225,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      */
     @Override
     public void handleResultYes(String applicationId, Update update) {
-        Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
+        Application application = applicationService.getApplicationById(Long.valueOf(applicationId)).get();
         UserProjectTeamApplicationDTO userData = application.getDataObject(UserProjectTeamApplicationDTO.class);
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
@@ -259,7 +270,7 @@ public class ProjectTeamHandler implements ApplicationHandler<UserProjectTeamApp
      */
     @Override
     public void handleResultNo(String applicationId, Update update) {
-        Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
+        Application application = applicationService.getApplicationById(Long.valueOf(applicationId)).get();
         UserProjectTeamApplicationDTO userData = application.getDataObject(UserProjectTeamApplicationDTO.class);
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());

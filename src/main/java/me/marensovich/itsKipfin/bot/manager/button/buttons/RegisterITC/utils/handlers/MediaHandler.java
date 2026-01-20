@@ -170,7 +170,18 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
         Long userId = resolveUserId(update);
 
         if (applicationService.isActiveApplicationExists(userId)) {
-            sendMessage("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.", chatId);
+            SendMessage message = new SendMessage();
+            message.setText("❗ У вас уже есть активная заявка на вступление в ИТС. Пожалуйста, дождитесь её рассмотрения.");
+            message.setChatId(chatId);
+            message.setReplyMarkup(keyboardFactory.create()
+                    .addInlineButton("Отменить заявку", RegisterITCButton.ITC_CALLBACK_CANCEL_REGISTRATION)
+                    .buildInlineKeyboard()
+            );
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
             userApplicationDataMap.remove(chatId);
             return;
         }
@@ -208,7 +219,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      */
     @Override
     public void handleResultYes(String applicationId, Update update) {
-        Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
+        Application application = applicationService.getApplicationById(Long.valueOf(applicationId)).get();
         UserMediaApplicationDTO userData = application.getDataObject(UserMediaApplicationDTO.class);
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());
@@ -253,7 +264,7 @@ public class MediaHandler implements ApplicationHandler<UserMediaApplicationDTO>
      */
     @Override
     public void handleResultNo(String applicationId, Update update) {
-        Application application = applicationService.getApplicationById(Long.valueOf(applicationId));
+        Application application = applicationService.getApplicationById(Long.valueOf(applicationId)).get();
         UserMediaApplicationDTO userData = application.getDataObject(UserMediaApplicationDTO.class);
 
         User admin = userService.getUserById(update.getCallbackQuery().getFrom().getId());

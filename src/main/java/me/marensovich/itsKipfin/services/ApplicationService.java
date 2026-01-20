@@ -1,9 +1,12 @@
 package me.marensovich.itsKipfin.services;
 
+import jakarta.transaction.Transactional;
 import me.marensovich.itsKipfin.data.Department;
 import me.marensovich.itsKipfin.database.models.Application;
 import me.marensovich.itsKipfin.database.repositories.ApplicationRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * Сервис для работы с заявками пользователей.
@@ -65,6 +68,18 @@ public class ApplicationService {
     }
 
     /**
+     * Возвращает заявку по ID пользователя.
+     *
+     * @param id ID пользователя
+     * @return объект {@link Application}
+     * @author marensovich
+     * @since 0.0.1
+     */
+    public Application getApplicationByUserId(Long id) {
+        return applicationRepository.findApplicationByUserId(id);
+    }
+
+    /**
      * Возвращает заявку по ID.
      *
      * @param id ID заявки
@@ -72,8 +87,8 @@ public class ApplicationService {
      * @author marensovich
      * @since 0.0.1
      */
-    public Application getApplicationById(Long id) {
-        return applicationRepository.findById(id).orElseThrow();
+    public Optional<Application> getApplicationById(Long id) {
+        return applicationRepository.findById(id);
     }
 
     /**
@@ -101,6 +116,18 @@ public class ApplicationService {
      */
     public boolean isActiveApplicationExists(Long userId) {
         return applicationRepository.existsApplicationByUserIdAndStatus(userId, Application.Status.PENDING);
+    }
+
+    /**
+     * Удаляет заявку по ID пользователя
+     *
+     * @param userId ID пользователя
+     * @author marensovich
+     * @since 0.0.1
+     */
+    @Transactional
+    public void removeApplication(Long userId) {
+        applicationRepository.deleteApplicationByUserId(userId);
     }
 
 }
